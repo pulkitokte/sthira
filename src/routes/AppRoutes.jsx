@@ -9,6 +9,8 @@ import WellnessTracker from "../pages/WellnessTracker";
 import Reminders from "../pages/Reminders";
 import Settings from "../pages/Settings";
 import CompletionHistory from "../pages/CompletionHistory";
+import RecoveryLibrary from "../pages/RecoveryLibrary";
+import RecoverySessionPlayer from "../pages/RecoverySessionPlayer";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -24,6 +26,8 @@ export default function AppRoutes() {
       <Route path={PATHS.REMINDERS} element={<Reminders />} />
       <Route path={PATHS.SETTINGS} element={<Settings />} />
       <Route path={PATHS.HISTORY} element={<CompletionHistory />} />
+      <Route path={PATHS.RECOVERY_LIBRARY} element={<RecoveryLibrary />} />
+      <Route path={PATHS.RECOVERY_PLAYER} element={<RecoverySessionPlayer />} />
     </Routes>
   );
 }

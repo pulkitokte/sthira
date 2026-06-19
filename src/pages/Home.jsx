@@ -3,7 +3,9 @@ import { Sunrise, Eye, Droplet, ChevronRight } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
+import StudyBreakCard from "../components/tracker/StudyBreakCard";
 import { useProgress } from "../context/ProgressContext";
+import { getRecommendedSession } from "../utils/recovery";
 import { PATHS } from "../constants/navigation";
 
 export default function Home() {
@@ -14,6 +16,13 @@ export default function Home() {
     currentStreak,
     longestStreak,
   } = useProgress();
+  const recommendedSession = getRecommendedSession();
+
+  const handleSelectRecommended = () => {
+    navigate(PATHS.RECOVERY_PLAYER, {
+      state: { sessionId: recommendedSession.id },
+    });
+  };
 
   return (
     <PageContainer className="flex flex-col gap-10">
@@ -63,6 +72,24 @@ export default function Home() {
             longestStreak={longestStreak}
           />
         </div>
+      </section>
+
+      <section>
+        <div className="mb-4 flex items-center justify-between px-1">
+          <h2 className="font-display text-base font-semibold text-ink">
+            Study Break
+          </h2>
+          <button
+            onClick={() => navigate(PATHS.RECOVERY_LIBRARY)}
+            className="flex items-center gap-1 text-xs font-medium text-stone transition-colors hover:text-moss"
+          >
+            See all <ChevronRight size={14} />
+          </button>
+        </div>
+        <StudyBreakCard
+          session={recommendedSession}
+          onSelect={handleSelectRecommended}
+        />
       </section>
 
       <section>

@@ -11,6 +11,8 @@ export const PATHS = {
   REMINDERS: "/reminders",
   SETTINGS: "/settings",
   HISTORY: "/history",
+  RECOVERY_LIBRARY: "/recovery",
+  RECOVERY_PLAYER: "/recovery-player",
 };
 
 export const PAGE_TITLES = {
@@ -24,6 +26,8 @@ export const PAGE_TITLES = {
   [PATHS.REMINDERS]: "Reminders",
   [PATHS.SETTINGS]: "Settings",
   [PATHS.HISTORY]: "Completion History",
+  [PATHS.RECOVERY_LIBRARY]: "Study Break Recovery",
+  [PATHS.RECOVERY_PLAYER]: "Recovery Session",
 };
 
 export const NAV_ITEMS = [
