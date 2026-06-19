@@ -8,6 +8,7 @@ import HydrationTracker from "../pages/HydrationTracker";
 import WellnessTracker from "../pages/WellnessTracker";
 import Reminders from "../pages/Reminders";
 import Settings from "../pages/Settings";
+import CompletionHistory from "../pages/CompletionHistory";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -22,6 +23,7 @@ export default function AppRoutes() {
       <Route path={PATHS.WELLNESS_TRACKER} element={<WellnessTracker />} />
       <Route path={PATHS.REMINDERS} element={<Reminders />} />
       <Route path={PATHS.SETTINGS} element={<Settings />} />
+      <Route path={PATHS.HISTORY} element={<CompletionHistory />} />
     </Routes>
   );
 }

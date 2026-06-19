@@ -1,15 +1,25 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Trash2 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import { useProgress } from "../context/ProgressContext";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
+  { label: "Completion History", path: PATHS.HISTORY },
   { label: "Reminders", path: PATHS.REMINDERS },
   { label: "Replay onboarding", path: PATHS.ONBOARDING },
 ];
 
 export default function Settings() {
   const navigate = useNavigate();
+  const { resetProgress } = useProgress();
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  const handleConfirmReset = () => {
+    resetProgress();
+    setConfirmingReset(false);
+  };
 
   return (
     <PageContainer className="flex flex-col gap-3">
@@ -25,6 +35,42 @@ export default function Settings() {
           <ChevronRight size={18} className="text-stone" />
         </button>
       ))}
+
+      <div className="mt-3 rounded-2xl border border-border bg-surface p-4">
+        {!confirmingReset ? (
+          <button
+            onClick={() => setConfirmingReset(true)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <span className="font-display text-base font-medium text-clay">
+              Reset Progress
+            </span>
+            <Trash2 size={18} className="text-clay" />
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed text-stone">
+              This clears your streaks and completion history. Your onboarding
+              setup stays the same. This can't be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmingReset(false)}
+                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmReset}
+                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       <p className="px-1 text-sm text-stone">
         More preferences are coming soon.
       </p>

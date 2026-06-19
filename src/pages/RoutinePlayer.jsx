@@ -5,6 +5,7 @@ import RoutineIntro from "../components/routine/RoutineIntro";
 import ExercisePlayer from "../components/routine/ExercisePlayer";
 import RoutineCompletion from "../components/routine/RoutineCompletion";
 import { getRoutineById } from "../utils/routines";
+import { useProgress } from "../context/ProgressContext";
 import { PATHS } from "../constants/navigation";
 
 const STATUS = { INTRO: "intro", ACTIVE: "active", COMPLETED: "completed" };
@@ -12,6 +13,7 @@ const STATUS = { INTRO: "intro", ACTIVE: "active", COMPLETED: "completed" };
 export default function RoutinePlayer() {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { addCompletion } = useProgress();
   const routine = state?.routineId ? getRoutineById(state.routineId) : null;
 
   const [status, setStatus] = useState(STATUS.INTRO);
@@ -44,13 +46,13 @@ export default function RoutinePlayer() {
   };
 
   const handleNext = () => {
-    setCurrentIndex((i) => {
-      if (i >= totalExercises - 1) {
-        setStatus(STATUS.COMPLETED);
-        return i;
-      }
-      return i + 1;
-    });
+    const isLastExercise = currentIndex >= totalExercises - 1;
+    if (isLastExercise) {
+      addCompletion(routine);
+      setStatus(STATUS.COMPLETED);
+      return;
+    }
+    setCurrentIndex((i) => i + 1);
   };
 
   const handlePrevious = () => {

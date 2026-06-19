@@ -1,10 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import { Sunrise, Eye, Droplet, ChevronRight } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
+import ConsistencyCard from "../components/tracker/ConsistencyCard";
+import { useProgress } from "../context/ProgressContext";
 import { PATHS } from "../constants/navigation";
 
 export default function Home() {
   const navigate = useNavigate();
+  const {
+    hasCompletedToday,
+    totalCompletedToday,
+    currentStreak,
+    longestStreak,
+  } = useProgress();
 
   return (
     <PageContainer className="flex flex-col gap-10">
@@ -25,11 +34,35 @@ export default function Home() {
         </p>
 
         <button
-          onClick={() => navigate(PATHS.ROUTINE_PLAYER)}
+          onClick={() => navigate(PATHS.LIBRARY)}
           className="mt-6 w-full rounded-full bg-moss py-4 font-display font-semibold tracking-wide text-canvas shadow-soft transition-colors duration-200 hover:bg-moss-dark"
         >
           Start Morning Routine
         </button>
+      </section>
+
+      <section>
+        <div className="mb-4 flex items-center justify-between px-1">
+          <h2 className="font-display text-base font-semibold text-ink">
+            Today's Progress
+          </h2>
+          <button
+            onClick={() => navigate(PATHS.HISTORY)}
+            className="flex items-center gap-1 text-xs font-medium text-stone transition-colors hover:text-moss"
+          >
+            History <ChevronRight size={14} />
+          </button>
+        </div>
+        <div className="flex flex-col gap-3">
+          <TodaysProgressCard
+            hasCompletedToday={hasCompletedToday}
+            totalCompletedToday={totalCompletedToday}
+          />
+          <ConsistencyCard
+            currentStreak={currentStreak}
+            longestStreak={longestStreak}
+          />
+        </div>
       </section>
 
       <section>

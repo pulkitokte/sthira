@@ -10,6 +10,7 @@ export const PATHS = {
   WELLNESS_TRACKER: "/wellness-tracker",
   REMINDERS: "/reminders",
   SETTINGS: "/settings",
+  HISTORY: "/history",
 };
 
 export const PAGE_TITLES = {
@@ -22,6 +23,7 @@ export const PAGE_TITLES = {
   [PATHS.WELLNESS_TRACKER]: "Daily Wellness",
   [PATHS.REMINDERS]: "Reminders",
   [PATHS.SETTINGS]: "Settings",
+  [PATHS.HISTORY]: "Completion History",
 };
 
 export const NAV_ITEMS = [
