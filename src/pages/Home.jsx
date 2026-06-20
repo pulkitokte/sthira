@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { Sunrise, Eye, ChevronRight } from "lucide-react";
+import { Sunrise, ChevronRight } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
 import HydrationSummaryCard from "../components/tracker/HydrationSummaryCard";
+import EyeRecoveryHomeCard from "../components/tracker/EyeRecoveryHomeCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { getRecommendedSession } from "../utils/recovery";
+import { getRecommendedEyeSession } from "../utils/eyeRecovery";
 import { PATHS } from "../constants/navigation";
 
 export default function Home() {
@@ -20,10 +22,17 @@ export default function Home() {
   } = useProgress();
   const { todayTotal, goal, remaining, percentage } = useHydration();
   const recommendedSession = getRecommendedSession();
+  const recommendedEyeSession = getRecommendedEyeSession();
 
   const handleSelectRecommended = () => {
     navigate(PATHS.RECOVERY_PLAYER, {
       state: { sessionId: recommendedSession.id },
+    });
+  };
+
+  const handleSelectRecommendedEye = () => {
+    navigate(PATHS.EYE_RECOVERY_PLAYER, {
+      state: { sessionId: recommendedEyeSession.id },
     });
   };
 
@@ -109,26 +118,21 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="mb-4 px-1 font-display text-base font-semibold text-ink">
-          Take a moment
-        </h2>
-        <button
-          onClick={() => navigate(PATHS.EYE_RELAX)}
-          className="flex w-full items-center gap-4 rounded-3xl border border-border bg-surface p-5 text-left shadow-soft transition-transform active:scale-[0.98]"
-        >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-dew/15">
-            <Eye size={20} className="text-dew" strokeWidth={1.8} />
-          </span>
-          <div className="flex-1">
-            <p className="font-display text-sm font-semibold text-ink">
-              Rest your eyes
-            </p>
-            <p className="mt-0.5 text-xs text-stone">
-              A short break from the screen
-            </p>
-          </div>
-          <ChevronRight size={18} className="shrink-0 text-stone/60" />
-        </button>
+        <div className="mb-4 flex items-center justify-between px-1">
+          <h2 className="font-display text-base font-semibold text-ink">
+            Eye Recovery
+          </h2>
+          <button
+            onClick={() => navigate(PATHS.EYE_RELAX)}
+            className="flex items-center gap-1 text-xs font-medium text-stone transition-colors hover:text-dew"
+          >
+            See all <ChevronRight size={14} />
+          </button>
+        </div>
+        <EyeRecoveryHomeCard
+          session={recommendedEyeSession}
+          onSelect={handleSelectRecommendedEye}
+        />
       </section>
     </PageContainer>
   );

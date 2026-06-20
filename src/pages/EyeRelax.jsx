@@ -1,17 +1,36 @@
-import { Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import PageContainer from "../components/layout/PageContainer";
+import EyeRecoveryCategorySection from "../components/eyeRecovery/EyeRecoveryCategorySection";
+import { EYE_RECOVERY_CATEGORIES } from "../data/eyeRecoveryCategories";
+import { getEyeSessionsByCategory } from "../utils/eyeRecovery";
+import { PATHS } from "../constants/navigation";
 
 export default function EyeRelax() {
+  const navigate = useNavigate();
+
+  const handleSelectSession = (session) => {
+    navigate(PATHS.EYE_RECOVERY_PLAYER, { state: { sessionId: session.id } });
+  };
+
   return (
-    <PageContainer className="flex flex-col items-center justify-center gap-4 text-center">
-      <Eye size={40} className="text-dew" strokeWidth={1.6} />
-      <h1 className="font-display text-xl font-semibold text-moss">
-        Give your eyes a break
-      </h1>
-      <p className="max-w-xs leading-relaxed text-stone">
-        Short, guided eye-relief routines will live here soon — simple ways to
-        ease the strain of a screen-filled day.
+    <PageContainer className="flex flex-col gap-10">
+      <p className="leading-relaxed text-stone">
+        Short, guided pauses to ease tired eyes after screens, study, and
+        scrolling.
       </p>
+
+      {EYE_RECOVERY_CATEGORIES.map((category) => {
+        const sessions = getEyeSessionsByCategory(category.id);
+        if (sessions.length === 0) return null;
+        return (
+          <EyeRecoveryCategorySection
+            key={category.id}
+            category={category}
+            sessions={sessions}
+            onSelectSession={handleSelectSession}
+          />
+        );
+      })}
     </PageContainer>
   );
 }

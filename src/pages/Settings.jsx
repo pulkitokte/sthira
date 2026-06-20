@@ -4,6 +4,7 @@ import { ChevronRight, Trash2 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
+import { useEyeRecoveryProgress } from "../context/EyeRecoveryProgressContext";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
@@ -17,10 +18,12 @@ export default function Settings() {
   const navigate = useNavigate();
   const { resetProgress } = useProgress();
   const { goal, updateGoal, resetHydrationHistory } = useHydration();
+  const { resetEyeRecoveryProgress } = useEyeRecoveryProgress();
 
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [confirmingHydrationReset, setConfirmingHydrationReset] =
     useState(false);
+  const [confirmingEyeReset, setConfirmingEyeReset] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState(String(goal));
 
@@ -45,6 +48,11 @@ export default function Settings() {
   const handleConfirmHydrationReset = () => {
     resetHydrationHistory();
     setConfirmingHydrationReset(false);
+  };
+
+  const handleConfirmEyeReset = () => {
+    resetEyeRecoveryProgress();
+    setConfirmingEyeReset(false);
   };
 
   return (
@@ -134,6 +142,41 @@ export default function Settings() {
               </button>
               <button
                 onClick={handleConfirmHydrationReset}
+                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-border bg-surface p-4">
+        {!confirmingEyeReset ? (
+          <button
+            onClick={() => setConfirmingEyeReset(true)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <span className="font-display text-base font-medium text-clay">
+              Reset Eye Recovery Progress
+            </span>
+            <Trash2 size={18} className="text-clay" />
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed text-stone">
+              This clears your eye recovery completion history. Routines,
+              hydration, and onboarding stay the same. This can't be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmingEyeReset(false)}
+                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmEyeReset}
                 className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
               >
                 Reset

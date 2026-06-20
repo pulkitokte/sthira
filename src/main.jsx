@@ -6,6 +6,7 @@ import { OnboardingProvider } from "./context/OnboardingContext";
 import { ProgressProvider } from "./context/ProgressContext";
 import { RecoveryProgressProvider } from "./context/RecoveryProgressContext";
 import { HydrationProvider } from "./context/HydrationContext";
+import { EyeRecoveryProgressProvider } from "./context/EyeRecoveryProgressContext";
 import "./styles/globals.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <ProgressProvider>
           <RecoveryProgressProvider>
             <HydrationProvider>
-              <App />
+              <EyeRecoveryProgressProvider>
+                <App />
+              </EyeRecoveryProgressProvider>
             </HydrationProvider>
           </RecoveryProgressProvider>
         </ProgressProvider>
