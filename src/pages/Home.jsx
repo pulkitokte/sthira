@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { Sunrise, Eye, Droplet, ChevronRight } from "lucide-react";
+import { Sunrise, Eye, ChevronRight } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
+import HydrationSummaryCard from "../components/tracker/HydrationSummaryCard";
 import { useProgress } from "../context/ProgressContext";
+import { useHydration } from "../context/HydrationContext";
 import { getRecommendedSession } from "../utils/recovery";
 import { PATHS } from "../constants/navigation";
 
@@ -16,6 +18,7 @@ export default function Home() {
     currentStreak,
     longestStreak,
   } = useProgress();
+  const { todayTotal, goal, remaining, percentage } = useHydration();
   const recommendedSession = getRecommendedSession();
 
   const handleSelectRecommended = () => {
@@ -93,40 +96,39 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="px-1 font-display text-base font-semibold text-ink">
+        <h2 className="mb-4 px-1 font-display text-base font-semibold text-ink">
+          Hydration
+        </h2>
+        <HydrationSummaryCard
+          todayTotal={todayTotal}
+          goal={goal}
+          remaining={remaining}
+          percentage={percentage}
+          onSelect={() => navigate(PATHS.HYDRATION)}
+        />
+      </section>
+
+      <section>
+        <h2 className="mb-4 px-1 font-display text-base font-semibold text-ink">
           Take a moment
         </h2>
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <button
-            onClick={() => navigate(PATHS.EYE_RELAX)}
-            className="flex flex-col items-start gap-4 rounded-3xl border border-border bg-surface p-5 text-left shadow-soft transition-transform active:scale-[0.98]"
-          >
-            <div className="flex w-full items-start justify-between">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-dew/20">
-                <Eye size={18} className="text-dew" strokeWidth={1.8} />
-              </span>
-              <ChevronRight size={16} className="text-stone/60" />
-            </div>
-            <span className="font-display text-sm font-medium text-ink">
+        <button
+          onClick={() => navigate(PATHS.EYE_RELAX)}
+          className="flex w-full items-center gap-4 rounded-3xl border border-border bg-surface p-5 text-left shadow-soft transition-transform active:scale-[0.98]"
+        >
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-dew/15">
+            <Eye size={20} className="text-dew" strokeWidth={1.8} />
+          </span>
+          <div className="flex-1">
+            <p className="font-display text-sm font-semibold text-ink">
               Rest your eyes
-            </span>
-          </button>
-
-          <button
-            onClick={() => navigate(PATHS.HYDRATION)}
-            className="flex flex-col items-start gap-4 rounded-3xl border border-border bg-surface p-5 text-left shadow-soft transition-transform active:scale-[0.98]"
-          >
-            <div className="flex w-full items-start justify-between">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-dew/20">
-                <Droplet size={18} className="text-dew" strokeWidth={1.8} />
-              </span>
-              <ChevronRight size={16} className="text-stone/60" />
-            </div>
-            <span className="font-display text-sm font-medium text-ink">
-              Log some water
-            </span>
-          </button>
-        </div>
+            </p>
+            <p className="mt-0.5 text-xs text-stone">
+              A short break from the screen
+            </p>
+          </div>
+          <ChevronRight size={18} className="shrink-0 text-stone/60" />
+        </button>
       </section>
     </PageContainer>
   );

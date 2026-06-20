@@ -5,6 +5,7 @@ import RoutineLibrary from "../pages/RoutineLibrary";
 import RoutinePlayer from "../pages/RoutinePlayer";
 import EyeRelax from "../pages/EyeRelax";
 import HydrationTracker from "../pages/HydrationTracker";
+import HydrationHistory from "../pages/HydrationHistory";
 import WellnessTracker from "../pages/WellnessTracker";
 import Reminders from "../pages/Reminders";
 import Settings from "../pages/Settings";
@@ -22,6 +23,7 @@ export default function AppRoutes() {
       <Route path={PATHS.ROUTINE_PLAYER} element={<RoutinePlayer />} />
       <Route path={PATHS.EYE_RELAX} element={<EyeRelax />} />
       <Route path={PATHS.HYDRATION} element={<HydrationTracker />} />
+      <Route path={PATHS.HYDRATION_HISTORY} element={<HydrationHistory />} />
       <Route path={PATHS.WELLNESS_TRACKER} element={<WellnessTracker />} />
       <Route path={PATHS.REMINDERS} element={<Reminders />} />
       <Route path={PATHS.SETTINGS} element={<Settings />} />
