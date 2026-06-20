@@ -5,6 +5,7 @@ import PageContainer from "../components/layout/PageContainer";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useEyeRecoveryProgress } from "../context/EyeRecoveryProgressContext";
+import { useWellness } from "../context/WellnessContext";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
@@ -19,11 +20,13 @@ export default function Settings() {
   const { resetProgress } = useProgress();
   const { goal, updateGoal, resetHydrationHistory } = useHydration();
   const { resetEyeRecoveryProgress } = useEyeRecoveryProgress();
+  const { resetWellnessData } = useWellness();
 
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [confirmingHydrationReset, setConfirmingHydrationReset] =
     useState(false);
   const [confirmingEyeReset, setConfirmingEyeReset] = useState(false);
+  const [confirmingWellnessReset, setConfirmingWellnessReset] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState(String(goal));
 
@@ -53,6 +56,11 @@ export default function Settings() {
   const handleConfirmEyeReset = () => {
     resetEyeRecoveryProgress();
     setConfirmingEyeReset(false);
+  };
+
+  const handleConfirmWellnessReset = () => {
+    resetWellnessData();
+    setConfirmingWellnessReset(false);
   };
 
   return (
@@ -165,8 +173,8 @@ export default function Settings() {
         ) : (
           <div className="space-y-3">
             <p className="text-sm leading-relaxed text-stone">
-              This clears your eye recovery completion history. Routines,
-              hydration, and onboarding stay the same. This can't be undone.
+              This clears your eye recovery completion history. Other Sthira
+              data stays the same. This can't be undone.
             </p>
             <div className="flex gap-2">
               <button
@@ -177,6 +185,41 @@ export default function Settings() {
               </button>
               <button
                 onClick={handleConfirmEyeReset}
+                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-2xl border border-border bg-surface p-4">
+        {!confirmingWellnessReset ? (
+          <button
+            onClick={() => setConfirmingWellnessReset(true)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <span className="font-display text-base font-medium text-clay">
+              Reset Wellness Data
+            </span>
+            <Trash2 size={18} className="text-clay" />
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed text-stone">
+              This clears your daily check-ins and insight history. Other Sthira
+              data stays the same. This can't be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmingWellnessReset(false)}
+                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmWellnessReset}
                 className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
               >
                 Reset

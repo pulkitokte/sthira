@@ -1,17 +1,46 @@
-import { Leaf } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import WellnessCheckIn from "../components/wellness/WellnessCheckIn";
+import WellnessInsightCard from "../components/wellness/WellnessInsightCard";
+import WeeklyOverviewList from "../components/wellness/WeeklyOverviewList";
+import { useWellness } from "../context/WellnessContext";
+import { getWellnessInsight } from "../utils/wellness";
+
+const REQUIRED_FIELDS = ["energy", "focus", "stress", "mood"];
 
 export default function WellnessTracker() {
+  const { todayEntry, recentEntries } = useWellness();
+
+  const isComplete =
+    Boolean(todayEntry) && REQUIRED_FIELDS.every((field) => todayEntry[field]);
+  const insight = isComplete ? getWellnessInsight(todayEntry) : null;
+
   return (
-    <PageContainer className="flex flex-col items-center justify-center gap-4 text-center">
-      <Leaf size={40} className="text-sage" strokeWidth={1.6} />
-      <h1 className="font-display text-xl font-semibold text-moss">
-        Check in with yourself
-      </h1>
-      <p className="max-w-xs leading-relaxed text-stone">
-        A light end-of-day reflection — what you did, how your body feels — is
-        coming soon.
-      </p>
+    <PageContainer className="flex flex-col gap-8">
+      <section className="flex flex-col gap-4">
+        <div className="px-1">
+          <h2 className="font-display text-base font-semibold text-ink">
+            Today's Check-In
+          </h2>
+          <p className="mt-1 text-sm text-stone">
+            A quiet moment to notice how you're doing.
+          </p>
+        </div>
+        <WellnessCheckIn />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="px-1 font-display text-base font-semibold text-ink">
+          Today's Insight
+        </h2>
+        <WellnessInsightCard insight={insight} />
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="px-1 font-display text-base font-semibold text-ink">
+          Past 7 Days
+        </h2>
+        <WeeklyOverviewList entries={recentEntries} />
+      </section>
     </PageContainer>
   );
 }

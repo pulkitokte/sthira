@@ -22,3 +22,15 @@ export function formatDisplayDate(dateKey) {
     day: "numeric",
   });
 }
+
+export function formatWeekdayLabel(dateKey) {
+  const today = getDateKey();
+  const yesterday = getDateKey(new Date(Date.now() - 86400000));
+
+  if (dateKey === today) return "Today";
+  if (dateKey === yesterday) return "Yesterday";
+
+  return parseDateKey(dateKey).toLocaleDateString(undefined, {
+    weekday: "long",
+  });
+}

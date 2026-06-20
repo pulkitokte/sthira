@@ -6,8 +6,10 @@ import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
 import HydrationSummaryCard from "../components/tracker/HydrationSummaryCard";
 import EyeRecoveryHomeCard from "../components/tracker/EyeRecoveryHomeCard";
+import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
+import { useWellness } from "../context/WellnessContext";
 import { getRecommendedSession } from "../utils/recovery";
 import { getRecommendedEyeSession } from "../utils/eyeRecovery";
 import { PATHS } from "../constants/navigation";
@@ -21,6 +23,7 @@ export default function Home() {
     longestStreak,
   } = useProgress();
   const { todayTotal, goal, remaining, percentage } = useHydration();
+  const { todayEntry } = useWellness();
   const recommendedSession = getRecommendedSession();
   const recommendedEyeSession = getRecommendedEyeSession();
 
@@ -132,6 +135,16 @@ export default function Home() {
         <EyeRecoveryHomeCard
           session={recommendedEyeSession}
           onSelect={handleSelectRecommendedEye}
+        />
+      </section>
+
+      <section>
+        <h2 className="mb-4 px-1 font-display text-base font-semibold text-ink">
+          Wellness
+        </h2>
+        <WellnessHomeCard
+          todayEntry={todayEntry}
+          onSelect={() => navigate(PATHS.WELLNESS_TRACKER)}
         />
       </section>
     </PageContainer>
