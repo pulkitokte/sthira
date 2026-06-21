@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Sunrise, ChevronRight } from "lucide-react";
+import { Sunrise } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import SectionHeader from "../components/common/SectionHeader";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
@@ -40,7 +41,7 @@ export default function Home() {
   };
 
   return (
-    <PageContainer className="flex flex-col gap-10">
+    <PageContainer className="flex flex-col gap-8">
       <section className="rounded-4xl bg-surface p-8 shadow-soft">
         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-sage/20">
           <Sunrise size={22} className="text-moss" strokeWidth={1.8} />
@@ -66,17 +67,11 @@ export default function Home() {
       </section>
 
       <section>
-        <div className="mb-4 flex items-center justify-between px-1">
-          <h2 className="font-display text-base font-semibold text-ink">
-            Today's Progress
-          </h2>
-          <button
-            onClick={() => navigate(PATHS.HISTORY)}
-            className="flex items-center gap-1 text-xs font-medium text-stone transition-colors hover:text-moss"
-          >
-            History <ChevronRight size={14} />
-          </button>
-        </div>
+        <SectionHeader
+          title="Today's Progress"
+          actionLabel="History"
+          onAction={() => navigate(PATHS.HISTORY)}
+        />
         <div className="flex flex-col gap-3">
           <TodaysProgressCard
             hasCompletedToday={hasCompletedToday}
@@ -90,17 +85,11 @@ export default function Home() {
       </section>
 
       <section>
-        <div className="mb-4 flex items-center justify-between px-1">
-          <h2 className="font-display text-base font-semibold text-ink">
-            Study Break
-          </h2>
-          <button
-            onClick={() => navigate(PATHS.RECOVERY_LIBRARY)}
-            className="flex items-center gap-1 text-xs font-medium text-stone transition-colors hover:text-moss"
-          >
-            See all <ChevronRight size={14} />
-          </button>
-        </div>
+        <SectionHeader
+          title="Study Break"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.RECOVERY_LIBRARY)}
+        />
         <StudyBreakCard
           session={recommendedSession}
           onSelect={handleSelectRecommended}
@@ -108,9 +97,7 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="mb-4 px-1 font-display text-base font-semibold text-ink">
-          Hydration
-        </h2>
+        <SectionHeader title="Hydration" />
         <HydrationSummaryCard
           todayTotal={todayTotal}
           goal={goal}
@@ -121,17 +108,12 @@ export default function Home() {
       </section>
 
       <section>
-        <div className="mb-4 flex items-center justify-between px-1">
-          <h2 className="font-display text-base font-semibold text-ink">
-            Eye Recovery
-          </h2>
-          <button
-            onClick={() => navigate(PATHS.EYE_RELAX)}
-            className="flex items-center gap-1 text-xs font-medium text-stone transition-colors hover:text-dew"
-          >
-            See all <ChevronRight size={14} />
-          </button>
-        </div>
+        <SectionHeader
+          title="Eye Recovery"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.EYE_RELAX)}
+          accent="dew"
+        />
         <EyeRecoveryHomeCard
           session={recommendedEyeSession}
           onSelect={handleSelectRecommendedEye}
@@ -139,9 +121,7 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="mb-4 px-1 font-display text-base font-semibold text-ink">
-          Wellness
-        </h2>
+        <SectionHeader title="Wellness" />
         <WellnessHomeCard
           todayEntry={todayEntry}
           onSelect={() => navigate(PATHS.WELLNESS_TRACKER)}

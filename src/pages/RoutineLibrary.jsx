@@ -13,7 +13,7 @@ export default function RoutineLibrary() {
   };
 
   return (
-    <PageContainer className="flex flex-col gap-10">
+    <PageContainer className="flex flex-col gap-8">
       <p className="leading-relaxed text-stone">
         Pick what your body needs right now — every routine here is built around
         easing into movement, not pushing through it.

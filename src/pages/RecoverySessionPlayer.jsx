@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PageContainer from "../components/layout/PageContainer";
+import { Wind } from "lucide-react";
 import RecoverySessionIntro from "../components/recovery/RecoverySessionIntro";
 import RecoveryStepPlayer from "../components/recovery/RecoveryStepPlayer";
 import RecoveryCompletion from "../components/recovery/RecoveryCompletion";
+import MissingSelectionState from "../components/common/MissingSelectionState";
 import { getSessionById } from "../utils/recovery";
 import { RECOVERY_CATEGORIES } from "../data/recoveryCategories";
 import { useRecoveryProgress } from "../context/RecoveryProgressContext";
@@ -22,20 +23,13 @@ export default function RecoverySessionPlayer() {
 
   if (!session) {
     return (
-      <PageContainer className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-        <h1 className="font-display text-xl font-semibold text-moss">
-          No session selected
-        </h1>
-        <p className="max-w-xs leading-relaxed text-stone">
-          Head back to the Recovery Library and choose a session to begin.
-        </p>
-        <button
-          onClick={() => navigate(PATHS.RECOVERY_LIBRARY)}
-          className="rounded-full bg-moss px-6 py-3 font-display font-semibold text-canvas shadow-soft transition-colors hover:bg-moss-dark"
-        >
-          Browse Recovery Library
-        </button>
-      </PageContainer>
+      <MissingSelectionState
+        icon={Wind}
+        heading="No session selected"
+        description="Head back to the Recovery Library and choose a session to begin."
+        buttonLabel="Browse Recovery Library"
+        onButtonClick={() => navigate(PATHS.RECOVERY_LIBRARY)}
+      />
     );
   }
 

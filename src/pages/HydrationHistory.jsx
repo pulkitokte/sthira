@@ -12,7 +12,7 @@ export default function HydrationHistory() {
       </p>
       <HydrationHistoryList
         entries={dailyTotals}
-        emptyMessage="No hydration logged yet. Once you log some water, it'll show up here."
+        emptyMessage="Once you log some water, it'll show up here."
       />
     </PageContainer>
   );

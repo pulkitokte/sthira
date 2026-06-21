@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PageContainer from "../components/layout/PageContainer";
+import { Sunrise } from "lucide-react";
 import RoutineIntro from "../components/routine/RoutineIntro";
 import ExercisePlayer from "../components/routine/ExercisePlayer";
 import RoutineCompletion from "../components/routine/RoutineCompletion";
+import MissingSelectionState from "../components/common/MissingSelectionState";
 import { getRoutineById } from "../utils/routines";
 import { useProgress } from "../context/ProgressContext";
 import { PATHS } from "../constants/navigation";
@@ -21,20 +22,13 @@ export default function RoutinePlayer() {
 
   if (!routine) {
     return (
-      <PageContainer className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-        <h1 className="font-display text-xl font-semibold text-moss">
-          No routine selected
-        </h1>
-        <p className="max-w-xs leading-relaxed text-stone">
-          Head back to the library and choose a routine to begin.
-        </p>
-        <button
-          onClick={() => navigate(PATHS.LIBRARY)}
-          className="rounded-full bg-moss px-6 py-3 font-display font-semibold text-canvas shadow-soft transition-colors hover:bg-moss-dark"
-        >
-          Browse Library
-        </button>
-      </PageContainer>
+      <MissingSelectionState
+        icon={Sunrise}
+        heading="No routine selected"
+        description="Head back to the library and choose a routine to begin."
+        buttonLabel="Browse Library"
+        onButtonClick={() => navigate(PATHS.LIBRARY)}
+      />
     );
   }
 

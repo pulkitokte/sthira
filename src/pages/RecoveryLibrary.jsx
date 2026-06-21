@@ -13,7 +13,7 @@ export default function RecoveryLibrary() {
   };
 
   return (
-    <PageContainer className="flex flex-col gap-10">
+    <PageContainer className="flex flex-col gap-8">
       <p className="leading-relaxed text-stone">
         Short, guided pauses to recover between study sessions — no equipment,
         no pressure, just a few minutes for your body and mind.

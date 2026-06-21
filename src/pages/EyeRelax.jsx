@@ -13,7 +13,7 @@ export default function EyeRelax() {
   };
 
   return (
-    <PageContainer className="flex flex-col gap-10">
+    <PageContainer className="flex flex-col gap-8">
       <p className="leading-relaxed text-stone">
         Short, guided pauses to ease tired eyes after screens, study, and
         scrolling.

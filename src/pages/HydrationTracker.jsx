@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import SectionHeader from "../components/common/SectionHeader";
 import HydrationProgressRing from "../components/hydration/HydrationProgressRing";
 import QuickLogButtons from "../components/hydration/QuickLogButtons";
 import CustomAmountInput from "../components/hydration/CustomAmountInput";
@@ -32,26 +32,21 @@ export default function HydrationTracker() {
         )}
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="px-1 font-display text-base font-semibold text-ink">
-          Log water
-        </h2>
-        <QuickLogButtons onLog={addLog} />
-        <CustomAmountInput onLog={addLog} />
+      <section>
+        <SectionHeader title="Log water" />
+        <div className="flex flex-col gap-3">
+          <QuickLogButtons onLog={addLog} />
+          <CustomAmountInput onLog={addLog} />
+        </div>
       </section>
 
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="font-display text-base font-semibold text-ink">
-            Logged today
-          </h2>
-          <button
-            onClick={() => navigate(PATHS.HYDRATION_HISTORY)}
-            className="flex items-center gap-1 text-xs font-medium text-stone transition-colors hover:text-dew"
-          >
-            History <ChevronRight size={14} />
-          </button>
-        </div>
+      <section>
+        <SectionHeader
+          title="Logged today"
+          actionLabel="History"
+          onAction={() => navigate(PATHS.HYDRATION_HISTORY)}
+          accent="dew"
+        />
         <div className="rounded-3xl border border-border bg-surface p-4">
           <TodayLogList logs={todaysLogs} />
         </div>

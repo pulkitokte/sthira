@@ -1,11 +1,15 @@
+import { Droplet } from "lucide-react";
+import EmptyState from "../common/EmptyState";
 import HydrationHistoryItem from "./HydrationHistoryItem";
 
 export default function HydrationHistoryList({ entries, emptyMessage }) {
   if (entries.length === 0) {
     return (
-      <div className="rounded-3xl border border-border bg-surface p-6 text-center">
-        <p className="text-sm leading-relaxed text-stone">{emptyMessage}</p>
-      </div>
+      <EmptyState
+        icon={Droplet}
+        title="No hydration logged yet"
+        description={emptyMessage}
+      />
     );
   }
 

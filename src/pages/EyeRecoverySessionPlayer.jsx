@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import PageContainer from "../components/layout/PageContainer";
+import { Eye } from "lucide-react";
 import EyeRecoverySessionIntro from "../components/eyeRecovery/EyeRecoverySessionIntro";
 import EyeRecoveryStepPlayer from "../components/eyeRecovery/EyeRecoveryStepPlayer";
 import EyeRecoveryCompletion from "../components/eyeRecovery/EyeRecoveryCompletion";
+import MissingSelectionState from "../components/common/MissingSelectionState";
 import { getEyeSessionById } from "../utils/eyeRecovery";
 import { EYE_RECOVERY_CATEGORIES } from "../data/eyeRecoveryCategories";
 import { useEyeRecoveryProgress } from "../context/EyeRecoveryProgressContext";
@@ -22,20 +23,13 @@ export default function EyeRecoverySessionPlayer() {
 
   if (!session) {
     return (
-      <PageContainer className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-        <h1 className="font-display text-xl font-semibold text-moss">
-          No session selected
-        </h1>
-        <p className="max-w-xs leading-relaxed text-stone">
-          Head back to Eye Recovery and choose a session to begin.
-        </p>
-        <button
-          onClick={() => navigate(PATHS.EYE_RELAX)}
-          className="rounded-full bg-moss px-6 py-3 font-display font-semibold text-canvas shadow-soft transition-colors hover:bg-moss-dark"
-        >
-          Browse Eye Recovery
-        </button>
-      </PageContainer>
+      <MissingSelectionState
+        icon={Eye}
+        heading="No session selected"
+        description="Head back to Eye Recovery and choose a session to begin."
+        buttonLabel="Browse Eye Recovery"
+        onButtonClick={() => navigate(PATHS.EYE_RELAX)}
+      />
     );
   }
 

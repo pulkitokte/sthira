@@ -1,14 +1,16 @@
+import { CalendarDays } from "lucide-react";
+import EmptyState from "../common/EmptyState";
 import { formatWeekdayLabel } from "../../utils/date";
 import { getDimensionOptionLabel } from "../../utils/wellness";
 
 export default function WeeklyOverviewList({ entries }) {
   if (entries.length === 0) {
     return (
-      <div className="rounded-3xl border border-border bg-surface p-6 text-center">
-        <p className="text-sm leading-relaxed text-stone">
-          No check-ins yet this week. Your daily reflections will appear here.
-        </p>
-      </div>
+      <EmptyState
+        icon={CalendarDays}
+        title="No check-ins yet this week"
+        description="Your daily reflections will appear here once you check in."
+      />
     );
   }
 
