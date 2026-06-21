@@ -10,10 +10,6 @@ export function getSessionById(sessionId) {
   return RECOVERY_SESSIONS.find((session) => session.id === sessionId) ?? null;
 }
 
-export function getAllSessions() {
-  return RECOVERY_SESSIONS;
-}
-
 /**
  * Deterministic daily rotation — no backend needed for the recommendation
  * to feel fresh from one day to the next.

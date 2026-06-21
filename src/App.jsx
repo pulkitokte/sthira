@@ -15,7 +15,7 @@ function App() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col bg-canvas">
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-canvas sm:my-8 sm:h-[844px] sm:min-h-0 sm:overflow-y-auto sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-border">
       {!isOnboarding && <Header />}
       <AppRoutes />
       {!isOnboarding && <BottomNavigation />}

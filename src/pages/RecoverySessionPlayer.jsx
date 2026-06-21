@@ -8,6 +8,7 @@ import MissingSelectionState from "../components/common/MissingSelectionState";
 import { getSessionById } from "../utils/recovery";
 import { RECOVERY_CATEGORIES } from "../data/recoveryCategories";
 import { useRecoveryProgress } from "../context/RecoveryProgressContext";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const STATUS = { INTRO: "intro", ACTIVE: "active", COMPLETED: "completed" };
@@ -20,6 +21,8 @@ export default function RecoverySessionPlayer() {
 
   const [status, setStatus] = useState(STATUS.INTRO);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useDocumentTitle(session ? session.title : "Recovery Session");
 
   if (!session) {
     return (

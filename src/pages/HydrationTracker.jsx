@@ -1,18 +1,25 @@
 import { useNavigate } from "react-router-dom";
+import { Droplet } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
+import HelperHint from "../components/common/HelperHint";
 import HydrationProgressRing from "../components/hydration/HydrationProgressRing";
 import QuickLogButtons from "../components/hydration/QuickLogButtons";
 import CustomAmountInput from "../components/hydration/CustomAmountInput";
 import TodayLogList from "../components/hydration/TodayLogList";
 import { useHydration } from "../context/HydrationContext";
+import { useDismissibleHint } from "../hooks/useDismissibleHint";
 import { getEncouragementMessage } from "../utils/hydration";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
 export default function HydrationTracker() {
   const navigate = useNavigate();
   const { todayTotal, goal, remaining, percentage, todaysLogs, addLog } =
     useHydration();
+  const hydrationHint = useDismissibleHint(HINT_IDS.HYDRATION_QUICK_LOG);
+  useDocumentTitle("Hydration");
 
   return (
     <PageContainer className="flex flex-col gap-8">
@@ -31,6 +38,15 @@ export default function HydrationTracker() {
           </p>
         )}
       </section>
+
+      {hydrationHint.isVisible && (
+        <HelperHint
+          icon={Droplet}
+          accent="dew"
+          message="Quickly log your water intake using the buttons below — no need to be precise."
+          onDismiss={hydrationHint.dismiss}
+        />
+      )}
 
       <section>
         <SectionHeader title="Log water" />

@@ -6,21 +6,26 @@ import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useEyeRecoveryProgress } from "../context/EyeRecoveryProgressContext";
 import { useWellness } from "../context/WellnessContext";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
   { label: "Completion History", path: PATHS.HISTORY },
   { label: "Hydration History", path: PATHS.HYDRATION_HISTORY },
   { label: "Reminders", path: PATHS.REMINDERS },
+  { label: "About Sthira", path: PATHS.ABOUT },
   { label: "Replay onboarding", path: PATHS.ONBOARDING },
 ];
 
 export default function Settings() {
   const navigate = useNavigate();
   const { resetProgress } = useProgress();
-  const { goal, updateGoal, resetHydrationHistory } = useHydration();
+  const { goal, isCustomGoal, updateGoal, resetHydrationHistory } =
+    useHydration();
   const { resetEyeRecoveryProgress } = useEyeRecoveryProgress();
   const { resetWellnessData } = useWellness();
+
+  useDocumentTitle("Settings");
 
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [confirmingHydrationReset, setConfirmingHydrationReset] =
@@ -88,7 +93,10 @@ export default function Settings() {
               <span className="font-display text-base font-medium text-ink">
                 Daily hydration goal
               </span>
-              <p className="mt-0.5 text-xs text-stone">{goal} ml per day</p>
+              <p className="mt-0.5 text-xs text-stone">
+                {goal} ml per day ·{" "}
+                {isCustomGoal ? "custom" : "suggested for you"}
+              </p>
             </div>
             <ChevronRight size={18} className="text-stone" />
           </button>

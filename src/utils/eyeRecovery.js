@@ -12,10 +12,6 @@ export function getEyeSessionById(sessionId) {
   );
 }
 
-export function getAllEyeSessions() {
-  return EYE_RECOVERY_SESSIONS;
-}
-
 /**
  * Deterministic daily rotation, offset from the recovery-session rotation
  * so the two recommendations don't always land on the same index together.

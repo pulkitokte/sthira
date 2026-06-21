@@ -1,11 +1,9 @@
-import { Sunrise } from "lucide-react";
+import SthiraLogo from "../../common/SthiraLogo";
 
 export default function WelcomeStep({ data, updateField }) {
   return (
     <div className="flex flex-1 flex-col">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sage/20">
-        <Sunrise size={28} className="text-moss" strokeWidth={1.6} />
-      </div>
+      <SthiraLogo size={64} iconSize={28} />
       <h1 className="mt-6 font-display text-[26px] font-semibold leading-snug text-ink">
         Let's set up your space
       </h1>

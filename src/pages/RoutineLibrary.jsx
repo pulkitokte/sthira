@@ -3,10 +3,12 @@ import PageContainer from "../components/layout/PageContainer";
 import CategorySection from "../components/routine/CategorySection";
 import { ROUTINE_CATEGORIES } from "../data/routineCategories";
 import { getRoutinesByCategory } from "../utils/routines";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 export default function RoutineLibrary() {
   const navigate = useNavigate();
+  useDocumentTitle("Morning Library");
 
   const handleSelectRoutine = (routine) => {
     navigate(PATHS.ROUTINE_PLAYER, { state: { routineId: routine.id } });

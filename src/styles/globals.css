@@ -20,7 +20,7 @@ body,
 }
 
 body {
-  @apply bg-canvas text-ink font-sans antialiased;
+  @apply bg-canvas text-ink font-sans antialiased sm:bg-backdrop;
   line-height: 1.6;
 }
 

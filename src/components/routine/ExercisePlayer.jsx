@@ -24,6 +24,7 @@ export default function ExercisePlayer({
   });
 
   const progressPct = ((currentIndex + 1) / totalExercises) * 100;
+  const isLastExercise = currentIndex === totalExercises - 1;
 
   return (
     <PageContainer className="flex flex-1 flex-col">
@@ -92,7 +93,7 @@ export default function ExercisePlayer({
           onClick={onNext}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-moss py-3.5 font-display font-semibold text-canvas shadow-soft transition-colors hover:bg-moss-dark"
         >
-          Next <ChevronRight size={18} />
+          {isLastExercise ? "Complete" : "Next"} <ChevronRight size={18} />
         </button>
       </div>
     </PageContainer>

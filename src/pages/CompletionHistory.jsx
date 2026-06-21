@@ -3,10 +3,12 @@ import PageContainer from "../components/layout/PageContainer";
 import EmptyState from "../components/common/EmptyState";
 import HistoryDateGroup from "../components/history/HistoryDateGroup";
 import { useCombinedHistory } from "../hooks/useCombinedHistory";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { RECENT_HISTORY_LIMIT } from "../constants/progress";
 
 export default function CompletionHistory() {
   const groups = useCombinedHistory(RECENT_HISTORY_LIMIT);
+  useDocumentTitle("History");
 
   return (
     <PageContainer className="flex flex-col gap-8">
@@ -19,7 +21,7 @@ export default function CompletionHistory() {
         <EmptyState
           icon={CalendarClock}
           title="Nothing logged yet"
-          description="Once you complete a routine, a study break, or an eye recovery session, it'll show up here."
+          description="Once you complete a routine, a study break, or an eye recovery session, it'll appear here."
         />
       ) : (
         <div className="flex flex-col gap-6">

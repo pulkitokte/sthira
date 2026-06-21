@@ -7,6 +7,7 @@ import RoutineCompletion from "../components/routine/RoutineCompletion";
 import MissingSelectionState from "../components/common/MissingSelectionState";
 import { getRoutineById } from "../utils/routines";
 import { useProgress } from "../context/ProgressContext";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const STATUS = { INTRO: "intro", ACTIVE: "active", COMPLETED: "completed" };
@@ -19,6 +20,8 @@ export default function RoutinePlayer() {
 
   const [status, setStatus] = useState(STATUS.INTRO);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useDocumentTitle(routine ? routine.title : "Routine");
 
   if (!routine) {
     return (

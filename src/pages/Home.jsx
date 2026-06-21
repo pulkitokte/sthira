@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { Sunrise } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
+import SthiraLogo from "../components/common/SthiraLogo";
+import HelperHint from "../components/common/HelperHint";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
@@ -11,8 +13,13 @@ import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
+import { useOnboarding } from "../context/OnboardingContext";
+import { useDismissibleHint } from "../hooks/useDismissibleHint";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { getRecommendedSession } from "../utils/recovery";
 import { getRecommendedEyeSession } from "../utils/eyeRecovery";
+import { getTimeBasedGreeting } from "../utils/greeting";
+import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
 export default function Home() {
@@ -25,8 +32,15 @@ export default function Home() {
   } = useProgress();
   const { todayTotal, goal, remaining, percentage } = useHydration();
   const { todayEntry } = useWellness();
+  const { data: onboardingData } = useOnboarding();
   const recommendedSession = getRecommendedSession();
   const recommendedEyeSession = getRecommendedEyeSession();
+  const homeHint = useDismissibleHint(HINT_IDS.HOME_FIRST_ROUTINE);
+
+  useDocumentTitle("Home");
+
+  const greeting = getTimeBasedGreeting();
+  const firstName = onboardingData.firstName?.trim();
 
   const handleSelectRecommended = () => {
     navigate(PATHS.RECOVERY_PLAYER, {
@@ -43,28 +57,44 @@ export default function Home() {
   return (
     <PageContainer className="flex flex-col gap-8">
       <section className="rounded-4xl bg-surface p-8 shadow-soft">
-        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-sage/20">
-          <Sunrise size={22} className="text-moss" strokeWidth={1.8} />
+        <div className="mb-5">
+          <SthiraLogo size={48} iconSize={22} />
         </div>
 
         <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-sage">
-          Good morning
+          {greeting}
+          {firstName ? `, ${firstName}` : ""}
         </p>
         <h1 className="mt-2 font-display text-[28px] font-semibold leading-snug text-ink">
           Begin with a little movement
         </h1>
         <p className="mt-3 leading-relaxed text-stone">
-          A few gentle minutes before the day takes over. That's all your
-          morning routine needs to be.
+          Just a few gentle minutes — no pressure, no perfect streak. Showing up
+          is what matters most.
         </p>
 
         <button
           onClick={() => navigate(PATHS.LIBRARY)}
-          className="mt-6 w-full rounded-full bg-moss py-4 font-display font-semibold tracking-wide text-canvas shadow-soft transition-colors duration-200 hover:bg-moss-dark"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-moss py-4 font-display font-semibold tracking-wide text-canvas shadow-soft transition-colors duration-200 hover:bg-moss-dark"
         >
           Start Morning Routine
+          <ArrowRight size={18} strokeWidth={2.2} />
         </button>
+
+        {onboardingData.routineDuration && (
+          <p className="mt-3 text-center text-xs text-stone">
+            Tuned to your {onboardingData.routineDuration}-minute preference
+          </p>
+        )}
       </section>
+
+      {homeHint.isVisible && (
+        <HelperHint
+          icon={Sparkles}
+          message="New here? Start with a short morning routine — even five minutes counts."
+          onDismiss={homeHint.dismiss}
+        />
+      )}
 
       <section>
         <SectionHeader

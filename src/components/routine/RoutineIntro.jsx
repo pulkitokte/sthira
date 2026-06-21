@@ -49,6 +49,9 @@ export default function RoutineIntro({ routine, onBegin }) {
         </div>
       </div>
 
+      <p className="mb-3 text-center text-xs text-stone">
+        Find a quiet, comfortable space before you begin.
+      </p>
       <button
         onClick={onBegin}
         className="w-full rounded-full bg-moss py-4 font-display font-semibold tracking-wide text-canvas shadow-soft transition-colors duration-200 hover:bg-moss-dark"

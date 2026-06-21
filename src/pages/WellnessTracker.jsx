@@ -1,14 +1,21 @@
+import { Leaf } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import HelperHint from "../components/common/HelperHint";
 import WellnessCheckIn from "../components/wellness/WellnessCheckIn";
 import WellnessInsightCard from "../components/wellness/WellnessInsightCard";
 import WeeklyOverviewList from "../components/wellness/WeeklyOverviewList";
 import { useWellness } from "../context/WellnessContext";
+import { useDismissibleHint } from "../hooks/useDismissibleHint";
 import { getWellnessInsight } from "../utils/wellness";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { HINT_IDS } from "../constants/hints";
 
 const REQUIRED_FIELDS = ["energy", "focus", "stress", "mood"];
 
 export default function WellnessTracker() {
   const { todayEntry, recentEntries } = useWellness();
+  const wellnessHint = useDismissibleHint(HINT_IDS.WELLNESS_DAILY_CHECKIN);
+  useDocumentTitle("Wellness");
 
   const isComplete =
     Boolean(todayEntry) && REQUIRED_FIELDS.every((field) => todayEntry[field]);
@@ -16,6 +23,14 @@ export default function WellnessTracker() {
 
   return (
     <PageContainer className="flex flex-col gap-8">
+      {wellnessHint.isVisible && (
+        <HelperHint
+          icon={Leaf}
+          message="Check in once a day — it takes less than a minute and helps you notice patterns."
+          onDismiss={wellnessHint.dismiss}
+        />
+      )}
+
       <section className="flex flex-col gap-4">
         <div className="px-1">
           <h2 className="font-display text-base font-semibold text-ink">

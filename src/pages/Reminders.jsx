@@ -1,7 +1,10 @@
 import { Bell } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export default function Reminders() {
+  useDocumentTitle("Reminders");
+
   return (
     <PageContainer className="flex flex-col items-center justify-center gap-4 text-center">
       <Bell size={40} className="text-clay" strokeWidth={1.6} />

@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Onboarding from "../pages/Onboarding";
 import Home from "../pages/Home";
 import RoutineLibrary from "../pages/RoutineLibrary";
@@ -13,6 +13,7 @@ import Settings from "../pages/Settings";
 import CompletionHistory from "../pages/CompletionHistory";
 import RecoveryLibrary from "../pages/RecoveryLibrary";
 import RecoverySessionPlayer from "../pages/RecoverySessionPlayer";
+import AboutSthira from "../pages/AboutSthira";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -35,6 +36,8 @@ export default function AppRoutes() {
       <Route path={PATHS.HISTORY} element={<CompletionHistory />} />
       <Route path={PATHS.RECOVERY_LIBRARY} element={<RecoveryLibrary />} />
       <Route path={PATHS.RECOVERY_PLAYER} element={<RecoverySessionPlayer />} />
+      <Route path={PATHS.ABOUT} element={<AboutSthira />} />
+      <Route path="*" element={<Navigate to={PATHS.HOME} replace />} />
     </Routes>
   );
 }

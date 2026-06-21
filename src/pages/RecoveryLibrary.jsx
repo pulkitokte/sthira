@@ -3,10 +3,12 @@ import PageContainer from "../components/layout/PageContainer";
 import RecoveryCategorySection from "../components/recovery/RecoveryCategorySection";
 import { RECOVERY_CATEGORIES } from "../data/recoveryCategories";
 import { getSessionsByCategory } from "../utils/recovery";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 export default function RecoveryLibrary() {
   const navigate = useNavigate();
+  useDocumentTitle("Study Break Recovery");
 
   const handleSelectSession = (session) => {
     navigate(PATHS.RECOVERY_PLAYER, { state: { sessionId: session.id } });

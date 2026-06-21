@@ -21,6 +21,7 @@ export default function EyeRecoveryStepPlayer({
   const secondsLeft = useTimer(step.duration, { isPaused, onComplete: onNext });
 
   const progressPct = ((currentIndex + 1) / totalSteps) * 100;
+  const isLastStep = currentIndex === totalSteps - 1;
 
   return (
     <PageContainer className="flex flex-1 flex-col">
@@ -84,7 +85,7 @@ export default function EyeRecoveryStepPlayer({
           onClick={onNext}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-moss py-3.5 font-display font-semibold text-canvas shadow-soft transition-colors hover:bg-moss-dark"
         >
-          Next <ChevronRight size={18} />
+          {isLastStep ? "Complete" : "Next"} <ChevronRight size={18} />
         </button>
       </div>
     </PageContainer>

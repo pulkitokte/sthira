@@ -9,6 +9,7 @@ import MovementPreferenceStep from "../components/onboarding/steps/MovementPrefe
 import ActivityLevelStep from "../components/onboarding/steps/ActivityLevelStep";
 import PrimaryGoalStep from "../components/onboarding/steps/PrimaryGoalStep";
 import CompletionStep from "../components/onboarding/steps/CompletionStep";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const STEPS = [
@@ -44,6 +45,8 @@ export default function Onboarding() {
   const [step, setStep] = useState(0);
   const { data, updateField, completeOnboarding } = useOnboarding();
   const navigate = useNavigate();
+
+  useDocumentTitle("Get Started");
 
   const StepComponent = STEPS[step];
   const isLastStep = step === STEPS.length - 1;
