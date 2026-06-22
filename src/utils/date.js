@@ -34,3 +34,8 @@ export function formatWeekdayLabel(dateKey) {
     weekday: "long",
   });
 }
+
+export function getDayOfYear(date = new Date()) {
+  const startOfYear = new Date(date.getFullYear(), 0, 0);
+  return Math.floor((date - startOfYear) / 86400000);
+}

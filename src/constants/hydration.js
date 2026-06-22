@@ -10,3 +10,4 @@ export const DEFAULT_GOAL_BY_ACTIVITY = {
 };
 
 export const FALLBACK_GOAL = 2500;
+export const HYDRATION_HISTORY_LIMIT = 30;

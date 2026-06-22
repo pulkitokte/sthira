@@ -25,7 +25,7 @@ const STEPS = [
 function canContinue(stepIndex, data) {
   switch (stepIndex) {
     case 0:
-      return data.firstName.trim().length > 0;
+      return (data.firstName ?? "").trim().length > 0;
     case 1:
       return Boolean(data.wakeTime && data.sleepTime);
     case 2:

@@ -4,7 +4,7 @@ import { TOTAL_STEPS } from "../../constants/onboarding";
 
 export default function OnboardingShell({ step, onBack, children, footer }) {
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col bg-canvas">
+    <div className="flex flex-1 flex-col">
       <div className="flex items-center gap-3 px-6 pt-6">
         {onBack ? (
           <button

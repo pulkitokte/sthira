@@ -102,10 +102,14 @@ export default function Settings() {
           </button>
         ) : (
           <div className="space-y-3">
-            <p className="font-display text-sm font-medium text-ink">
+            <label
+              htmlFor="hydration-goal-input"
+              className="block font-display text-sm font-medium text-ink"
+            >
               Daily hydration goal (ml)
-            </p>
+            </label>
             <input
+              id="hydration-goal-input"
               type="number"
               inputMode="numeric"
               min="1"

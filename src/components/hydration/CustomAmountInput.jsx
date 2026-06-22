@@ -40,6 +40,7 @@ export default function CustomAmountInput({ onLog }) {
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
         placeholder="Amount in ml"
+        aria-label="Custom water amount in milliliters"
         autoFocus
         className="flex-1 rounded-2xl border border-border bg-surface px-4 py-3.5 text-ink placeholder:text-stone/60 focus:border-dew focus:outline-none"
       />

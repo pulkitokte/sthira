@@ -1,7 +1,12 @@
+import { Droplet } from "lucide-react";
+
 export default function TodayLogList({ logs }) {
   if (logs.length === 0) {
     return (
-      <p className="px-1 py-2 text-sm text-stone">No water logged yet today.</p>
+      <div className="flex flex-col items-center gap-2 py-4 text-center">
+        <Droplet size={20} className="text-stone/50" strokeWidth={1.8} />
+        <p className="text-sm text-stone">No water logged yet today.</p>
+      </div>
     );
   }
 

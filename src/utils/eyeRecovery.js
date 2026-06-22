@@ -1,4 +1,5 @@
 import { EYE_RECOVERY_SESSIONS } from "../data/eyeRecoverySessions";
+import { getDayOfYear } from "./date";
 
 export function getEyeSessionsByCategory(categoryId) {
   return EYE_RECOVERY_SESSIONS.filter(
@@ -12,13 +13,7 @@ export function getEyeSessionById(sessionId) {
   );
 }
 
-/**
- * Deterministic daily rotation, offset from the recovery-session rotation
- * so the two recommendations don't always land on the same index together.
- */
 export function getRecommendedEyeSession(date = new Date()) {
-  const startOfYear = new Date(date.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((date - startOfYear) / 86400000);
-  const index = (dayOfYear + 3) % EYE_RECOVERY_SESSIONS.length;
+  const index = (getDayOfYear(date) + 3) % EYE_RECOVERY_SESSIONS.length;
   return EYE_RECOVERY_SESSIONS[index];
 }
