@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
@@ -5,6 +6,7 @@ import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
 import HelperHint from "../components/common/HelperHint";
 import RecommendedCard from "../components/home/RecommendedCard";
+import TodaysJourneySection from "../components/journey/TodaysJourneySection";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
@@ -24,6 +26,7 @@ import {
   getContextualSubheading,
   getHomeRecommendation,
 } from "../utils/personalization";
+import { generateDailyJourney } from "../utils/journeyGenerator";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -48,6 +51,26 @@ export default function Home() {
   const subheading = getContextualSubheading();
   const recommendation = getHomeRecommendation(onboardingData, todayEntry);
 
+  // generateDailyJourney is a pure function — memoize to avoid re-running
+  // on every keystroke/re-render while the user is on Home
+  const journeyActivities = useMemo(
+    () => generateDailyJourney(onboardingData, todayEntry, percentage),
+    // onboardingData is stable (only changes on replay); todayEntry and
+    // percentage are the live signals that may change during the day
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      onboardingData.studyHours,
+      onboardingData.activityLevel,
+      onboardingData.primaryGoal,
+      onboardingData.routineDuration,
+      todayEntry?.energy,
+      todayEntry?.focus,
+      todayEntry?.stress,
+      todayEntry?.mood,
+      percentage,
+    ],
+  );
+
   const handleSelectRecommended = () => {
     navigate(PATHS.RECOVERY_PLAYER, {
       state: { sessionId: recommendedSession.id },
@@ -62,6 +85,7 @@ export default function Home() {
 
   return (
     <PageContainer className="flex flex-col gap-8">
+      {/* Hero */}
       <section className="rounded-4xl bg-surface p-8 shadow-soft">
         <div className="mb-5">
           <SthiraLogo size={48} iconSize={22} />
@@ -90,8 +114,13 @@ export default function Home() {
         )}
       </section>
 
+      {/* Today's Journey */}
+      <TodaysJourneySection activities={journeyActivities} />
+
+      {/* Personalized recommendation */}
       <RecommendedCard recommendation={recommendation} />
 
+      {/* First-time hint */}
       {homeHint.isVisible && (
         <HelperHint
           icon={Sparkles}
@@ -100,6 +129,7 @@ export default function Home() {
         />
       )}
 
+      {/* Today's Progress */}
       <section>
         <SectionHeader
           title="Today's Progress"
@@ -118,6 +148,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Study Break */}
       <section>
         <SectionHeader
           title="Study Break"
@@ -130,6 +161,7 @@ export default function Home() {
         />
       </section>
 
+      {/* Hydration */}
       <section>
         <SectionHeader title="Hydration" />
         <HydrationSummaryCard
@@ -141,6 +173,7 @@ export default function Home() {
         />
       </section>
 
+      {/* Eye Recovery */}
       <section>
         <SectionHeader
           title="Eye Recovery"
@@ -154,6 +187,7 @@ export default function Home() {
         />
       </section>
 
+      {/* Wellness */}
       <section>
         <SectionHeader title="Wellness" />
         <WellnessHomeCard

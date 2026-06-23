@@ -6,6 +6,7 @@ import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useEyeRecoveryProgress } from "../context/EyeRecoveryProgressContext";
 import { useWellness } from "../context/WellnessContext";
+import { useJourney } from "../context/JourneyContext";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
@@ -24,6 +25,7 @@ export default function Settings() {
     useHydration();
   const { resetEyeRecoveryProgress } = useEyeRecoveryProgress();
   const { resetWellnessData } = useWellness();
+  const { resetJourney } = useJourney();
 
   useDocumentTitle("Settings");
 
@@ -32,13 +34,9 @@ export default function Settings() {
     useState(false);
   const [confirmingEyeReset, setConfirmingEyeReset] = useState(false);
   const [confirmingWellnessReset, setConfirmingWellnessReset] = useState(false);
+  const [confirmingJourneyReset, setConfirmingJourneyReset] = useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState(String(goal));
-
-  const handleConfirmReset = () => {
-    resetProgress();
-    setConfirmingReset(false);
-  };
 
   const handleSaveGoal = () => {
     const value = parseInt(goalInput, 10);
@@ -51,21 +49,6 @@ export default function Settings() {
   const handleCancelGoalEdit = () => {
     setGoalInput(String(goal));
     setIsEditingGoal(false);
-  };
-
-  const handleConfirmHydrationReset = () => {
-    resetHydrationHistory();
-    setConfirmingHydrationReset(false);
-  };
-
-  const handleConfirmEyeReset = () => {
-    resetEyeRecoveryProgress();
-    setConfirmingEyeReset(false);
-  };
-
-  const handleConfirmWellnessReset = () => {
-    resetWellnessData();
-    setConfirmingWellnessReset(false);
   };
 
   return (
@@ -83,6 +66,7 @@ export default function Settings() {
         </button>
       ))}
 
+      {/* Hydration goal */}
       <div className="mt-3 rounded-2xl border border-border bg-surface p-4">
         {!isEditingGoal ? (
           <button
@@ -136,6 +120,47 @@ export default function Settings() {
         )}
       </div>
 
+      {/* Reset Journey Progress */}
+      <div className="rounded-2xl border border-border bg-surface p-4">
+        {!confirmingJourneyReset ? (
+          <button
+            onClick={() => setConfirmingJourneyReset(true)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <span className="font-display text-base font-medium text-clay">
+              Reset Journey Progress
+            </span>
+            <Trash2 size={18} className="text-clay" />
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed text-stone">
+              This clears today's journey check-ins. All other data — routines,
+              hydration, wellness, and streaks — stays the same. This can't be
+              undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmingJourneyReset(false)}
+                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  resetJourney();
+                  setConfirmingJourneyReset(false);
+                }}
+                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Reset Hydration History */}
       <div className="rounded-2xl border border-border bg-surface p-4">
         {!confirmingHydrationReset ? (
           <button
@@ -161,7 +186,10 @@ export default function Settings() {
                 Cancel
               </button>
               <button
-                onClick={handleConfirmHydrationReset}
+                onClick={() => {
+                  resetHydrationHistory();
+                  setConfirmingHydrationReset(false);
+                }}
                 className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
               >
                 Reset
@@ -171,6 +199,7 @@ export default function Settings() {
         )}
       </div>
 
+      {/* Reset Eye Recovery Progress */}
       <div className="rounded-2xl border border-border bg-surface p-4">
         {!confirmingEyeReset ? (
           <button
@@ -196,7 +225,10 @@ export default function Settings() {
                 Cancel
               </button>
               <button
-                onClick={handleConfirmEyeReset}
+                onClick={() => {
+                  resetEyeRecoveryProgress();
+                  setConfirmingEyeReset(false);
+                }}
                 className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
               >
                 Reset
@@ -206,6 +238,7 @@ export default function Settings() {
         )}
       </div>
 
+      {/* Reset Wellness Data */}
       <div className="rounded-2xl border border-border bg-surface p-4">
         {!confirmingWellnessReset ? (
           <button
@@ -231,7 +264,10 @@ export default function Settings() {
                 Cancel
               </button>
               <button
-                onClick={handleConfirmWellnessReset}
+                onClick={() => {
+                  resetWellnessData();
+                  setConfirmingWellnessReset(false);
+                }}
                 className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
               >
                 Reset
@@ -241,6 +277,7 @@ export default function Settings() {
         )}
       </div>
 
+      {/* Reset Progress (streaks + routine completions) */}
       <div className="rounded-2xl border border-border bg-surface p-4">
         {!confirmingReset ? (
           <button
@@ -266,7 +303,10 @@ export default function Settings() {
                 Cancel
               </button>
               <button
-                onClick={handleConfirmReset}
+                onClick={() => {
+                  resetProgress();
+                  setConfirmingReset(false);
+                }}
                 className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
               >
                 Reset
