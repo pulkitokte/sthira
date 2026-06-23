@@ -1,85 +1,239 @@
 <div align="center">
-  <h1>🌿 Sthira</h1>
-  <p><strong>A calm wellness and movement companion for students and focused individuals.</strong></p>
-  <p>
-    <a href="https://sthira.vercel.app">Live Demo</a> ·
-    <a href="#features">Features</a> ·
-    <a href="#setup">Setup</a> ·
-    <a href="#deployment">Deployment</a>
-  </p>
+
+# 🌿 Sthira
+
+### A calm wellness and movement companion designed for students and focused individuals.
+
+[🌐 Live Demo](https://sthira-eight.vercel.app/) • [✨ Features](#-features) • [🛠 Tech Stack](#-tech-stack) • [🚀 Setup](#-setup)
+
+![React](https://img.shields.io/badge/React-18-blue?logo=react)
+![Vite](https://img.shields.io/badge/Vite-5-purple?logo=vite)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38B2AC?logo=tailwind-css)
+![PWA](https://img.shields.io/badge/PWA-Ready-green)
+![Status](https://img.shields.io/badge/Status-Active-success)
+
 </div>
 
 ---
 
-Sthira (Sanskrit: *steady, comfortable*) is a wellness companion built for
-students, UPSC and competitive exam aspirants, and anyone who spends long
-hours sitting and studying. It's built around one core habit — a few
-minutes of morning movement — with gentle support for the body and mind
-through the rest of the day.
+## 🌐 Live Demo
 
-This is **not** a fitness tracker. No calorie counts, no leaderboards, no
-streak guilt. Just calm, consistent, low-friction daily wellness.
+🔗 **https://sthira-eight.vercel.app/**
+
+Experience Sthira directly in your browser.
+
+---
+
+## 🌱 About
+
+**Sthira** (Sanskrit: *steady, comfortable*) is a wellness companion built for students, UPSC aspirants, competitive exam candidates, and anyone who spends long hours studying or working at a desk.
+
+Unlike traditional fitness applications, Sthira focuses on:
+
+* Gentle morning movement
+* Sustainable wellness habits
+* Study-break recovery
+* Eye strain relief
+* Hydration awareness
+* Calm, low-pressure self-care
+
+No calorie tracking. No leaderboards. No productivity guilt.
+
+**Just simple, mindful wellness.**
 
 ---
 
 ## ✨ Features
 
-| Feature | Description |
-|---|---|
-| **Smart Onboarding** | Short, conversational setup capturing schedule, study habits, and wellness goals |
-| **Morning Routine Library** | 12 guided routines across 5 categories with a timed, step-by-step player |
-| **Study Break Recovery** | 12 self-paced sessions across 6 categories for posture, breathing, and focus resets |
-| **Eye Recovery** | 12 timed sessions across 5 categories to ease digital eye strain |
-| **Hydration Tracker** | Quick-log interface with daily goal, progress ring, and history |
-| **Wellness Hub** | Daily 4-dimension check-in (energy, focus, stress, mood) with deterministic daily insight |
-| **Progress Tracking** | Gentle streak system computed from completion history, never stored separately |
-| **Completion History** | Unified, date-grouped timeline across all three activity types |
-| **First-time Hints** | Dismissible contextual guidance on first use, stored per-hint in localStorage |
-| **About Page** | Product philosophy, core pillars, and version information |
+| Feature                 | Description                                             |
+| ----------------------- | ------------------------------------------------------- |
+| Smart Onboarding        | Personalized setup based on schedule and lifestyle      |
+| Morning Routine Library | Curated routines across multiple categories             |
+| Guided Routine Player   | Step-by-step sessions with timers                       |
+| Study Break Recovery    | Stretching, posture, breathing and focus reset sessions |
+| Eye Recovery            | Timed eye relaxation exercises                          |
+| Hydration Tracker       | Daily water tracking with progress visualization        |
+| Wellness Hub            | Daily check-ins for energy, mood and focus              |
+| Progress Tracking       | Gentle streaks and completion history                   |
+| PWA Support             | Installable on desktop and mobile                       |
+| Responsive Design       | Optimized for mobile and desktop                        |
 
 ---
 
 ## 📸 Screenshots
 
-> _Add screenshots before publishing. Suggested order:_
+Screenshots will be added soon.
 
-| | | |
-|---|---|---|
-| ![Onboarding](screenshots/01-onboarding.png) | ![Home](screenshots/02-home.png) | ![Morning Library](screenshots/03-library.png) |
-| Onboarding | Home | Morning Library |
-| ![Routine Player](screenshots/04-routine-player.png) | ![Study Break](screenshots/05-study-break.png) | ![Hydration](screenshots/06-hydration.png) |
-| Routine Player | Study Break Recovery | Hydration |
-| ![Eye Recovery](screenshots/07-eye-recovery.png) | ![Wellness](screenshots/08-wellness.png) | ![Desktop Frame](screenshots/09-desktop.png) |
-| Eye Recovery | Wellness Hub | Desktop View |
+| Onboarding                         | Home                         | Library                         |
+| ---------------------------------- | ---------------------------- | ------------------------------- |
+| ![](screenshots/01-onboarding.png) | ![](screenshots/02-home.png) | ![](screenshots/03-library.png) |
+
+| Routine Player                         | Hydration                         | Wellness                         |
+| -------------------------------------- | --------------------------------- | -------------------------------- |
+| ![](screenshots/04-routine-player.png) | ![](screenshots/05-hydration.png) | ![](screenshots/06-wellness.png) |
 
 ---
 
 ## 🛠 Tech Stack
 
-- **React 18** — UI framework
-- **Vite** — build tool and dev server
-- **Tailwind CSS** — utility-first styling
-- **React Router v6** — client-side routing
-- **lucide-react** — icon library
-- **localStorage** — all persistence, no backend
+### Frontend
 
-> No backend. No database. No authentication. No API keys.
-> Everything lives on the user's device.
+* React 18
+* Vite
+* React Router DOM
+* Tailwind CSS
+* Lucide React
+
+### State Management
+
+* React Context API
+* Custom Hooks
+
+### Persistence
+
+* LocalStorage
+
+### Deployment
+
+* Vercel
 
 ---
 
-## 🏗 Architecture Overview
+## 🏗 Architecture
 
-Sthira follows a **content-driven, data-first** architecture. All
-routines, recovery sessions, and eye sessions are structured data files
-rendered by a small set of generic components — adding new content means
-adding a data entry, never writing new components.
+Sthira follows a **content-driven architecture**.
 
-State is managed with React Context + `useLocalStorage`, scoped to each
-feature domain (onboarding, progress, hydration, wellness, etc.) with
-a shared storage-key convention (`sthira:*`). No external state library
-was needed.
+Most routines and wellness sessions are stored as structured data and rendered through reusable components.
+
+This approach allows:
+
+* Easy content expansion
+* Minimal component duplication
+* Better maintainability
+* Faster feature additions
 
 ---
 
 ## 📁 Folder Structure
+
+```bash
+src/
+│
+├── assets/
+├── components/
+├── constants/
+├── context/
+├── data/
+├── hooks/
+├── pages/
+├── routes/
+├── styles/
+└── utils/
+
+public/
+├── icons/
+└── screenshots/
+```
+
+---
+
+## 🚀 Setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/pulkitokte/sthira.git
+```
+
+Move into project folder:
+
+```bash
+cd sthira
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start development server:
+
+```bash
+npm run dev
+```
+
+Open:
+
+```bash
+http://localhost:5173
+```
+
+---
+
+## 📦 Production Build
+
+```bash
+npm run build
+```
+
+Preview build:
+
+```bash
+npm run preview
+```
+
+---
+
+## 📱 Progressive Web App
+
+Sthira is fully installable as a Progressive Web App.
+
+Features include:
+
+* Install on desktop and mobile
+* Offline-ready experience
+* App-like interface
+* Custom application icons
+
+---
+
+## 🎯 Future Roadmap
+
+* Enhanced personalization
+* Smart recommendations
+* Guided breathing sessions
+* Habit insights
+* Dark mode
+* Additional recovery content
+
+---
+
+## 🤝 Contributing
+
+Contributions and suggestions are welcome.
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push the branch
+5. Open a Pull Request
+
+---
+
+## 👨‍💻 Author
+
+**Pulkit Okte**
+
+* GitHub: https://github.com/pulkitokte
+** LinkedIn: www.linkedin.com/in/pulkit-okte
+
+---
+
+<div align="center">
+
+### 🌿 Move gently. Study deeply. Stay steady.
+
+Made with ❤️ using React + Vite
+
+</div>
