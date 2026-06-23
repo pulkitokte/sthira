@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
 import HelperHint from "../components/common/HelperHint";
+import RecommendedCard from "../components/home/RecommendedCard";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
@@ -18,7 +19,11 @@ import { useDismissibleHint } from "../hooks/useDismissibleHint";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { getRecommendedSession } from "../utils/recovery";
 import { getRecommendedEyeSession } from "../utils/eyeRecovery";
-import { getTimeBasedGreeting } from "../utils/greeting";
+import {
+  getPersonalizedGreeting,
+  getContextualSubheading,
+  getHomeRecommendation,
+} from "../utils/personalization";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -39,8 +44,9 @@ export default function Home() {
 
   useDocumentTitle("Home");
 
-  const greeting = getTimeBasedGreeting();
-  const firstName = onboardingData.firstName?.trim();
+  const greeting = getPersonalizedGreeting(onboardingData.firstName);
+  const subheading = getContextualSubheading();
+  const recommendation = getHomeRecommendation(onboardingData, todayEntry);
 
   const handleSelectRecommended = () => {
     navigate(PATHS.RECOVERY_PLAYER, {
@@ -63,22 +69,18 @@ export default function Home() {
 
         <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-sage">
           {greeting}
-          {firstName ? `, ${firstName}` : ""}
         </p>
         <h1 className="mt-2 font-display text-[28px] font-semibold leading-snug text-ink">
           Begin with a little movement
         </h1>
-        <p className="mt-3 leading-relaxed text-stone">
-          Just a few gentle minutes — no pressure, no perfect streak. Showing up
-          is what matters most.
-        </p>
+        <p className="mt-3 leading-relaxed text-stone">{subheading}</p>
 
         <button
           onClick={() => navigate(PATHS.LIBRARY)}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-moss py-4 font-display font-semibold tracking-wide text-canvas shadow-soft transition-colors duration-200 hover:bg-moss-dark"
         >
           Start Morning Routine
-          <ArrowRight size={18} strokeWidth={2.2} />
+          <ArrowRight size={18} strokeWidth={2.2} aria-hidden="true" />
         </button>
 
         {onboardingData.routineDuration && (
@@ -87,6 +89,8 @@ export default function Home() {
           </p>
         )}
       </section>
+
+      <RecommendedCard recommendation={recommendation} />
 
       {homeHint.isVisible && (
         <HelperHint
