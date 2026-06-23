@@ -11,6 +11,7 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
+  { label: "Weekly Reflection", path: PATHS.WEEKLY_REFLECTION },
   { label: "Completion History", path: PATHS.HISTORY },
   { label: "Hydration History", path: PATHS.HYDRATION_HISTORY },
   { label: "Reminders", path: PATHS.REMINDERS },
@@ -135,9 +136,8 @@ export default function Settings() {
         ) : (
           <div className="space-y-3">
             <p className="text-sm leading-relaxed text-stone">
-              This clears today's journey check-ins. All other data — routines,
-              hydration, wellness, and streaks — stays the same. This can't be
-              undone.
+              This clears today's journey check-ins. All other data stays the
+              same. This can't be undone.
             </p>
             <div className="flex gap-2">
               <button
@@ -277,7 +277,7 @@ export default function Settings() {
         )}
       </div>
 
-      {/* Reset Progress (streaks + routine completions) */}
+      {/* Reset Progress */}
       <div className="rounded-2xl border border-border bg-surface p-4">
         {!confirmingReset ? (
           <button

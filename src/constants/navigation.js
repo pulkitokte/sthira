@@ -16,6 +16,7 @@ export const PATHS = {
   RECOVERY_LIBRARY: "/recovery",
   RECOVERY_PLAYER: "/recovery-player",
   ABOUT: "/about",
+  WEEKLY_REFLECTION: "/weekly-reflection",
 };
 
 export const PAGE_TITLES = {
@@ -34,6 +35,7 @@ export const PAGE_TITLES = {
   [PATHS.RECOVERY_LIBRARY]: "Study Break Recovery",
   [PATHS.RECOVERY_PLAYER]: "Recovery Session",
   [PATHS.ABOUT]: "About Sthira",
+  [PATHS.WEEKLY_REFLECTION]: "Weekly Reflection",
 };
 
 export const NAV_ITEMS = [
