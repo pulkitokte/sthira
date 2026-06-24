@@ -16,6 +16,7 @@ import RecoverySessionPlayer from "../pages/RecoverySessionPlayer";
 import AboutSthira from "../pages/AboutSthira";
 import WeeklyReflection from "../pages/WeeklyReflection";
 import Achievements from "../pages/Achievements";
+import WellnessInsights from "../pages/WellnessInsights";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -41,6 +42,7 @@ export default function AppRoutes() {
       <Route path={PATHS.ABOUT} element={<AboutSthira />} />
       <Route path={PATHS.WEEKLY_REFLECTION} element={<WeeklyReflection />} />
       <Route path={PATHS.ACHIEVEMENTS} element={<Achievements />} />
+      <Route path={PATHS.WELLNESS_INSIGHTS} element={<WellnessInsights />} />
       <Route path="*" element={<Navigate to={PATHS.HOME} replace />} />
     </Routes>
   );

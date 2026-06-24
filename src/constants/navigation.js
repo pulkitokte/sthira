@@ -18,6 +18,7 @@ export const PATHS = {
   ABOUT: "/about",
   WEEKLY_REFLECTION: "/weekly-reflection",
   ACHIEVEMENTS: "/achievements",
+  WELLNESS_INSIGHTS: "/wellness-insights",
 };
 
 export const PAGE_TITLES = {
@@ -38,6 +39,7 @@ export const PAGE_TITLES = {
   [PATHS.ABOUT]: "About Sthira",
   [PATHS.WEEKLY_REFLECTION]: "Weekly Reflection",
   [PATHS.ACHIEVEMENTS]: "Achievements",
+  [PATHS.WELLNESS_INSIGHTS]: "Wellness Insights",
 };
 
 export const NAV_ITEMS = [

@@ -12,6 +12,7 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
+  { label: "Wellness Insights", path: PATHS.WELLNESS_INSIGHTS },
   { label: "Achievements", path: PATHS.ACHIEVEMENTS },
   { label: "Weekly Reflection", path: PATHS.WEEKLY_REFLECTION },
   { label: "Completion History", path: PATHS.HISTORY },
@@ -126,7 +127,6 @@ export default function Settings() {
         )}
       </div>
 
-      {/* Reset Achievements */}
       {[
         {
           key: "achievements",
