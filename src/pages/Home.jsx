@@ -6,6 +6,7 @@ import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
 import HelperHint from "../components/common/HelperHint";
 import RecommendedCard from "../components/home/RecommendedCard";
+import DailyRitualCard from "../components/home/DailyRitualCard";
 import TodaysJourneySection from "../components/journey/TodaysJourneySection";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
@@ -27,6 +28,7 @@ import {
   getHomeRecommendation,
 } from "../utils/personalization";
 import { generateDailyJourney } from "../utils/journeyGenerator";
+import { getDailyRitual } from "../utils/ritualEngine";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -51,12 +53,9 @@ export default function Home() {
   const subheading = getContextualSubheading();
   const recommendation = getHomeRecommendation(onboardingData, todayEntry);
 
-  // generateDailyJourney is a pure function — memoize to avoid re-running
-  // on every keystroke/re-render while the user is on Home
+  // Memoize — all three are pure functions whose output is stable within a day
   const journeyActivities = useMemo(
     () => generateDailyJourney(onboardingData, todayEntry, percentage),
-    // onboardingData is stable (only changes on replay); todayEntry and
-    // percentage are the live signals that may change during the day
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       onboardingData.studyHours,
@@ -68,6 +67,17 @@ export default function Home() {
       todayEntry?.stress,
       todayEntry?.mood,
       percentage,
+    ],
+  );
+
+  const ritual = useMemo(
+    () => getDailyRitual(onboardingData, todayEntry),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      onboardingData.studyHours,
+      onboardingData.activityLevel,
+      todayEntry?.stress,
+      todayEntry?.energy,
     ],
   );
 
@@ -116,6 +126,9 @@ export default function Home() {
 
       {/* Today's Journey */}
       <TodaysJourneySection activities={journeyActivities} />
+
+      {/* Today's Ritual */}
+      <DailyRitualCard ritual={ritual} />
 
       {/* Personalized recommendation */}
       <RecommendedCard recommendation={recommendation} />

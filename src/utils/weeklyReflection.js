@@ -150,37 +150,39 @@ export function getWellnessPatterns(weekData, referenceDate = new Date()) {
     } else if (highCount >= 1 && lowCount >= 1) {
       patterns.push({
         id: 'energy-mixed',
-        text: 'Your energy varied through the week — some strong days, some quieter ones. That's a normal rhythm.',
+        text: `Your energy varied through the week — some strong days, some quieter ones. That's a normal rhythm.`,
       })
     }
   }
 
   // Stress
-  const stressValues = thisWeek.map((e) => e.stress).filter(Boolean)
-  if (stressValues.length > 0) {
-    const highStressCount = stressValues.filter((v) =>
-      ['very-stressed', 'overwhelmed'].includes(v),
-    ).length
-    const calmCount = stressValues.filter((v) => v === 'calm').length
+// Stress
+const stressValues = thisWeek.map((e) => e.stress).filter(Boolean)
 
-    if (highStressCount >= 3) {
-      patterns.push({
-        id: 'stress-elevated',
-        text: `You experienced elevated stress on ${highStressCount} days this week. Breathing breaks and short resets can help on days like these.`,
-      })
-    } else if (highStressCount >= 1) {
-      patterns.push({
-        id: 'stress-some',
-        text: 'There were some stressful moments this week. You noticed them — that's already a form of self-awareness.',
-      })
-    } else if (calmCount >= 4) {
-      patterns.push({
-        id: 'stress-calm',
-        text: `You reported feeling calm on ${calmCount} days this week. That kind of steadiness is worth noticing.`,
-      })
-    }
+if (stressValues.length > 0) {
+  const highStressCount = stressValues.filter((v) => {
+    return ['very-stressed', 'overwhelmed'].includes(v)
+  }).length
+
+  const calmCount = stressValues.filter((v) => v === 'calm').length
+
+  if (highStressCount >= 3) {
+    patterns.push({
+      id: 'stress-elevated',
+      text: `You experienced elevated stress on ${highStressCount} days this week. Breathing breaks and short resets can help on days like these.`,
+    })
+  } else if (highStressCount >= 1) {
+    patterns.push({
+      id: 'stress-some',
+      text: 'There were some stressful moments this week. You noticed them — that\'s already a form of self-awareness.',
+    })
+  } else if (calmCount >= 4) {
+    patterns.push({
+      id: 'stress-calm',
+      text: `You reported feeling calm on ${calmCount} days this week. That kind of steadiness is worth noticing.`,
+    })
   }
-
+}
   // Focus
   const focusValues = thisWeek.map((e) => e.focus).filter(Boolean)
   if (focusValues.length > 0) {
