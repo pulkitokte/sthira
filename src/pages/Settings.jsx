@@ -7,10 +7,12 @@ import { useHydration } from "../context/HydrationContext";
 import { useEyeRecoveryProgress } from "../context/EyeRecoveryProgressContext";
 import { useWellness } from "../context/WellnessContext";
 import { useJourney } from "../context/JourneyContext";
+import { useAchievements } from "../context/AchievementsContext";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
+  { label: "Achievements", path: PATHS.ACHIEVEMENTS },
   { label: "Weekly Reflection", path: PATHS.WEEKLY_REFLECTION },
   { label: "Completion History", path: PATHS.HISTORY },
   { label: "Hydration History", path: PATHS.HYDRATION_HISTORY },
@@ -27,6 +29,7 @@ export default function Settings() {
   const { resetEyeRecoveryProgress } = useEyeRecoveryProgress();
   const { resetWellnessData } = useWellness();
   const { resetJourney } = useJourney();
+  const { resetAchievements } = useAchievements();
 
   useDocumentTitle("Settings");
 
@@ -36,6 +39,8 @@ export default function Settings() {
   const [confirmingEyeReset, setConfirmingEyeReset] = useState(false);
   const [confirmingWellnessReset, setConfirmingWellnessReset] = useState(false);
   const [confirmingJourneyReset, setConfirmingJourneyReset] = useState(false);
+  const [confirmingAchievementsReset, setConfirmingAchievementsReset] =
+    useState(false);
   const [isEditingGoal, setIsEditingGoal] = useState(false);
   const [goalInput, setGoalInput] = useState(String(goal));
 
@@ -121,200 +126,120 @@ export default function Settings() {
         )}
       </div>
 
-      {/* Reset Journey Progress */}
-      <div className="rounded-2xl border border-border bg-surface p-4">
-        {!confirmingJourneyReset ? (
-          <button
-            onClick={() => setConfirmingJourneyReset(true)}
-            className="flex w-full items-center justify-between text-left"
+      {/* Reset Achievements */}
+      {[
+        {
+          key: "achievements",
+          confirming: confirmingAchievementsReset,
+          setConfirming: setConfirmingAchievementsReset,
+          label: "Reset Achievements",
+          description:
+            "This clears all earned milestones. You can earn them again. This can't be undone.",
+          onConfirm: () => {
+            resetAchievements();
+            setConfirmingAchievementsReset(false);
+          },
+        },
+        {
+          key: "journey",
+          confirming: confirmingJourneyReset,
+          setConfirming: setConfirmingJourneyReset,
+          label: "Reset Journey Progress",
+          description:
+            "This clears today's journey check-ins. All other data stays the same. This can't be undone.",
+          onConfirm: () => {
+            resetJourney();
+            setConfirmingJourneyReset(false);
+          },
+        },
+        {
+          key: "hydration",
+          confirming: confirmingHydrationReset,
+          setConfirming: setConfirmingHydrationReset,
+          label: "Reset Hydration History",
+          description:
+            "This clears your hydration log. Your daily goal stays the same. This can't be undone.",
+          onConfirm: () => {
+            resetHydrationHistory();
+            setConfirmingHydrationReset(false);
+          },
+        },
+        {
+          key: "eye",
+          confirming: confirmingEyeReset,
+          setConfirming: setConfirmingEyeReset,
+          label: "Reset Eye Recovery Progress",
+          description:
+            "This clears your eye recovery completion history. Other data stays the same. This can't be undone.",
+          onConfirm: () => {
+            resetEyeRecoveryProgress();
+            setConfirmingEyeReset(false);
+          },
+        },
+        {
+          key: "wellness",
+          confirming: confirmingWellnessReset,
+          setConfirming: setConfirmingWellnessReset,
+          label: "Reset Wellness Data",
+          description:
+            "This clears your daily check-ins and insight history. Other data stays the same. This can't be undone.",
+          onConfirm: () => {
+            resetWellnessData();
+            setConfirmingWellnessReset(false);
+          },
+        },
+        {
+          key: "progress",
+          confirming: confirmingReset,
+          setConfirming: setConfirmingReset,
+          label: "Reset Progress",
+          description:
+            "This clears your streaks and completion history. Your onboarding stays the same. This can't be undone.",
+          onConfirm: () => {
+            resetProgress();
+            setConfirmingReset(false);
+          },
+        },
+      ].map(
+        ({ key, confirming, setConfirming, label, description, onConfirm }) => (
+          <div
+            key={key}
+            className="rounded-2xl border border-border bg-surface p-4"
           >
-            <span className="font-display text-base font-medium text-clay">
-              Reset Journey Progress
-            </span>
-            <Trash2 size={18} className="text-clay" />
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm leading-relaxed text-stone">
-              This clears today's journey check-ins. All other data stays the
-              same. This can't be undone.
-            </p>
-            <div className="flex gap-2">
+            {!confirming ? (
               <button
-                onClick={() => setConfirmingJourneyReset(false)}
-                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
+                onClick={() => setConfirming(true)}
+                className="flex w-full items-center justify-between text-left"
               >
-                Cancel
+                <span className="font-display text-base font-medium text-clay">
+                  {label}
+                </span>
+                <Trash2 size={18} className="text-clay" />
               </button>
-              <button
-                onClick={() => {
-                  resetJourney();
-                  setConfirmingJourneyReset(false);
-                }}
-                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-              >
-                Reset
-              </button>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm leading-relaxed text-stone">
+                  {description}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirming(false)}
+                    className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={onConfirm}
+                    className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      {/* Reset Hydration History */}
-      <div className="rounded-2xl border border-border bg-surface p-4">
-        {!confirmingHydrationReset ? (
-          <button
-            onClick={() => setConfirmingHydrationReset(true)}
-            className="flex w-full items-center justify-between text-left"
-          >
-            <span className="font-display text-base font-medium text-clay">
-              Reset Hydration History
-            </span>
-            <Trash2 size={18} className="text-clay" />
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm leading-relaxed text-stone">
-              This clears your hydration log. Your daily goal stays the same.
-              This can't be undone.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirmingHydrationReset(false)}
-                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  resetHydrationHistory();
-                  setConfirmingHydrationReset(false);
-                }}
-                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Reset Eye Recovery Progress */}
-      <div className="rounded-2xl border border-border bg-surface p-4">
-        {!confirmingEyeReset ? (
-          <button
-            onClick={() => setConfirmingEyeReset(true)}
-            className="flex w-full items-center justify-between text-left"
-          >
-            <span className="font-display text-base font-medium text-clay">
-              Reset Eye Recovery Progress
-            </span>
-            <Trash2 size={18} className="text-clay" />
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm leading-relaxed text-stone">
-              This clears your eye recovery completion history. Other Sthira
-              data stays the same. This can't be undone.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirmingEyeReset(false)}
-                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  resetEyeRecoveryProgress();
-                  setConfirmingEyeReset(false);
-                }}
-                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Reset Wellness Data */}
-      <div className="rounded-2xl border border-border bg-surface p-4">
-        {!confirmingWellnessReset ? (
-          <button
-            onClick={() => setConfirmingWellnessReset(true)}
-            className="flex w-full items-center justify-between text-left"
-          >
-            <span className="font-display text-base font-medium text-clay">
-              Reset Wellness Data
-            </span>
-            <Trash2 size={18} className="text-clay" />
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm leading-relaxed text-stone">
-              This clears your daily check-ins and insight history. Other Sthira
-              data stays the same. This can't be undone.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirmingWellnessReset(false)}
-                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  resetWellnessData();
-                  setConfirmingWellnessReset(false);
-                }}
-                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Reset Progress */}
-      <div className="rounded-2xl border border-border bg-surface p-4">
-        {!confirmingReset ? (
-          <button
-            onClick={() => setConfirmingReset(true)}
-            className="flex w-full items-center justify-between text-left"
-          >
-            <span className="font-display text-base font-medium text-clay">
-              Reset Progress
-            </span>
-            <Trash2 size={18} className="text-clay" />
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm leading-relaxed text-stone">
-              This clears your streaks and completion history. Your onboarding
-              setup stays the same. This can't be undone.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirmingReset(false)}
-                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  resetProgress();
-                  setConfirmingReset(false);
-                }}
-                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+        ),
+      )}
 
       <p className="px-1 text-sm text-stone">
         More preferences are coming soon.

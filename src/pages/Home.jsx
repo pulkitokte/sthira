@@ -10,6 +10,7 @@ import DailyRitualCard from "../components/home/DailyRitualCard";
 import TodaysJourneySection from "../components/journey/TodaysJourneySection";
 import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
+import RecentAchievementCard from "../components/tracker/RecentAchievementCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
 import HydrationSummaryCard from "../components/tracker/HydrationSummaryCard";
 import EyeRecoveryHomeCard from "../components/tracker/EyeRecoveryHomeCard";
@@ -18,6 +19,7 @@ import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
 import { useOnboarding } from "../context/OnboardingContext";
+import { useAchievements } from "../context/AchievementsContext";
 import { useDismissibleHint } from "../hooks/useDismissibleHint";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { getRecommendedSession } from "../utils/recovery";
@@ -43,6 +45,7 @@ export default function Home() {
   const { todayTotal, goal, remaining, percentage } = useHydration();
   const { todayEntry } = useWellness();
   const { data: onboardingData } = useOnboarding();
+  const { recentAchievement, recentAchievementUnlockedAt } = useAchievements();
   const recommendedSession = getRecommendedSession();
   const recommendedEyeSession = getRecommendedEyeSession();
   const homeHint = useDismissibleHint(HINT_IDS.HOME_FIRST_ROUTINE);
@@ -53,7 +56,6 @@ export default function Home() {
   const subheading = getContextualSubheading();
   const recommendation = getHomeRecommendation(onboardingData, todayEntry);
 
-  // Memoize — all three are pure functions whose output is stable within a day
   const journeyActivities = useMemo(
     () => generateDailyJourney(onboardingData, todayEntry, percentage),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,6 +160,12 @@ export default function Home() {
             currentStreak={currentStreak}
             longestStreak={longestStreak}
           />
+          {recentAchievement && (
+            <RecentAchievementCard
+              achievement={recentAchievement}
+              unlockedAt={recentAchievementUnlockedAt}
+            />
+          )}
         </div>
       </section>
 

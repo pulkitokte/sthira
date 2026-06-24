@@ -17,6 +17,7 @@ export const PATHS = {
   RECOVERY_PLAYER: "/recovery-player",
   ABOUT: "/about",
   WEEKLY_REFLECTION: "/weekly-reflection",
+  ACHIEVEMENTS: "/achievements",
 };
 
 export const PAGE_TITLES = {
@@ -36,6 +37,7 @@ export const PAGE_TITLES = {
   [PATHS.RECOVERY_PLAYER]: "Recovery Session",
   [PATHS.ABOUT]: "About Sthira",
   [PATHS.WEEKLY_REFLECTION]: "Weekly Reflection",
+  [PATHS.ACHIEVEMENTS]: "Achievements",
 };
 
 export const NAV_ITEMS = [

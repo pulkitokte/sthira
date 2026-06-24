@@ -9,6 +9,7 @@ import { HydrationProvider } from "./context/HydrationContext";
 import { EyeRecoveryProgressProvider } from "./context/EyeRecoveryProgressContext";
 import { WellnessProvider } from "./context/WellnessContext";
 import { JourneyProvider } from "./context/JourneyContext";
+import { AchievementsProvider } from "./context/AchievementsContext";
 import "./styles/globals.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -21,7 +22,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <EyeRecoveryProgressProvider>
                 <WellnessProvider>
                   <JourneyProvider>
-                    <App />
+                    <AchievementsProvider>
+                      <App />
+                    </AchievementsProvider>
                   </JourneyProvider>
                 </WellnessProvider>
               </EyeRecoveryProgressProvider>
