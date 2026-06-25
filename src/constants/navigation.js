@@ -21,6 +21,8 @@ export const PATHS = {
   WELLNESS_INSIGHTS: "/wellness-insights",
   FOCUS_SESSIONS: "/focus",
   FOCUS_PLAYER: "/focus-player",
+  SLEEP_WIND_DOWN: "/sleep",
+  SLEEP_RITUAL_PLAYER: "/sleep-player",
 };
 
 export const PAGE_TITLES = {
@@ -44,6 +46,8 @@ export const PAGE_TITLES = {
   [PATHS.WELLNESS_INSIGHTS]: "Wellness Insights",
   [PATHS.FOCUS_SESSIONS]: "Focus Sessions",
   [PATHS.FOCUS_PLAYER]: "Focus Session",
+  [PATHS.SLEEP_WIND_DOWN]: "Sleep Wind-Down",
+  [PATHS.SLEEP_RITUAL_PLAYER]: "Sleep Ritual",
 };
 
 export const NAV_ITEMS = [
@@ -52,6 +56,7 @@ export const NAV_ITEMS = [
   { label: "Eyes", path: PATHS.EYE_RELAX, icon: Eye },
   { label: "Hydration", path: PATHS.HYDRATION, icon: Droplet },
   { label: "Wellness", path: PATHS.WELLNESS_TRACKER, icon: Leaf },
+  { label: "Sleep", path: PATHS.SLEEP_WIND_DOWN, icon: Moon },
 ];
 
 export const isTopLevelPath = (pathname) =>

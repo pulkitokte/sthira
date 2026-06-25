@@ -15,6 +15,7 @@ import StudyBreakCard from "../components/tracker/StudyBreakCard";
 import FocusHomeCard from "../components/tracker/FocusHomeCard";
 import HydrationSummaryCard from "../components/tracker/HydrationSummaryCard";
 import EyeRecoveryHomeCard from "../components/tracker/EyeRecoveryHomeCard";
+import SleepWindDownHomeCard from "../components/tracker/SleepWindDownHomeCard";
 import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
@@ -180,7 +181,7 @@ export default function Home() {
         />
       </section>
 
-      {/* Focus Sessions */}
+      {/* Focus */}
       <section>
         <SectionHeader
           title="Focus"
@@ -213,6 +214,18 @@ export default function Home() {
         <EyeRecoveryHomeCard
           session={recommendedEyeSession}
           onSelect={handleSelectRecommendedEye}
+        />
+      </section>
+
+      {/* Sleep Wind-Down */}
+      <section>
+        <SectionHeader
+          title="Sleep Wind-Down"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.SLEEP_WIND_DOWN)}
+        />
+        <SleepWindDownHomeCard
+          onSelect={() => navigate(PATHS.SLEEP_WIND_DOWN)}
         />
       </section>
 
