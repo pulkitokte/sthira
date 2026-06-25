@@ -19,6 +19,8 @@ export const PATHS = {
   WEEKLY_REFLECTION: "/weekly-reflection",
   ACHIEVEMENTS: "/achievements",
   WELLNESS_INSIGHTS: "/wellness-insights",
+  FOCUS_SESSIONS: "/focus",
+  FOCUS_PLAYER: "/focus-player",
 };
 
 export const PAGE_TITLES = {
@@ -40,6 +42,8 @@ export const PAGE_TITLES = {
   [PATHS.WEEKLY_REFLECTION]: "Weekly Reflection",
   [PATHS.ACHIEVEMENTS]: "Achievements",
   [PATHS.WELLNESS_INSIGHTS]: "Wellness Insights",
+  [PATHS.FOCUS_SESSIONS]: "Focus Sessions",
+  [PATHS.FOCUS_PLAYER]: "Focus Session",
 };
 
 export const NAV_ITEMS = [

@@ -12,6 +12,7 @@ import TodaysProgressCard from "../components/tracker/TodaysProgressCard";
 import ConsistencyCard from "../components/tracker/ConsistencyCard";
 import RecentAchievementCard from "../components/tracker/RecentAchievementCard";
 import StudyBreakCard from "../components/tracker/StudyBreakCard";
+import FocusHomeCard from "../components/tracker/FocusHomeCard";
 import HydrationSummaryCard from "../components/tracker/HydrationSummaryCard";
 import EyeRecoveryHomeCard from "../components/tracker/EyeRecoveryHomeCard";
 import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
@@ -102,7 +103,6 @@ export default function Home() {
         <div className="mb-5">
           <SthiraLogo size={48} iconSize={22} />
         </div>
-
         <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-sage">
           {greeting}
         </p>
@@ -110,7 +110,6 @@ export default function Home() {
           Begin with a little movement
         </h1>
         <p className="mt-3 leading-relaxed text-stone">{subheading}</p>
-
         <button
           onClick={() => navigate(PATHS.LIBRARY)}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-moss py-4 font-display font-semibold tracking-wide text-canvas shadow-soft transition-colors duration-200 hover:bg-moss-dark"
@@ -118,7 +117,6 @@ export default function Home() {
           Start Morning Routine
           <ArrowRight size={18} strokeWidth={2.2} aria-hidden="true" />
         </button>
-
         {onboardingData.routineDuration && (
           <p className="mt-3 text-center text-xs text-stone">
             Tuned to your {onboardingData.routineDuration}-minute preference
@@ -180,6 +178,16 @@ export default function Home() {
           session={recommendedSession}
           onSelect={handleSelectRecommended}
         />
+      </section>
+
+      {/* Focus Sessions */}
+      <section>
+        <SectionHeader
+          title="Focus"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.FOCUS_SESSIONS)}
+        />
+        <FocusHomeCard onSelect={() => navigate(PATHS.FOCUS_SESSIONS)} />
       </section>
 
       {/* Hydration */}

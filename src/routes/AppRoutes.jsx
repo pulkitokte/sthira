@@ -17,6 +17,8 @@ import AboutSthira from "../pages/AboutSthira";
 import WeeklyReflection from "../pages/WeeklyReflection";
 import Achievements from "../pages/Achievements";
 import WellnessInsights from "../pages/WellnessInsights";
+import FocusSessions from "../pages/FocusSessions";
+import FocusPlayer from "../pages/FocusPlayer";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -43,6 +45,8 @@ export default function AppRoutes() {
       <Route path={PATHS.WEEKLY_REFLECTION} element={<WeeklyReflection />} />
       <Route path={PATHS.ACHIEVEMENTS} element={<Achievements />} />
       <Route path={PATHS.WELLNESS_INSIGHTS} element={<WellnessInsights />} />
+      <Route path={PATHS.FOCUS_SESSIONS} element={<FocusSessions />} />
+      <Route path={PATHS.FOCUS_PLAYER} element={<FocusPlayer />} />
       <Route path="*" element={<Navigate to={PATHS.HOME} replace />} />
     </Routes>
   );
