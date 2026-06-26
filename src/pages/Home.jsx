@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles, Wind } from "lucide-react";
+import { ArrowRight, Sparkles, Wind, BookHeart } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
@@ -176,6 +176,46 @@ export default function Home() {
             />
           )}
         </div>
+      </section>
+
+      {/* Mood Journal */}
+      <section>
+        <SectionHeader
+          title="Mood Journal"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.MOOD_JOURNAL)}
+        />
+        <button
+          onClick={() => navigate(PATHS.MOOD_JOURNAL)}
+          className="w-full rounded-3xl bg-surface p-5 shadow-soft text-left transition-all duration-200 hover:shadow-md"
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background: "rgba(160, 150, 130, 0.12)",
+                border: "1px solid rgba(160, 150, 130, 0.28)",
+              }}
+            >
+              <BookHeart size={18} strokeWidth={1.5} className="text-stone" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                A quiet space to reflect
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                Record how you are feeling. A few words can bring surprising
+                clarity at the end of a long day.
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                Write today's entry →
+              </p>
+            </div>
+          </div>
+        </button>
       </section>
 
       {/* Mindful Breathing */}
