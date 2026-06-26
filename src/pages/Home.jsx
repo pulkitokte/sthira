@@ -17,12 +17,14 @@ import HydrationSummaryCard from "../components/tracker/HydrationSummaryCard";
 import EyeRecoveryHomeCard from "../components/tracker/EyeRecoveryHomeCard";
 import SleepWindDownHomeCard from "../components/tracker/SleepWindDownHomeCard";
 import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
+import DailyCheckInCard from "../components/checkin/DailyCheckInCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
 import { useOnboarding } from "../context/OnboardingContext";
 import { useAchievements } from "../context/AchievementsContext";
 import { useDismissibleHint } from "../hooks/useDismissibleHint";
+import { useDailyCheckIn } from "../hooks/useDailyCheckIn";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { getRecommendedSession } from "../utils/recovery";
 import { getRecommendedEyeSession } from "../utils/eyeRecovery";
@@ -51,6 +53,7 @@ export default function Home() {
   const recommendedSession = getRecommendedSession();
   const recommendedEyeSession = getRecommendedEyeSession();
   const homeHint = useDismissibleHint(HINT_IDS.HOME_FIRST_ROUTINE);
+  const checkIn = useDailyCheckIn();
 
   useDocumentTitle("Home");
 
@@ -124,6 +127,13 @@ export default function Home() {
           </p>
         )}
       </section>
+
+      {/* Daily Check-In — visible only if not yet completed today */}
+      {!checkIn.isCompleted && (
+        <section>
+          <DailyCheckInCard checkIn={checkIn} />
+        </section>
+      )}
 
       {/* Today's Journey */}
       <TodaysJourneySection activities={journeyActivities} />
