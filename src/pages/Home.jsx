@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Wind } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
@@ -166,6 +166,46 @@ export default function Home() {
             />
           )}
         </div>
+      </section>
+
+      {/* Mindful Breathing */}
+      <section>
+        <SectionHeader
+          title="Mindful Breathing"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.BREATHING)}
+        />
+        <button
+          onClick={() => navigate(PATHS.BREATHING)}
+          className="w-full rounded-3xl bg-surface p-5 shadow-soft text-left transition-all duration-200 hover:shadow-md"
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background: "rgba(134, 159, 138, 0.15)",
+                border: "1px solid rgba(134, 159, 138, 0.3)",
+              }}
+            >
+              <Wind size={18} strokeWidth={1.5} className="text-sage" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                Calm a busy mind
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                Quick breathing sessions for stress, low focus, or mental
+                fatigue. 1 to 7 minutes.
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                5 sessions available
+              </p>
+            </div>
+          </div>
+        </button>
       </section>
 
       {/* Study Break */}
