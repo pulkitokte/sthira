@@ -25,6 +25,7 @@ export const PATHS = {
   SLEEP_RITUAL_PLAYER: "/sleep-player",
   BREATHING: "/breathing",
   MOOD_JOURNAL: "/mood-journal",
+  EVENING_REFLECTION: "/evening-reflection",
 };
 
 export const PAGE_TITLES = {
@@ -52,6 +53,7 @@ export const PAGE_TITLES = {
   ["/sleep-player"]: "Sleep Ritual",
   ["/breathing"]: "Mindful Breathing",
   ["/mood-journal"]: "Mood Journal",
+  ["/evening-reflection"]: "Evening Reflection",
 };
 
 export const NAV_ITEMS = [

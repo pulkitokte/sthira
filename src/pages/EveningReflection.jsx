@@ -1,0 +1,380 @@
+// src/pages/EveningReflection.jsx
+// Evening Reflection page — form, timeline, detail, and completion views.
+// All views are in-page — no nested routing needed.
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import {
+  useEveningReflection,
+  REFLECTION_VIEW,
+} from "../hooks/useEveningReflection";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import ReflectionMoodSelector from "../components/evening/ReflectionMoodSelector";
+import ReflectionTextArea from "../components/evening/ReflectionTextArea";
+import ReflectionEntryCard from "../components/evening/ReflectionEntryCard";
+import ReflectionEmptyState from "../components/evening/ReflectionEmptyState";
+import { REFLECTION_QUESTIONS } from "../data/eveningReflectionData";
+import {
+  formatReflectionDate,
+  formatReflectionTime,
+  buildReflectionPreview,
+} from "../utils/eveningReflection";
+import { getReflectionMoodById } from "../data/eveningReflectionData";
+
+// ── Inline mood badge for detail view ───────────────────────────────────────
+function MoodBadge({ moodId }) {
+  const mood = getReflectionMoodById(moodId);
+  if (!mood) return null;
+  return (
+    <span
+      className="inline-block rounded-full font-display text-sm font-medium px-3.5 py-1.5"
+      style={{
+        background: mood.bg,
+        border: `1px solid ${mood.border}`,
+        color: mood.color,
+      }}
+    >
+      {mood.label}
+    </span>
+  );
+}
+
+// ── Detail section block ─────────────────────────────────────────────────────
+function DetailBlock({ question, answer }) {
+  if (!answer || answer.trim().length === 0) return null;
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-display font-semibold uppercase tracking-[0.12em] text-stone">
+        {question}
+      </p>
+      <p className="text-base text-ink font-light leading-[1.8] whitespace-pre-wrap">
+        {answer}
+      </p>
+    </div>
+  );
+}
+
+export default function EveningReflection() {
+  const navigate = useNavigate();
+  const reflection = useEveningReflection();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  useDocumentTitle("Evening Reflection");
+
+  const {
+    grouped,
+    isEmpty,
+    view,
+    selectedEntry,
+    closingMessage,
+    hasAnyContent,
+    mood,
+    setMood,
+    wentWell,
+    setWentWell,
+    difficult,
+    setDifficult,
+    tomorrowIntention,
+    setTomorrowIntention,
+    openForm,
+    openDetail,
+    goToTimeline,
+    saveReflection,
+    removeReflection,
+  } = reflection;
+
+  const isTimeline = view === REFLECTION_VIEW.TIMELINE;
+  const isForm = view === REFLECTION_VIEW.FORM;
+  const isCompletion = view === REFLECTION_VIEW.COMPLETION;
+  const isDetail = view === REFLECTION_VIEW.DETAIL;
+
+  // Header title per view
+  const headerTitle = isForm
+    ? "Tonight's Reflection"
+    : isDetail
+      ? "Reflection"
+      : isCompletion
+        ? "Done"
+        : "Evening Reflection";
+
+  const handleBack = () => {
+    if (isTimeline) {
+      navigate(-1);
+    } else if (isForm || isCompletion) {
+      goToTimeline();
+    } else if (isDetail) {
+      setConfirmingDelete(false);
+      goToTimeline();
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedEntry) {
+      removeReflection(selectedEntry.id);
+      setConfirmingDelete(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-canvas">
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-10 bg-canvas border-b border-border px-4 pt-12 pb-4">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleBack}
+              className="p-2 -ml-2 rounded-xl text-stone hover:text-ink hover:bg-surface transition-all"
+              aria-label="Go back"
+            >
+              <ChevronLeft size={20} strokeWidth={1.5} />
+            </button>
+            <h1 className="font-display text-xl font-semibold text-ink tracking-tight">
+              {headerTitle}
+            </h1>
+          </div>
+
+          {/* New reflection button — only on timeline when entries exist */}
+          {isTimeline && !isEmpty && (
+            <button
+              onClick={openForm}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
+              style={{ background: "#869F8A" }}
+              aria-label="New reflection"
+            >
+              <Plus size={15} strokeWidth={2} />
+              New
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Body ────────────────────────────────────────────────────────── */}
+      <div className="max-w-lg mx-auto px-4 py-8">
+        {/* ── Timeline ── */}
+        {isTimeline && (
+          <>
+            {isEmpty ? (
+              <ReflectionEmptyState onBegin={openForm} />
+            ) : (
+              <div className="flex flex-col gap-8">
+                {grouped.map(({ date, entries }) => (
+                  <div key={date} className="flex flex-col gap-3">
+                    <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone px-1">
+                      {formatReflectionDate(date)}
+                    </p>
+                    {entries.map((entry) => (
+                      <ReflectionEntryCard
+                        key={entry.id}
+                        entry={entry}
+                        onOpen={openDetail}
+                      />
+                    ))}
+                  </div>
+                ))}
+                <div className="pb-4" />
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── Reflection Form ── */}
+        {isForm && (
+          <div className="flex flex-col gap-8">
+            {/* Gentle intro */}
+            <div className="space-y-1">
+              <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-stone">
+                {new Date().toLocaleDateString("en-IN", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </p>
+              <p className="text-stone font-light text-sm leading-relaxed">
+                All fields are optional. Write as much or as little as feels
+                right.
+              </p>
+            </div>
+
+            {/* Mood selector */}
+            <ReflectionMoodSelector selected={mood} onChange={setMood} />
+
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Reflection questions */}
+            <div className="flex flex-col gap-6">
+              <ReflectionTextArea
+                id="went-well"
+                question={REFLECTION_QUESTIONS[0].question}
+                placeholder={REFLECTION_QUESTIONS[0].placeholder}
+                value={wentWell}
+                onChange={setWentWell}
+              />
+              <ReflectionTextArea
+                id="difficult"
+                question={REFLECTION_QUESTIONS[1].question}
+                placeholder={REFLECTION_QUESTIONS[1].placeholder}
+                value={difficult}
+                onChange={setDifficult}
+              />
+              <ReflectionTextArea
+                id="tomorrow-intention"
+                question={REFLECTION_QUESTIONS[2].question}
+                placeholder={REFLECTION_QUESTIONS[2].placeholder}
+                value={tomorrowIntention}
+                onChange={setTomorrowIntention}
+              />
+            </div>
+
+            {/* Save */}
+            <div className="flex flex-col gap-3 pt-2 pb-8">
+              <button
+                onClick={saveReflection}
+                className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2"
+                style={{ background: "#869F8A" }}
+              >
+                Save reflection
+              </button>
+              <button
+                onClick={goToTimeline}
+                className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Completion Screen ── */}
+        {isCompletion && closingMessage && (
+          <div className="flex flex-col items-center justify-center text-center px-4 py-16 gap-8">
+            {/* Gentle circle */}
+            <div
+              className="w-20 h-20 rounded-full"
+              style={{
+                background: "rgba(134, 159, 138, 0.12)",
+                border: "1.5px solid rgba(134, 159, 138, 0.35)",
+              }}
+            />
+
+            <div className="space-y-3 max-w-xs">
+              <p className="font-display text-2xl font-light text-ink tracking-tight">
+                {closingMessage.heading}
+              </p>
+              <p className="text-base text-stone font-light leading-relaxed">
+                {closingMessage.body}
+              </p>
+            </div>
+
+            <div className="w-full max-w-xs flex flex-col gap-3 pt-2">
+              <button
+                onClick={goToTimeline}
+                className="w-full py-3 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity hover:opacity-90"
+                style={{ background: "#869F8A" }}
+              >
+                View all reflections
+              </button>
+              <button
+                onClick={() => navigate(-1)}
+                className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors"
+              >
+                Back to home
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── Detail View ── */}
+        {isDetail && selectedEntry && (
+          <div className="flex flex-col gap-6">
+            {/* Meta */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1">
+                <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone">
+                  {formatReflectionDate(selectedEntry.date)}
+                </p>
+                <p className="text-xs text-stone font-light">
+                  {formatReflectionTime(selectedEntry.timestamp)}
+                </p>
+              </div>
+              {selectedEntry.mood && <MoodBadge moodId={selectedEntry.mood} />}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Content blocks */}
+            <div className="flex flex-col gap-6">
+              <DetailBlock
+                question="What went well today?"
+                answer={selectedEntry.wentWell}
+              />
+              <DetailBlock
+                question="What felt difficult today?"
+                answer={selectedEntry.difficult}
+              />
+              <DetailBlock
+                question="Carrying into tomorrow"
+                answer={selectedEntry.tomorrowIntention}
+              />
+
+              {/* No content at all */}
+              {!selectedEntry.wentWell &&
+                !selectedEntry.difficult &&
+                !selectedEntry.tomorrowIntention && (
+                  <p className="text-sm text-stone font-light italic opacity-60">
+                    No text was recorded for this reflection.
+                  </p>
+                )}
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-border" />
+
+            {/* Delete */}
+            <div>
+              {!confirmingDelete ? (
+                <button
+                  onClick={() => setConfirmingDelete(true)}
+                  className="flex items-center gap-2 text-clay font-display text-sm font-medium hover:opacity-80 transition-opacity"
+                >
+                  <Trash2 size={14} strokeWidth={1.5} />
+                  Delete this reflection
+                </button>
+              ) : (
+                <div
+                  className="rounded-2xl p-4 space-y-3"
+                  style={{
+                    background: "rgba(170, 120, 100, 0.06)",
+                    border: "1px solid rgba(170, 120, 100, 0.2)",
+                  }}
+                >
+                  <p className="text-sm text-stone leading-relaxed">
+                    Delete this reflection? This cannot be undone.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setConfirmingDelete(false)}
+                      className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="pb-4" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
