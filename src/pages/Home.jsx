@@ -8,6 +8,7 @@ import {
   Sunset,
   Leaf,
   Feather,
+  BookOpen,
 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
@@ -44,6 +45,7 @@ import {
 import { generateDailyJourney } from "../utils/journeyGenerator";
 import { getDailyRitual } from "../utils/ritualEngine";
 import { getTotalGratitudeCount } from "../utils/gratitudeGarden";
+import { getTodayWisdom } from "../utils/dailyWisdom";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -64,6 +66,9 @@ export default function Home() {
   const homeHint = useDismissibleHint(HINT_IDS.HOME_FIRST_ROUTINE);
   const checkIn = useDailyCheckIn();
   const gratitudeCount = getTotalGratitudeCount();
+
+  // Today's wisdom — shown as a teaser on home
+  const todayWisdom = useMemo(() => getTodayWisdom(), []);
 
   useDocumentTitle("Home");
 
@@ -186,6 +191,63 @@ export default function Home() {
             />
           )}
         </div>
+      </section>
+
+      {/* Daily Wisdom */}
+      <section>
+        <SectionHeader
+          title="Daily Wisdom"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.WISDOM)}
+        />
+        <button
+          onClick={() => navigate(PATHS.WISDOM)}
+          className="w-full rounded-3xl text-left transition-all duration-200 hover:shadow-md overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(185,175,160,0.1) 0%, rgba(134,159,138,0.08) 100%)",
+            border: "1px solid rgba(185,175,160,0.2)",
+          }}
+        >
+          <div className="p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{
+                  background: "rgba(185,175,160,0.15)",
+                  border: "1px solid rgba(185,175,160,0.25)",
+                }}
+              >
+                <BookOpen size={15} strokeWidth={1.5} className="text-stone" />
+              </div>
+              <span className="text-xs text-stone font-light opacity-60">
+                A quiet thought for today
+              </span>
+            </div>
+
+            {todayWisdom && (
+              <p
+                className="font-display font-light text-ink leading-relaxed"
+                style={{ fontSize: "0.95rem" }}
+              >
+                "{todayWisdom.text}"
+              </p>
+            )}
+
+            {todayWisdom?.author && (
+              <p className="text-xs text-stone font-light">
+                — {todayWisdom.author}
+              </p>
+            )}
+
+            <p
+              className="text-xs font-semibold tracking-wide uppercase"
+              style={{ color: "#869F8A" }}
+            >
+              Browse all wisdom →
+            </p>
+          </div>
+        </button>
       </section>
 
       {/* Digital Sanctuary */}
