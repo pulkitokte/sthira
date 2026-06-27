@@ -29,6 +29,7 @@ export const PATHS = {
   GRATITUDE_GARDEN: "/gratitude-garden",
   SANCTUARY: "/sanctuary",
   WISDOM: "/wisdom",
+  EMOTIONAL_WEATHER: "/emotional-weather",
 };
 
 export const PAGE_TITLES = {
@@ -60,6 +61,7 @@ export const PAGE_TITLES = {
   ["/gratitude-garden"]: "Gratitude Garden",
   ["/sanctuary"]: "Digital Sanctuary",
   ["/wisdom"]: "Daily Wisdom",
+  ["/emotional-weather"]: "Emotional Weather",
 };
 
 export const NAV_ITEMS = [

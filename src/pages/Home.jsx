@@ -9,6 +9,7 @@ import {
   Leaf,
   Feather,
   BookOpen,
+  Cloud,
 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
@@ -46,6 +47,8 @@ import { generateDailyJourney } from "../utils/journeyGenerator";
 import { getDailyRitual } from "../utils/ritualEngine";
 import { getTotalGratitudeCount } from "../utils/gratitudeGarden";
 import { getTodayWisdom } from "../utils/dailyWisdom";
+import { getTodayEntry, getWeatherById } from "../utils/emotionalWeather";
+import { getWeatherById as getWeatherDef } from "../data/emotionalWeatherData";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -67,8 +70,11 @@ export default function Home() {
   const checkIn = useDailyCheckIn();
   const gratitudeCount = getTotalGratitudeCount();
 
-  // Today's wisdom — shown as a teaser on home
   const todayWisdom = useMemo(() => getTodayWisdom(), []);
+  const todayWeatherEntry = useMemo(() => getTodayEntry(), []);
+  const todayWeatherDef = todayWeatherEntry
+    ? getWeatherDef(todayWeatherEntry.weather)
+    : null;
 
   useDocumentTitle("Home");
 
@@ -193,6 +199,57 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Emotional Weather */}
+      <section>
+        <SectionHeader
+          title="Emotional Weather"
+          actionLabel="Check in"
+          onAction={() => navigate(PATHS.EMOTIONAL_WEATHER)}
+        />
+        <button
+          onClick={() => navigate(PATHS.EMOTIONAL_WEATHER)}
+          className="w-full rounded-3xl text-left transition-all duration-200 hover:shadow-md overflow-hidden"
+          style={
+            todayWeatherDef
+              ? {
+                  background: todayWeatherDef.gradient,
+                  border: `1px solid ${todayWeatherDef.borderColor}`,
+                }
+              : {
+                  background:
+                    "linear-gradient(160deg, rgba(200,210,230,0.12) 0%, rgba(185,190,200,0.08) 100%)",
+                  border: "1px solid rgba(185,190,220,0.2)",
+                }
+          }
+        >
+          <div className="p-5 flex items-start gap-4">
+            <span className="text-3xl leading-none mt-0.5 shrink-0">
+              {todayWeatherDef ? todayWeatherDef.emoji : "🌤️"}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                {todayWeatherDef
+                  ? `Today: ${todayWeatherDef.label}`
+                  : "Emotional Weather"}
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                {todayWeatherDef
+                  ? todayWeatherEntry?.note || todayWeatherDef.description
+                  : "Notice the sky within."}
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                {todayWeatherDef
+                  ? "Update or view history →"
+                  : "Check in for today →"}
+              </p>
+            </div>
+          </div>
+        </button>
+      </section>
+
       {/* Daily Wisdom */}
       <section>
         <SectionHeader
@@ -224,7 +281,6 @@ export default function Home() {
                 A quiet thought for today
               </span>
             </div>
-
             {todayWisdom && (
               <p
                 className="font-display font-light text-ink leading-relaxed"
@@ -233,13 +289,11 @@ export default function Home() {
                 "{todayWisdom.text}"
               </p>
             )}
-
             {todayWisdom?.author && (
               <p className="text-xs text-stone font-light">
                 — {todayWisdom.author}
               </p>
             )}
-
             <p
               className="text-xs font-semibold tracking-wide uppercase"
               style={{ color: "#869F8A" }}
