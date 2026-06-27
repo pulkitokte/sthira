@@ -26,6 +26,7 @@ export const PATHS = {
   BREATHING: "/breathing",
   MOOD_JOURNAL: "/mood-journal",
   EVENING_REFLECTION: "/evening-reflection",
+  GRATITUDE_GARDEN: "/gratitude-garden",
 };
 
 export const PAGE_TITLES = {
@@ -54,6 +55,7 @@ export const PAGE_TITLES = {
   ["/breathing"]: "Mindful Breathing",
   ["/mood-journal"]: "Mood Journal",
   ["/evening-reflection"]: "Evening Reflection",
+  ["/gratitude-garden"]: "Gratitude Garden",
 };
 
 export const NAV_ITEMS = [

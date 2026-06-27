@@ -1,6 +1,13 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles, Wind, BookHeart, Sunset } from "lucide-react";
+import {
+  ArrowRight,
+  Sparkles,
+  Wind,
+  BookHeart,
+  Sunset,
+  Leaf,
+} from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
@@ -35,6 +42,7 @@ import {
 } from "../utils/personalization";
 import { generateDailyJourney } from "../utils/journeyGenerator";
 import { getDailyRitual } from "../utils/ritualEngine";
+import { getTotalGratitudeCount } from "../utils/gratitudeGarden";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -54,6 +62,7 @@ export default function Home() {
   const recommendedEyeSession = getRecommendedEyeSession();
   const homeHint = useDismissibleHint(HINT_IDS.HOME_FIRST_ROUTINE);
   const checkIn = useDailyCheckIn();
+  const gratitudeCount = getTotalGratitudeCount();
 
   useDocumentTitle("Home");
 
@@ -128,7 +137,7 @@ export default function Home() {
         )}
       </section>
 
-      {/* Daily Check-In — visible only if not yet completed today */}
+      {/* Daily Check-In */}
       {!checkIn.isCompleted && (
         <section>
           <DailyCheckInCard checkIn={checkIn} />
@@ -176,6 +185,49 @@ export default function Home() {
             />
           )}
         </div>
+      </section>
+
+      {/* Gratitude Garden */}
+      <section>
+        <SectionHeader
+          title="Gratitude Garden"
+          actionLabel="Open garden"
+          onAction={() => navigate(PATHS.GRATITUDE_GARDEN)}
+        />
+        <button
+          onClick={() => navigate(PATHS.GRATITUDE_GARDEN)}
+          className="w-full rounded-3xl bg-surface p-5 shadow-soft text-left transition-all duration-200 hover:shadow-md"
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background: "rgba(134, 159, 138, 0.13)",
+                border: "1px solid rgba(134, 159, 138, 0.28)",
+              }}
+            >
+              <Leaf size={18} strokeWidth={1.5} className="text-sage" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                Gratitude Garden
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                Collect the quiet moments worth remembering.
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                {gratitudeCount === 0
+                  ? "Plant your first moment →"
+                  : gratitudeCount === 1
+                    ? "1 moment planted →"
+                    : `${gratitudeCount} moments planted →`}
+              </p>
+            </div>
+          </div>
+        </button>
       </section>
 
       {/* Evening Reflection */}

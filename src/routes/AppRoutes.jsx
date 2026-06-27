@@ -24,6 +24,7 @@ import SleepRitualPlayer from "../pages/SleepRitualPlayer";
 import MindfulBreathing from "../pages/MindfulBreathing";
 import MoodJournal from "../pages/MoodJournal";
 import EveningReflection from "../pages/EveningReflection";
+import GratitudeGarden from "../pages/GratitudeGarden";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -57,6 +58,7 @@ export default function AppRoutes() {
       <Route path={PATHS.BREATHING} element={<MindfulBreathing />} />
       <Route path={PATHS.MOOD_JOURNAL} element={<MoodJournal />} />
       <Route path={PATHS.EVENING_REFLECTION} element={<EveningReflection />} />
+      <Route path={PATHS.GRATITUDE_GARDEN} element={<GratitudeGarden />} />
       <Route path="*" element={<Navigate to={PATHS.HOME} replace />} />
     </Routes>
   );
