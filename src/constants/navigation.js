@@ -32,6 +32,7 @@ export const PATHS = {
   EMOTIONAL_WEATHER: "/emotional-weather",
   LETTERS: "/letters",
   SELF_COMPASSION: "/self-compassion",
+  CALM_SOUNDS: "/calm-sounds",
 };
 
 export const PAGE_TITLES = {
@@ -66,6 +67,7 @@ export const PAGE_TITLES = {
   ["/emotional-weather"]: "Emotional Weather",
   ["/letters"]: "Letters to Self",
   ["/self-compassion"]: "Self-Compassion",
+  ["/calm-sounds"]: "Calm Sounds",
 };
 
 export const NAV_ITEMS = [

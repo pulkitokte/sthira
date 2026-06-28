@@ -12,6 +12,7 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
 const LINKS = [
+  { label: "Calm Sounds", path: PATHS.CALM_SOUNDS },
   { label: "Self-Compassion Toolkit", path: PATHS.SELF_COMPASSION },
   { label: "Letters to Self", path: PATHS.LETTERS },
   { label: "Emotional Weather", path: PATHS.EMOTIONAL_WEATHER },

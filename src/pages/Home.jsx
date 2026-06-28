@@ -11,6 +11,7 @@ import {
   BookOpen,
   Mail,
   Heart,
+  Music,
 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
@@ -51,6 +52,8 @@ import { getTodayWisdom } from "../utils/dailyWisdom";
 import { getTodayEntry } from "../utils/emotionalWeather";
 import { getWeatherById as getWeatherDef } from "../data/emotionalWeatherData";
 import { getTotalLetterCount } from "../utils/lettersToSelf";
+import { loadCalmSoundsPrefs } from "../utils/calmSoundsStorage";
+import { getSoundById } from "../data/calmSounds";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -78,6 +81,12 @@ export default function Home() {
   const todayWeatherDef = todayWeatherEntry
     ? getWeatherDef(todayWeatherEntry.weather)
     : null;
+
+  // Last played calm sound for home card teaser
+  const lastCalmSound = useMemo(() => {
+    const prefs = loadCalmSoundsPrefs();
+    return prefs.lastSoundId ? getSoundById(prefs.lastSoundId) : null;
+  }, []);
 
   useDocumentTitle("Home");
 
@@ -346,60 +355,6 @@ export default function Home() {
         </button>
       </section>
 
-      {/* Daily Wisdom */}
-      <section>
-        <SectionHeader
-          title="Daily Wisdom"
-          actionLabel="See all"
-          onAction={() => navigate(PATHS.WISDOM)}
-        />
-        <button
-          onClick={() => navigate(PATHS.WISDOM)}
-          className="w-full rounded-3xl text-left transition-all duration-200 hover:shadow-md overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(160deg, rgba(185,175,160,0.1) 0%, rgba(134,159,138,0.08) 100%)",
-            border: "1px solid rgba(185,175,160,0.2)",
-          }}
-        >
-          <div className="p-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{
-                  background: "rgba(185,175,160,0.15)",
-                  border: "1px solid rgba(185,175,160,0.25)",
-                }}
-              >
-                <BookOpen size={15} strokeWidth={1.5} className="text-stone" />
-              </div>
-              <span className="text-xs text-stone font-light opacity-60">
-                A quiet thought for today
-              </span>
-            </div>
-            {todayWisdom && (
-              <p
-                className="font-display font-light text-ink leading-relaxed"
-                style={{ fontSize: "0.95rem" }}
-              >
-                "{todayWisdom.text}"
-              </p>
-            )}
-            {todayWisdom?.author && (
-              <p className="text-xs text-stone font-light">
-                — {todayWisdom.author}
-              </p>
-            )}
-            <p
-              className="text-xs font-semibold tracking-wide uppercase"
-              style={{ color: "#869F8A" }}
-            >
-              Browse all wisdom →
-            </p>
-          </div>
-        </button>
-      </section>
-
       {/* Digital Sanctuary */}
       <section>
         <SectionHeader
@@ -439,6 +394,67 @@ export default function Home() {
                 style={{ color: "#869F8A" }}
               >
                 Enter the sanctuary →
+              </p>
+            </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Calm Sounds */}
+      <section>
+        <SectionHeader
+          title="Calm Sounds"
+          actionLabel="Open"
+          onAction={() => navigate(PATHS.CALM_SOUNDS)}
+        />
+        <button
+          onClick={() => navigate(PATHS.CALM_SOUNDS)}
+          className="w-full rounded-3xl p-5 text-left transition-all duration-200 hover:shadow-md"
+          style={
+            lastCalmSound
+              ? {
+                  background: lastCalmSound.gradient,
+                  border: `1px solid ${lastCalmSound.cardBorder}`,
+                }
+              : {
+                  background:
+                    "linear-gradient(160deg, rgba(185,175,160,0.1) 0%, rgba(160,155,148,0.08) 100%)",
+                  border: "1px solid rgba(185,175,160,0.22)",
+                }
+          }
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 text-xl"
+              style={{
+                background: lastCalmSound
+                  ? lastCalmSound.accentColor + "22"
+                  : "rgba(185,175,160,0.15)",
+                border: `1px solid ${lastCalmSound ? lastCalmSound.cardBorder : "rgba(185,175,160,0.28)"}`,
+              }}
+            >
+              {lastCalmSound ? (
+                <span>{lastCalmSound.emoji}</span>
+              ) : (
+                <Music size={17} strokeWidth={1.5} className="text-stone" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                Calm Sounds
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                {lastCalmSound
+                  ? `Last played: ${lastCalmSound.title}`
+                  : "Ambient sounds for study, rest, and winding down."}
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                {lastCalmSound
+                  ? `${lastCalmSound.title} and 7 more →`
+                  : "8 soundscapes →"}
               </p>
             </div>
           </div>
@@ -563,6 +579,60 @@ export default function Home() {
                 Write today's entry →
               </p>
             </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Daily Wisdom */}
+      <section>
+        <SectionHeader
+          title="Daily Wisdom"
+          actionLabel="See all"
+          onAction={() => navigate(PATHS.WISDOM)}
+        />
+        <button
+          onClick={() => navigate(PATHS.WISDOM)}
+          className="w-full rounded-3xl text-left transition-all duration-200 hover:shadow-md overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(185,175,160,0.1) 0%, rgba(134,159,138,0.08) 100%)",
+            border: "1px solid rgba(185,175,160,0.2)",
+          }}
+        >
+          <div className="p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{
+                  background: "rgba(185,175,160,0.15)",
+                  border: "1px solid rgba(185,175,160,0.25)",
+                }}
+              >
+                <BookOpen size={15} strokeWidth={1.5} className="text-stone" />
+              </div>
+              <span className="text-xs text-stone font-light opacity-60">
+                A quiet thought for today
+              </span>
+            </div>
+            {todayWisdom && (
+              <p
+                className="font-display font-light text-ink leading-relaxed"
+                style={{ fontSize: "0.95rem" }}
+              >
+                "{todayWisdom.text}"
+              </p>
+            )}
+            {todayWisdom?.author && (
+              <p className="text-xs text-stone font-light">
+                — {todayWisdom.author}
+              </p>
+            )}
+            <p
+              className="text-xs font-semibold tracking-wide uppercase"
+              style={{ color: "#869F8A" }}
+            >
+              Browse all wisdom →
+            </p>
           </div>
         </button>
       </section>
