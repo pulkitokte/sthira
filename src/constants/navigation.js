@@ -30,6 +30,7 @@ export const PATHS = {
   SANCTUARY: "/sanctuary",
   WISDOM: "/wisdom",
   EMOTIONAL_WEATHER: "/emotional-weather",
+  LETTERS: "/letters",
 };
 
 export const PAGE_TITLES = {
@@ -62,6 +63,7 @@ export const PAGE_TITLES = {
   ["/sanctuary"]: "Digital Sanctuary",
   ["/wisdom"]: "Daily Wisdom",
   ["/emotional-weather"]: "Emotional Weather",
+  ["/letters"]: "Letters to Self",
 };
 
 export const NAV_ITEMS = [

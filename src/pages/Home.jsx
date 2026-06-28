@@ -9,7 +9,7 @@ import {
   Leaf,
   Feather,
   BookOpen,
-  Cloud,
+  Mail,
 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
@@ -47,8 +47,9 @@ import { generateDailyJourney } from "../utils/journeyGenerator";
 import { getDailyRitual } from "../utils/ritualEngine";
 import { getTotalGratitudeCount } from "../utils/gratitudeGarden";
 import { getTodayWisdom } from "../utils/dailyWisdom";
-import { getTodayEntry, getWeatherById } from "../utils/emotionalWeather";
+import { getTodayEntry } from "../utils/emotionalWeather";
 import { getWeatherById as getWeatherDef } from "../data/emotionalWeatherData";
+import { getTotalLetterCount } from "../utils/lettersToSelf";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -69,6 +70,7 @@ export default function Home() {
   const homeHint = useDismissibleHint(HINT_IDS.HOME_FIRST_ROUTINE);
   const checkIn = useDailyCheckIn();
   const gratitudeCount = getTotalGratitudeCount();
+  const letterCount = getTotalLetterCount();
 
   const todayWisdom = useMemo(() => getTodayWisdom(), []);
   const todayWeatherEntry = useMemo(() => getTodayEntry(), []);
@@ -244,6 +246,55 @@ export default function Home() {
                 {todayWeatherDef
                   ? "Update or view history →"
                   : "Check in for today →"}
+              </p>
+            </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Letters to Self */}
+      <section>
+        <SectionHeader
+          title="Letters to Self"
+          actionLabel="Open"
+          onAction={() => navigate(PATHS.LETTERS)}
+        />
+        <button
+          onClick={() => navigate(PATHS.LETTERS)}
+          className="w-full rounded-3xl p-5 text-left transition-all duration-200 hover:shadow-md"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(255,252,245,1) 0%, rgba(248,244,236,1) 100%)",
+            border: "1px solid rgba(185,175,160,0.28)",
+            boxShadow: "0 1px 8px rgba(0,0,0,0.04)",
+          }}
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background: "rgba(185,175,160,0.15)",
+                border: "1px solid rgba(185,175,160,0.28)",
+              }}
+            >
+              <Mail size={17} strokeWidth={1.5} className="text-stone" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                Letters to Self
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                Leave gentle words for the person you are becoming.
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                {letterCount === 0
+                  ? "Write your first letter →"
+                  : letterCount === 1
+                    ? "1 letter written →"
+                    : `${letterCount} letters written →`}
               </p>
             </div>
           </div>
