@@ -29,6 +29,7 @@ import DigitalSanctuary from "../pages/DigitalSanctuary";
 import DailyWisdom from "../pages/DailyWisdom";
 import EmotionalWeather from "../pages/EmotionalWeather";
 import LettersToSelf from "../pages/LettersToSelf";
+import SelfCompassion from "../pages/SelfCompassion";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -67,6 +68,7 @@ export default function AppRoutes() {
       <Route path={PATHS.WISDOM} element={<DailyWisdom />} />
       <Route path={PATHS.EMOTIONAL_WEATHER} element={<EmotionalWeather />} />
       <Route path={PATHS.LETTERS} element={<LettersToSelf />} />
+      <Route path={PATHS.SELF_COMPASSION} element={<SelfCompassion />} />
       <Route path="*" element={<Navigate to={PATHS.HOME} replace />} />
     </Routes>
   );

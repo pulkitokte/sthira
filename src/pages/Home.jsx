@@ -10,6 +10,7 @@ import {
   Feather,
   BookOpen,
   Mail,
+  Heart,
 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
@@ -295,6 +296,50 @@ export default function Home() {
                   : letterCount === 1
                     ? "1 letter written →"
                     : `${letterCount} letters written →`}
+              </p>
+            </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Self-Compassion Toolkit */}
+      <section>
+        <SectionHeader
+          title="Self-Compassion"
+          actionLabel="Open"
+          onAction={() => navigate(PATHS.SELF_COMPASSION)}
+        />
+        <button
+          onClick={() => navigate(PATHS.SELF_COMPASSION)}
+          className="w-full rounded-3xl p-5 text-left transition-all duration-200 hover:shadow-md"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(134,159,138,0.08) 0%, rgba(140,130,155,0.06) 100%)",
+            border: "1px solid rgba(140,130,155,0.2)",
+          }}
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background: "rgba(140,130,155,0.1)",
+                border: "1px solid rgba(140,130,155,0.22)",
+              }}
+            >
+              <Heart size={17} strokeWidth={1.5} className="text-stone" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                Self-Compassion Toolkit
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                A gentle place to return to when things feel heavy.
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                5 support spaces →
               </p>
             </div>
           </div>
