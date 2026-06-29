@@ -32,6 +32,7 @@ import LettersToSelf from "../pages/LettersToSelf";
 import SelfCompassion from "../pages/SelfCompassion";
 import CalmSounds from "../pages/CalmSounds";
 import CompanionSpace from "../pages/CompanionSpace";
+import MemoryTimeline from "../pages/MemoryTimeline";
 import { PATHS } from "../constants/navigation";
 
 export default function AppRoutes() {
@@ -73,6 +74,7 @@ export default function AppRoutes() {
       <Route path={PATHS.SELF_COMPASSION} element={<SelfCompassion />} />
       <Route path={PATHS.CALM_SOUNDS} element={<CalmSounds />} />
       <Route path={PATHS.COMPANION} element={<CompanionSpace />} />
+      <Route path={PATHS.MEMORIES} element={<MemoryTimeline />} />
       <Route path="*" element={<Navigate to={PATHS.HOME} replace />} />
     </Routes>
   );

@@ -34,6 +34,7 @@ export const PATHS = {
   SELF_COMPASSION: "/self-compassion",
   CALM_SOUNDS: "/calm-sounds",
   COMPANION: "/companion",
+  MEMORIES: "/memories",
 };
 
 export const PAGE_TITLES = {
@@ -70,6 +71,7 @@ export const PAGE_TITLES = {
   ["/self-compassion"]: "Self-Compassion",
   ["/calm-sounds"]: "Calm Sounds",
   ["/companion"]: "Gentle Companion",
+  ["/memories"]: "Memory Timeline",
 };
 
 export const NAV_ITEMS = [

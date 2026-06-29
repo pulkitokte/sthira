@@ -13,6 +13,7 @@ import {
   Heart,
   Music,
   MessageCircle,
+  Clock,
 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
@@ -58,9 +59,9 @@ import { getSoundById } from "../data/calmSounds";
 import {
   getTodayCompanionMessage,
   getTimeOfDay,
-  selectCategory,
   getCategoryLabel,
 } from "../utils/companionEngine";
+import { buildMemoryTimeline } from "../utils/memoryTimeline";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -94,7 +95,6 @@ export default function Home() {
     return prefs.lastSoundId ? getSoundById(prefs.lastSoundId) : null;
   }, []);
 
-  // Companion home card message
   const companionMessage = useMemo(() => {
     const weatherEntry = getTodayEntry();
     const timeOfDay = getTimeOfDay();
@@ -118,6 +118,9 @@ export default function Home() {
       companionMessage ? getCategoryLabel(companionMessage.category) : "Today",
     [companionMessage],
   );
+
+  // Memory timeline count
+  const memoryCount = useMemo(() => buildMemoryTimeline().length, []);
 
   useDocumentTitle("Home");
 
@@ -583,6 +586,54 @@ export default function Home() {
                   : gratitudeCount === 1
                     ? "1 moment planted →"
                     : `${gratitudeCount} moments planted →`}
+              </p>
+            </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Memory Timeline */}
+      <section>
+        <SectionHeader
+          title="Memory Timeline"
+          actionLabel="Explore"
+          onAction={() => navigate(PATHS.MEMORIES)}
+        />
+        <button
+          onClick={() => navigate(PATHS.MEMORIES)}
+          className="w-full rounded-3xl p-5 text-left transition-all duration-200 hover:shadow-md"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(185,155,110,0.1) 0%, rgba(160,140,100,0.07) 100%)",
+            border: "1px solid rgba(185,155,110,0.22)",
+          }}
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="mt-0.5 w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style={{
+                background: "rgba(185,155,110,0.12)",
+                border: "1px solid rgba(185,155,110,0.25)",
+              }}
+            >
+              <Clock size={17} strokeWidth={1.5} className="text-stone" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display text-base font-medium text-ink leading-snug">
+                Memory Timeline
+              </p>
+              <p className="text-sm text-stone font-light mt-1 leading-relaxed">
+                Revisit moments from your journey.
+              </p>
+              <p
+                className="mt-3 text-xs font-semibold tracking-wide uppercase"
+                style={{ color: "#869F8A" }}
+              >
+                {memoryCount === 0
+                  ? "Your memories will appear here →"
+                  : memoryCount === 1
+                    ? "1 memory collected →"
+                    : `${memoryCount} memories collected →`}
               </p>
             </div>
           </div>
