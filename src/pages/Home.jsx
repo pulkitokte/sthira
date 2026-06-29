@@ -32,6 +32,7 @@ import EyeRecoveryHomeCard from "../components/tracker/EyeRecoveryHomeCard";
 import SleepWindDownHomeCard from "../components/tracker/SleepWindDownHomeCard";
 import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
 import DailyCheckInCard from "../components/checkin/DailyCheckInCard";
+import HomeAtmosphereBanner from "../components/atmosphere/HomeAtmosphereBanner";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -40,6 +41,7 @@ import { useAchievements } from "../context/AchievementsContext";
 import { useDismissibleHint } from "../hooks/useDismissibleHint";
 import { useDailyCheckIn } from "../hooks/useDailyCheckIn";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useAtmosphere } from "../hooks/useAtmosphere";
 import { getRecommendedSession } from "../utils/recovery";
 import { getRecommendedEyeSession } from "../utils/eyeRecovery";
 import {
@@ -81,6 +83,7 @@ export default function Home() {
   const recommendedEyeSession = getRecommendedEyeSession();
   const homeHint = useDismissibleHint(HINT_IDS.HOME_FIRST_ROUTINE);
   const checkIn = useDailyCheckIn();
+  const atmosphere = useAtmosphere();
   const gratitudeCount = getTotalGratitudeCount();
   const letterCount = getTotalLetterCount();
 
@@ -119,7 +122,6 @@ export default function Home() {
     [companionMessage],
   );
 
-  // Memory timeline count
   const memoryCount = useMemo(() => buildMemoryTimeline().length, []);
 
   useDocumentTitle("Home");
@@ -194,6 +196,9 @@ export default function Home() {
           </p>
         )}
       </section>
+
+      {/* ── Today's Atmosphere — directly below hero ── */}
+      <HomeAtmosphereBanner atmosphere={atmosphere} />
 
       {/* Daily Check-In */}
       {!checkIn.isCompleted && (
