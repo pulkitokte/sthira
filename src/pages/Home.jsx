@@ -12,6 +12,7 @@ import {
   Mail,
   Heart,
   Music,
+  MessageCircle,
 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
@@ -54,6 +55,12 @@ import { getWeatherById as getWeatherDef } from "../data/emotionalWeatherData";
 import { getTotalLetterCount } from "../utils/lettersToSelf";
 import { loadCalmSoundsPrefs } from "../utils/calmSoundsStorage";
 import { getSoundById } from "../data/calmSounds";
+import {
+  getTodayCompanionMessage,
+  getTimeOfDay,
+  selectCategory,
+  getCategoryLabel,
+} from "../utils/companionEngine";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -82,11 +89,35 @@ export default function Home() {
     ? getWeatherDef(todayWeatherEntry.weather)
     : null;
 
-  // Last played calm sound for home card teaser
   const lastCalmSound = useMemo(() => {
     const prefs = loadCalmSoundsPrefs();
     return prefs.lastSoundId ? getSoundById(prefs.lastSoundId) : null;
   }, []);
+
+  // Companion home card message
+  const companionMessage = useMemo(() => {
+    const weatherEntry = getTodayEntry();
+    const timeOfDay = getTimeOfDay();
+    let streak = 0;
+    try {
+      const raw = localStorage.getItem("sthira_progress");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        streak = parsed?.currentStreak ?? 0;
+      }
+    } catch (_) {}
+    return getTodayCompanionMessage({
+      timeOfDay,
+      streak,
+      weatherId: weatherEntry?.weather ?? null,
+    });
+  }, []);
+
+  const companionCategoryLabel = useMemo(
+    () =>
+      companionMessage ? getCategoryLabel(companionMessage.category) : "Today",
+    [companionMessage],
+  );
 
   useDocumentTitle("Home");
 
@@ -258,6 +289,60 @@ export default function Home() {
                   : "Check in for today →"}
               </p>
             </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Gentle Companion */}
+      <section>
+        <SectionHeader
+          title="Gentle Companion"
+          actionLabel="Open"
+          onAction={() => navigate(PATHS.COMPANION)}
+        />
+        <button
+          onClick={() => navigate(PATHS.COMPANION)}
+          className="w-full rounded-3xl text-left transition-all duration-200 hover:shadow-md overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(255,252,248,1) 0%, rgba(250,246,240,1) 100%)",
+            border: "1px solid rgba(185,175,160,0.25)",
+            boxShadow: "0 1px 8px rgba(0,0,0,0.04)",
+          }}
+        >
+          <div className="p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-stone opacity-60">
+                {companionCategoryLabel}
+              </p>
+              <div
+                className="w-7 h-7 rounded-xl flex items-center justify-center"
+                style={{
+                  background: "rgba(185,175,160,0.15)",
+                  border: "1px solid rgba(185,175,160,0.25)",
+                }}
+              >
+                <MessageCircle
+                  size={13}
+                  strokeWidth={1.5}
+                  className="text-stone"
+                />
+              </div>
+            </div>
+            {companionMessage && (
+              <p
+                className="font-display font-light text-ink leading-relaxed"
+                style={{ fontSize: "0.95rem" }}
+              >
+                {companionMessage.text}
+              </p>
+            )}
+            <p
+              className="text-xs font-semibold tracking-wide uppercase"
+              style={{ color: "#869F8A" }}
+            >
+              More messages →
+            </p>
           </div>
         </button>
       </section>
