@@ -33,6 +33,7 @@ import SleepWindDownHomeCard from "../components/tracker/SleepWindDownHomeCard";
 import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
 import DailyCheckInCard from "../components/checkin/DailyCheckInCard";
 import HomeAtmosphereBanner from "../components/atmosphere/HomeAtmosphereBanner";
+import GentleConsistencyCard from "../components/reflection/GentleConsistencyCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -64,6 +65,7 @@ import {
   getCategoryLabel,
 } from "../utils/companionEngine";
 import { buildMemoryTimeline } from "../utils/memoryTimeline";
+import { buildGentleConsistencySummary } from "../utils/gentleStreaks";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -123,6 +125,9 @@ export default function Home() {
   );
 
   const memoryCount = useMemo(() => buildMemoryTimeline().length, []);
+
+  // Gentle consistency summary — read-only across existing reflection data
+  const gentleConsistency = useMemo(() => buildGentleConsistencySummary(), []);
 
   useDocumentTitle("Home");
 
@@ -199,6 +204,9 @@ export default function Home() {
 
       {/* ── Today's Atmosphere — directly below hero ── */}
       <HomeAtmosphereBanner atmosphere={atmosphere} />
+
+      {/* ── Gentle Consistency — directly below Today's Atmosphere ── */}
+      <GentleConsistencyCard summary={gentleConsistency} />
 
       {/* Daily Check-In */}
       {!checkIn.isCompleted && (
