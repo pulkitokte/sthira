@@ -34,6 +34,7 @@ import WellnessHomeCard from "../components/tracker/WellnessHomeCard";
 import DailyCheckInCard from "../components/checkin/DailyCheckInCard";
 import HomeAtmosphereBanner from "../components/atmosphere/HomeAtmosphereBanner";
 import GentleConsistencyCard from "../components/reflection/GentleConsistencyCard";
+import NatureSuggestionCard from "../components/soundscapes/NatureSuggestionCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -66,6 +67,7 @@ import {
 } from "../utils/companionEngine";
 import { buildMemoryTimeline } from "../utils/memoryTimeline";
 import { buildGentleConsistencySummary } from "../utils/gentleStreaks";
+import { getSoundscapeRecommendation } from "../utils/soundscapeRecommendations";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -128,6 +130,12 @@ export default function Home() {
 
   // Gentle consistency summary — read-only across existing reflection data
   const gentleConsistency = useMemo(() => buildGentleConsistencySummary(), []);
+
+  // Nature soundscape recommendation — purely advisory, never auto-plays
+  const soundscapeRecommendation = useMemo(
+    () => getSoundscapeRecommendation(),
+    [],
+  );
 
   useDocumentTitle("Home");
 
@@ -207,6 +215,9 @@ export default function Home() {
 
       {/* ── Gentle Consistency — directly below Today's Atmosphere ── */}
       <GentleConsistencyCard summary={gentleConsistency} />
+
+      {/* ── Nature for This Moment — directly below Gentle Consistency ── */}
+      <NatureSuggestionCard recommendation={soundscapeRecommendation} />
 
       {/* Daily Check-In */}
       {!checkIn.isCompleted && (
