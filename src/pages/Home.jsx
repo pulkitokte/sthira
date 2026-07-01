@@ -35,6 +35,7 @@ import DailyCheckInCard from "../components/checkin/DailyCheckInCard";
 import HomeAtmosphereBanner from "../components/atmosphere/HomeAtmosphereBanner";
 import GentleConsistencyCard from "../components/reflection/GentleConsistencyCard";
 import NatureSuggestionCard from "../components/soundscapes/NatureSuggestionCard";
+import EnergyGuidanceCard from "../components/home/EnergyGuidanceCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -68,6 +69,7 @@ import {
 import { buildMemoryTimeline } from "../utils/memoryTimeline";
 import { buildGentleConsistencySummary } from "../utils/gentleStreaks";
 import { getSoundscapeRecommendation } from "../utils/soundscapeRecommendations";
+import { buildEnergyGuidance } from "../utils/energyGuidance";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -128,14 +130,15 @@ export default function Home() {
 
   const memoryCount = useMemo(() => buildMemoryTimeline().length, []);
 
-  // Gentle consistency summary — read-only across existing reflection data
   const gentleConsistency = useMemo(() => buildGentleConsistencySummary(), []);
 
-  // Nature soundscape recommendation — purely advisory, never auto-plays
   const soundscapeRecommendation = useMemo(
     () => getSoundscapeRecommendation(),
     [],
   );
+
+  // Energy guidance — reads today's wellness energy value (read-only)
+  const energyGuidance = useMemo(() => buildEnergyGuidance(), []);
 
   useDocumentTitle("Home");
 
@@ -210,14 +213,17 @@ export default function Home() {
         )}
       </section>
 
-      {/* ── Today's Atmosphere — directly below hero ── */}
+      {/* ── Today's Atmosphere ── */}
       <HomeAtmosphereBanner atmosphere={atmosphere} />
 
-      {/* ── Gentle Consistency — directly below Today's Atmosphere ── */}
+      {/* ── Gentle Consistency ── */}
       <GentleConsistencyCard summary={gentleConsistency} />
 
-      {/* ── Nature for This Moment — directly below Gentle Consistency ── */}
+      {/* ── Nature for This Moment ── */}
       <NatureSuggestionCard recommendation={soundscapeRecommendation} />
+
+      {/* ── Today's Energy — below Nature, above Daily Check-In ── */}
+      <EnergyGuidanceCard guidance={energyGuidance} />
 
       {/* Daily Check-In */}
       {!checkIn.isCompleted && (
