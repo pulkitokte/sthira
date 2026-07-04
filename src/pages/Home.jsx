@@ -37,6 +37,7 @@ import GentleConsistencyCard from "../components/reflection/GentleConsistencyCar
 import NatureSuggestionCard from "../components/soundscapes/NatureSuggestionCard";
 import EnergyGuidanceCard from "../components/home/EnergyGuidanceCard";
 import DailyCompanionPlanCard from "../components/home/DailyCompanionPlanCard";
+import ReflectionJourneyCard from "../components/reflection/ReflectionJourneyCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -72,6 +73,7 @@ import { buildGentleConsistencySummary } from "../utils/gentleStreaks";
 import { getSoundscapeRecommendation } from "../utils/soundscapeRecommendations";
 import { buildEnergyGuidance } from "../utils/energyGuidance";
 import { buildDailyCompanionPlan } from "../utils/dailyCompanionPlan";
+import { buildReflectionJourney } from "../utils/reflectionJourney";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -131,18 +133,13 @@ export default function Home() {
   );
 
   const memoryCount = useMemo(() => buildMemoryTimeline().length, []);
-
   const gentleConsistency = useMemo(() => buildGentleConsistencySummary(), []);
-
-  const soundscapeRecommendation = useMemo(
-    () => getSoundscapeRecommendation(),
-    [],
-  );
-
+  const soundscapeRec = useMemo(() => getSoundscapeRecommendation(), []);
   const energyGuidance = useMemo(() => buildEnergyGuidance(), []);
-
-  // Daily companion plan — derived from all existing contextual data
   const dailyCompanionPlan = useMemo(() => buildDailyCompanionPlan(), []);
+
+  // Gentle Reflection Journey — read-only composite of existing data
+  const reflectionJourney = useMemo(() => buildReflectionJourney(), []);
 
   useDocumentTitle("Home");
 
@@ -224,13 +221,16 @@ export default function Home() {
       <GentleConsistencyCard summary={gentleConsistency} />
 
       {/* ── Nature for This Moment ── */}
-      <NatureSuggestionCard recommendation={soundscapeRecommendation} />
+      <NatureSuggestionCard recommendation={soundscapeRec} />
 
       {/* ── Today's Energy ── */}
       <EnergyGuidanceCard guidance={energyGuidance} />
 
-      {/* ── Today's Gentle Journey — below Today's Energy, above Daily Check-In ── */}
+      {/* ── Today's Gentle Journey ── */}
       <DailyCompanionPlanCard plan={dailyCompanionPlan} />
+
+      {/* ── Reflection Journey — below Daily Companion Plan, above Today's Journey ── */}
+      <ReflectionJourneyCard reflection={reflectionJourney} />
 
       {/* Daily Check-In */}
       {!checkIn.isCompleted && (
@@ -555,7 +555,11 @@ export default function Home() {
                 background: lastCalmSound
                   ? lastCalmSound.accentColor + "22"
                   : "rgba(185,175,160,0.15)",
-                border: `1px solid ${lastCalmSound ? lastCalmSound.cardBorder : "rgba(185,175,160,0.28)"}`,
+                border: `1px solid ${
+                  lastCalmSound
+                    ? lastCalmSound.cardBorder
+                    : "rgba(185,175,160,0.28)"
+                }`,
               }}
             >
               {lastCalmSound ? (
