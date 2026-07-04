@@ -36,6 +36,7 @@ import HomeAtmosphereBanner from "../components/atmosphere/HomeAtmosphereBanner"
 import GentleConsistencyCard from "../components/reflection/GentleConsistencyCard";
 import NatureSuggestionCard from "../components/soundscapes/NatureSuggestionCard";
 import EnergyGuidanceCard from "../components/home/EnergyGuidanceCard";
+import DailyCompanionPlanCard from "../components/home/DailyCompanionPlanCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -70,6 +71,7 @@ import { buildMemoryTimeline } from "../utils/memoryTimeline";
 import { buildGentleConsistencySummary } from "../utils/gentleStreaks";
 import { getSoundscapeRecommendation } from "../utils/soundscapeRecommendations";
 import { buildEnergyGuidance } from "../utils/energyGuidance";
+import { buildDailyCompanionPlan } from "../utils/dailyCompanionPlan";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -137,8 +139,10 @@ export default function Home() {
     [],
   );
 
-  // Energy guidance — reads today's wellness energy value (read-only)
   const energyGuidance = useMemo(() => buildEnergyGuidance(), []);
+
+  // Daily companion plan — derived from all existing contextual data
+  const dailyCompanionPlan = useMemo(() => buildDailyCompanionPlan(), []);
 
   useDocumentTitle("Home");
 
@@ -222,8 +226,11 @@ export default function Home() {
       {/* ── Nature for This Moment ── */}
       <NatureSuggestionCard recommendation={soundscapeRecommendation} />
 
-      {/* ── Today's Energy — below Nature, above Daily Check-In ── */}
+      {/* ── Today's Energy ── */}
       <EnergyGuidanceCard guidance={energyGuidance} />
+
+      {/* ── Today's Gentle Journey — below Today's Energy, above Daily Check-In ── */}
+      <DailyCompanionPlanCard plan={dailyCompanionPlan} />
 
       {/* Daily Check-In */}
       {!checkIn.isCompleted && (
