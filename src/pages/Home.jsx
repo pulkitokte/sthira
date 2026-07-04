@@ -39,6 +39,7 @@ import EnergyGuidanceCard from "../components/home/EnergyGuidanceCard";
 import DailyCompanionPlanCard from "../components/home/DailyCompanionPlanCard";
 import ReflectionJourneyCard from "../components/reflection/ReflectionJourneyCard";
 import AdaptiveHomeBanner from "../components/home/AdaptiveHomeBanner";
+import GentleInsightsCard from "../components/home/GentleInsightsCard";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -76,6 +77,7 @@ import { buildEnergyGuidance } from "../utils/energyGuidance";
 import { buildDailyCompanionPlan } from "../utils/dailyCompanionPlan";
 import { buildReflectionJourney } from "../utils/reflectionJourney";
 import { buildAdaptiveBanner } from "../utils/adaptiveHomeEngine";
+import { buildGentleInsights } from "../utils/gentleInsightsEngine";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -140,9 +142,10 @@ export default function Home() {
   const energyGuidance = useMemo(() => buildEnergyGuidance(), []);
   const dailyCompanionPlan = useMemo(() => buildDailyCompanionPlan(), []);
   const reflectionJourney = useMemo(() => buildReflectionJourney(), []);
-
-  // Adaptive Home Companion banner — purely derived, no new storage
   const adaptiveBanner = useMemo(() => buildAdaptiveBanner(), []);
+
+  // Gentle Wellness Insights — read-only, no new storage
+  const gentleInsights = useMemo(() => buildGentleInsights(), []);
 
   useDocumentTitle("Home");
 
@@ -217,8 +220,11 @@ export default function Home() {
         )}
       </section>
 
-      {/* ── Adaptive Home Companion — directly below Hero, above Today's Atmosphere ── */}
+      {/* ── Adaptive Home Companion ── */}
       <AdaptiveHomeBanner banner={adaptiveBanner} />
+
+      {/* ── Gentle Wellness Insights — below Adaptive Companion, above Today's Atmosphere ── */}
+      <GentleInsightsCard insights={gentleInsights} />
 
       {/* ── Today's Atmosphere ── */}
       <HomeAtmosphereBanner atmosphere={atmosphere} />
