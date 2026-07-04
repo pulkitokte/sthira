@@ -38,6 +38,7 @@ import NatureSuggestionCard from "../components/soundscapes/NatureSuggestionCard
 import EnergyGuidanceCard from "../components/home/EnergyGuidanceCard";
 import DailyCompanionPlanCard from "../components/home/DailyCompanionPlanCard";
 import ReflectionJourneyCard from "../components/reflection/ReflectionJourneyCard";
+import AdaptiveHomeBanner from "../components/home/AdaptiveHomeBanner";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useWellness } from "../context/WellnessContext";
@@ -74,6 +75,7 @@ import { getSoundscapeRecommendation } from "../utils/soundscapeRecommendations"
 import { buildEnergyGuidance } from "../utils/energyGuidance";
 import { buildDailyCompanionPlan } from "../utils/dailyCompanionPlan";
 import { buildReflectionJourney } from "../utils/reflectionJourney";
+import { buildAdaptiveBanner } from "../utils/adaptiveHomeEngine";
 import { HINT_IDS } from "../constants/hints";
 import { PATHS } from "../constants/navigation";
 
@@ -137,9 +139,10 @@ export default function Home() {
   const soundscapeRec = useMemo(() => getSoundscapeRecommendation(), []);
   const energyGuidance = useMemo(() => buildEnergyGuidance(), []);
   const dailyCompanionPlan = useMemo(() => buildDailyCompanionPlan(), []);
-
-  // Gentle Reflection Journey — read-only composite of existing data
   const reflectionJourney = useMemo(() => buildReflectionJourney(), []);
+
+  // Adaptive Home Companion banner — purely derived, no new storage
+  const adaptiveBanner = useMemo(() => buildAdaptiveBanner(), []);
 
   useDocumentTitle("Home");
 
@@ -214,6 +217,9 @@ export default function Home() {
         )}
       </section>
 
+      {/* ── Adaptive Home Companion — directly below Hero, above Today's Atmosphere ── */}
+      <AdaptiveHomeBanner banner={adaptiveBanner} />
+
       {/* ── Today's Atmosphere ── */}
       <HomeAtmosphereBanner atmosphere={atmosphere} />
 
@@ -229,7 +235,7 @@ export default function Home() {
       {/* ── Today's Gentle Journey ── */}
       <DailyCompanionPlanCard plan={dailyCompanionPlan} />
 
-      {/* ── Reflection Journey — below Daily Companion Plan, above Today's Journey ── */}
+      {/* ── Reflection Journey ── */}
       <ReflectionJourneyCard reflection={reflectionJourney} />
 
       {/* Daily Check-In */}
