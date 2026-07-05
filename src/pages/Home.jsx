@@ -67,7 +67,6 @@ import { loadCalmSoundsPrefs } from "../utils/calmSoundsStorage";
 import { getSoundById } from "../data/calmSounds";
 import {
   getTodayCompanionMessage,
-  getTimeOfDay,
   getCategoryLabel,
 } from "../utils/companionEngine";
 import { buildMemoryTimeline } from "../utils/memoryTimeline";
@@ -112,22 +111,9 @@ export default function Home() {
     return prefs.lastSoundId ? getSoundById(prefs.lastSoundId) : null;
   }, []);
 
+  // Context-aware companion message — now uses contextAwareCompanion internally
   const companionMessage = useMemo(() => {
-    const weatherEntry = getTodayEntry();
-    const timeOfDay = getTimeOfDay();
-    let streak = 0;
-    try {
-      const raw = localStorage.getItem("sthira_progress");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        streak = parsed?.currentStreak ?? 0;
-      }
-    } catch (_) {}
-    return getTodayCompanionMessage({
-      timeOfDay,
-      streak,
-      weatherId: weatherEntry?.weather ?? null,
-    });
+    return getTodayCompanionMessage();
   }, []);
 
   const companionCategoryLabel = useMemo(
@@ -143,8 +129,6 @@ export default function Home() {
   const dailyCompanionPlan = useMemo(() => buildDailyCompanionPlan(), []);
   const reflectionJourney = useMemo(() => buildReflectionJourney(), []);
   const adaptiveBanner = useMemo(() => buildAdaptiveBanner(), []);
-
-  // Gentle Wellness Insights — read-only, no new storage
   const gentleInsights = useMemo(() => buildGentleInsights(), []);
 
   useDocumentTitle("Home");
@@ -223,7 +207,7 @@ export default function Home() {
       {/* ── Adaptive Home Companion ── */}
       <AdaptiveHomeBanner banner={adaptiveBanner} />
 
-      {/* ── Gentle Wellness Insights — below Adaptive Companion, above Today's Atmosphere ── */}
+      {/* ── Gentle Wellness Insights ── */}
       <GentleInsightsCard insights={gentleInsights} />
 
       {/* ── Today's Atmosphere ── */}
@@ -345,7 +329,7 @@ export default function Home() {
         </button>
       </section>
 
-      {/* Gentle Companion */}
+      {/* Gentle Companion — unchanged card layout, upgraded message intelligence */}
       <section>
         <SectionHeader
           title="Gentle Companion"
