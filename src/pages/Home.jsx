@@ -111,10 +111,8 @@ export default function Home() {
     return prefs.lastSoundId ? getSoundById(prefs.lastSoundId) : null;
   }, []);
 
-  // Context-aware companion message — now uses contextAwareCompanion internally
-  const companionMessage = useMemo(() => {
-    return getTodayCompanionMessage();
-  }, []);
+  // Context-aware companion — context derived internally, no args needed
+  const companionMessage = useMemo(() => getTodayCompanionMessage(), []);
 
   const companionCategoryLabel = useMemo(
     () =>
@@ -329,7 +327,7 @@ export default function Home() {
         </button>
       </section>
 
-      {/* Gentle Companion — unchanged card layout, upgraded message intelligence */}
+      {/* Gentle Companion */}
       <section>
         <SectionHeader
           title="Gentle Companion"
@@ -709,7 +707,7 @@ export default function Home() {
                 className="mt-3 text-xs font-semibold tracking-wide uppercase"
                 style={{ color: "#869F8A" }}
               >
-                Begin tonight's reflection →
+                Begin tonight&#39;s reflection →
               </p>
             </div>
           </div>
@@ -749,7 +747,7 @@ export default function Home() {
                 className="mt-3 text-xs font-semibold tracking-wide uppercase"
                 style={{ color: "#869F8A" }}
               >
-                Write today's entry →
+                Write today&#39;s entry →
               </p>
             </div>
           </div>
@@ -792,12 +790,12 @@ export default function Home() {
                 className="font-display font-light text-ink leading-relaxed"
                 style={{ fontSize: "0.95rem" }}
               >
-                "{todayWisdom.text}"
+                &ldquo;{todayWisdom.text}&rdquo;
               </p>
             )}
             {todayWisdom?.author && (
               <p className="text-xs text-stone font-light">
-                — {todayWisdom.author}
+                &mdash; {todayWisdom.author}
               </p>
             )}
             <p

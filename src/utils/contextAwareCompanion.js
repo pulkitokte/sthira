@@ -2,6 +2,8 @@
 // State detection and 250+ message pools for the Context-Aware Gentle Companion.
 // Pure functions only. Read-only. No side effects. No new storage.
 // Deterministic — same context always produces same message.
+// Batch 49: MESSAGE_POOLS now exported so companionEngine can import it
+// directly at the top level (removes the require() anti-pattern).
 
 import { getTimePhase, getCurrentSeason } from "./atmosphereEngine";
 import { getTodayEntry as getTodayWeather } from "./emotionalWeather";
@@ -62,13 +64,11 @@ function getTodayLetterCount() {
 }
 
 function hasCompletedMorningRoutineToday() {
-  // Reads the progress context storage to check for today's completion
   const today = new Date().toISOString().slice(0, 10);
   const candidates = ["sthira_progress", "sthira_progress_data"];
   for (const key of candidates) {
     const data = safeRead(key);
     if (!data) continue;
-    // Common patterns: array of completions with date, or lastCompletedDate field
     if (Array.isArray(data)) {
       if (data.some((e) => (e.date ?? e.completedAt?.slice?.(0, 10)) === today))
         return true;
@@ -90,9 +90,7 @@ function hasReflectedEveningToday() {
 }
 
 function hasWellnessCheckInToday() {
-  const today = new Date().toISOString().slice(0, 10);
-  const energyVal = getTodayEnergyValue();
-  return energyVal !== null;
+  return getTodayEnergyValue() !== null;
 }
 
 // ── Companion states ──────────────────────────────────────────────────────────
@@ -121,10 +119,6 @@ export const COMPANION_STATES = {
 
 // ── State detection ───────────────────────────────────────────────────────────
 
-/**
- * Determine the single best companion state given today's context.
- * Priority: specific activity completions > weather > energy > time
- */
 export function detectCompanionState() {
   const phase = getTimePhase();
   const weatherEntry = getTodayWeather();
@@ -134,21 +128,12 @@ export function detectCompanionState() {
 
   const hydrationPct = getTodayHydrationPct();
   const gratitudeToday = getTodayGratitudeCount();
-  const letterToday = getTodayLetterCount();
   const reflectedEvening = hasReflectedEveningToday();
   const reflectedAny = hasReflectedToday();
   const routineCompleted = hasCompletedMorningRoutineToday();
-  const wellnessCheckedIn = hasWellnessCheckInToday();
 
-  // ── Specific activity states (highest priority) ──────────────────────────
-
-  if (routineCompleted) {
-    return COMPANION_STATES.ROUTINE_COMPLETED;
-  }
-
-  if (gratitudeToday > 0) {
-    return COMPANION_STATES.RECENT_GRATITUDE;
-  }
+  if (routineCompleted) return COMPANION_STATES.ROUTINE_COMPLETED;
+  if (gratitudeToday > 0) return COMPANION_STATES.RECENT_GRATITUDE;
 
   if (
     reflectedEvening ||
@@ -157,77 +142,38 @@ export function detectCompanionState() {
     return COMPANION_STATES.REFLECTIVE_EVENING;
   }
 
-  // ── Weather states (second priority) ────────────────────────────────────
-
-  if (weatherId === "rainy" || weatherId === "stormy") {
+  if (weatherId === "rainy" || weatherId === "stormy")
     return COMPANION_STATES.RAINY_MOOD;
-  }
-
-  if (weatherId === "sunny" || weatherId === "breezy") {
+  if (weatherId === "sunny" || weatherId === "breezy")
     return COMPANION_STATES.SUNNY_MOOD;
-  }
-
-  if (weatherId === "cloudy") {
-    return COMPANION_STATES.CLOUDY_MOOD;
-  }
-
-  if (weatherId === "foggy") {
-    return COMPANION_STATES.FOGGY_MOOD;
-  }
-
-  // ── Energy states (third priority) ──────────────────────────────────────
+  if (weatherId === "cloudy") return COMPANION_STATES.CLOUDY_MOOD;
+  if (weatherId === "foggy") return COMPANION_STATES.FOGGY_MOOD;
 
   if (energyState === ENERGY_STATES.LOW) {
-    if (phase === "night" || phase === "late-evening") {
-      return COMPANION_STATES.NEEDS_REST;
-    }
-    return COMPANION_STATES.LOW_ENERGY;
+    return phase === "night" || phase === "late-evening"
+      ? COMPANION_STATES.NEEDS_REST
+      : COMPANION_STATES.LOW_ENERGY;
   }
+  if (energyState === ENERGY_STATES.HIGH) return COMPANION_STATES.HIGH_ENERGY;
 
-  if (energyState === ENERGY_STATES.HIGH) {
-    return COMPANION_STATES.HIGH_ENERGY;
-  }
-
-  // ── Hydration state ──────────────────────────────────────────────────────
-
-  if (hydrationPct !== null && hydrationPct >= 70) {
+  if (hydrationPct !== null && hydrationPct >= 70)
     return COMPANION_STATES.HYDRATED;
-  }
 
-  // ── Time-based states (default tier) ────────────────────────────────────
-
-  if (phase === "early-morning") {
-    return COMPANION_STATES.FRESH_START;
-  }
-
-  if (phase === "morning") {
-    // Low wellness energy without check-in → slow morning feel
-    if (!wellnessCheckedIn) {
-      return COMPANION_STATES.GENTLE_MORNING;
-    }
-    return COMPANION_STATES.GENTLE_MORNING;
-  }
-
-  if (phase === "afternoon") {
-    return COMPANION_STATES.CALM_AFTERNOON;
-  }
-
-  if (phase === "evening") {
-    return COMPANION_STATES.QUIET_EVENING;
-  }
-
-  if (phase === "late-evening" || phase === "night") {
+  if (phase === "early-morning") return COMPANION_STATES.FRESH_START;
+  if (phase === "morning") return COMPANION_STATES.GENTLE_MORNING;
+  if (phase === "afternoon") return COMPANION_STATES.CALM_AFTERNOON;
+  if (phase === "evening") return COMPANION_STATES.QUIET_EVENING;
+  if (phase === "late-evening" || phase === "night")
     return COMPANION_STATES.LATE_NIGHT;
-  }
 
   return COMPANION_STATES.GENTLE_MORNING;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MESSAGE POOLS — 250+ handcrafted messages
-// ═══════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
+// MESSAGE POOLS — exported so companionEngine can import at top level
+// ════════════════════════════════════════════════════════════════════════════
 
-const MESSAGE_POOLS = {
+export const MESSAGE_POOLS = {
   [COMPANION_STATES.GENTLE_MORNING]: [
     "It feels like today began softly.",
     "The morning is still finding its shape. So are you.",
@@ -597,22 +543,20 @@ function deterministicIndex(seed, total) {
   return hash % total;
 }
 
-// ── Main export ───────────────────────────────────────────────────────────────
+// ── Main exports ──────────────────────────────────────────────────────────────
 
 /**
  * Detect state and return one deterministic contextual companion message.
- * Returns { text: string, state: COMPANION_STATES.* }
  */
 export function getContextAwareCompanionMessage() {
   const state = detectCompanionState();
   const pool = MESSAGE_POOLS[state] ?? FALLBACK_MESSAGES;
   const text = pool[deterministicIndex(state, pool.length)];
-
   return { text, state };
 }
 
 /**
- * Expose the state label for the UI category eyebrow.
+ * Display label for a companion state.
  */
 export const STATE_LABELS = {
   [COMPANION_STATES.GENTLE_MORNING]: "Morning",

@@ -1,7 +1,8 @@
 // src/utils/companionEngine.js
-// Gentle Companion engine — now delegates message generation to
-// contextAwareCompanion.js for intelligent, context-aware messages.
-// Backwards-compatible: all existing exports remain. No breaking changes.
+// Gentle Companion engine.
+// Delegates intelligent message generation to contextAwareCompanion.js.
+// Batch 49: removed require() anti-pattern — all imports now at module top-level.
+// All exports remain backwards-compatible.
 
 import {
   COMPANION_MESSAGES,
@@ -14,10 +15,10 @@ import {
   getContextAwareCompanionMessage,
   getStateLabelForDisplay,
   detectCompanionState,
+  MESSAGE_POOLS,
 } from "./contextAwareCompanion";
 
 const FAVORITES_KEY = "sthira_companion_favorites";
-const DAILY_KEY = "sthira_companion_daily";
 
 // ── Time helpers ──────────────────────────────────────────────────────────────
 
@@ -89,45 +90,38 @@ export function selectMessage(category, excludeId = null) {
   return pool[hash % pool.length];
 }
 
-// ── Primary message function — now context-aware ──────────────────────────────
+// ── Primary message function — context-aware ──────────────────────────────────
 
 /**
- * Get today's companion message.
- * Now uses the context-aware engine for intelligent, personalized messages.
- * The context parameter is accepted for backwards compatibility but the
- * context-aware engine derives its own context internally.
- *
- * Returns a message object compatible with the existing UI:
- * { id, category, text } — where category is the detected companion state label.
+ * Get today's companion message using the context-aware engine.
+ * Returns { id, category, text } compatible with the existing UI.
  */
 export function getTodayCompanionMessage(context = {}) {
   const today = new Date().toISOString().slice(0, 10);
-
-  // Use the context-aware engine
   const { text, state } = getContextAwareCompanionMessage();
-
-  // Return in the shape the existing UI expects
   return {
     id: `context-${state}-${today}`,
-    category: state, // UI uses getCategoryLabel(message.category)
+    category: state,
     text,
   };
 }
 
 /**
- * Get a fresh contextual message (for "show another" in CompanionSpace).
- * Still uses the context-aware engine but shifts the seed.
+ * Get a fresh contextual message for "show another" in CompanionSpace.
+ * Uses the legacy category pool to avoid repeating the same context message.
  */
 export function getRefreshMessage(excludeId, context = {}) {
-  const today = new Date().toISOString().slice(0, 10);
   const state = detectCompanionState();
+  const pool = MESSAGE_POOLS[state] ?? [];
 
-  const {
-    MESSAGE_POOLS,
-    FALLBACK_MESSAGES,
-  } = require("./contextAwareCompanion");
-  // Since we can't require in ESM, fall back to the legacy system for refresh
-  // This maintains the "show another" behavior using the legacy category pool
+  // Build a pool that excludes the current message id
+  const available = pool.filter((_, i) => {
+    // The current message id is `context-${state}-${today}` — we just need
+    // a different index, so we use the legacy system for refresh variety.
+    return true;
+  });
+
+  // Fall back to legacy category pool for rotation variety
   const timeOfDay = getTimeOfDay();
   const category = selectCategory({ timeOfDay, ...context });
   return selectMessage(category, excludeId);
@@ -136,15 +130,13 @@ export function getRefreshMessage(excludeId, context = {}) {
 // ── Category label ────────────────────────────────────────────────────────────
 
 /**
- * Get display label for a category or state string.
+ * Returns a display label for a category or state string.
  * Handles both legacy COMPANION_CATEGORIES and new COMPANION_STATES.
  */
 export function getCategoryLabel(categoryOrState) {
-  // Try context-aware state label first
   const stateLabel = getStateLabelForDisplay(categoryOrState);
   if (stateLabel && stateLabel !== "Today") return stateLabel;
 
-  // Legacy category labels
   const legacyLabels = {
     [COMPANION_CATEGORIES.MORNING]: "Morning",
     [COMPANION_CATEGORIES.LOW_ENERGY]: "Low Energy",
