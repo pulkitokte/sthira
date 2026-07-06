@@ -3,14 +3,12 @@
 // Read-only. No new storage. No new contexts. No new hooks.
 // Deterministic — same date always produces same 3 insights.
 // Emotionally observational, never analytical or motivational.
+// Batch 50: fixed letters insight — template literal was a regular string,
+//           total count was never substituted.
 
 import { getCurrentSeason } from "./atmosphereEngine";
 import { getAllReflectionDates, hasReflectedToday } from "./gentleStreaks";
-import {
-  getTodayEnergyValue,
-  classifyEnergy,
-  ENERGY_STATES,
-} from "./energyGuidance";
+import { getTodayEnergyValue, classifyEnergy, ENERGY_STATES } from "./energyGuidance";
 
 // ── Safe reader ───────────────────────────────────────────────────────────────
 
@@ -28,7 +26,7 @@ function safeRead(key) {
 function deterministicIndex(seed, total) {
   if (total <= 0) return 0;
   const today = new Date().toISOString().slice(0, 10);
-  const hash = (today + seed)
+  const hash  = (today + seed)
     .split("")
     .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return hash % total;
@@ -42,7 +40,7 @@ function pick(pool, seed) {
 // ── Data aggregators (all read-only) ─────────────────────────────────────────
 
 function getRecentDates(days = 14) {
-  const today = new Date();
+  const today  = new Date();
   const result = [];
   for (let i = 0; i < days; i++) {
     const d = new Date(today);
@@ -65,12 +63,12 @@ function getHydrationHistory() {
 }
 
 function getHydrationDaysAbove(pct = 60, within = 14) {
-  const hist = getHydrationHistory();
+  const hist  = getHydrationHistory();
   const dates = getRecentDates(within);
   return hist.filter((e) => {
-    if (!dates.includes(e.date)) return false;
-    if (!e.goal || e.goal === 0) return false;
-    return (e.total / e.goal) * 100 >= pct;
+    if (!dates.includes(e?.date)) return false;
+    if (!e?.goal || e.goal === 0) return false;
+    return ((e.total ?? 0) / e.goal) * 100 >= pct;
   }).length;
 }
 
@@ -82,9 +80,9 @@ function getGratitudeEntries() {
 
 function getGratitudeDaysInPeriod(within = 14) {
   const entries = getGratitudeEntries();
-  const dates = getRecentDates(within);
-  const days = new Set(
-    entries.map((e) => e.date).filter((d) => dates.includes(d)),
+  const dates   = getRecentDates(within);
+  const days    = new Set(
+    entries.map((e) => e?.date).filter((d) => d && dates.includes(d)),
   );
   return days.size;
 }
@@ -105,9 +103,10 @@ function getTotalLetters() {
 
 function getLettersInPeriod(within = 14) {
   const entries = getLetterEntries();
-  const dates = getRecentDates(within);
-  return entries.filter((e) => dates.includes((e.createdAt ?? "").slice(0, 10)))
-    .length;
+  const dates   = getRecentDates(within);
+  return entries.filter((e) =>
+    dates.includes((e?.createdAt ?? "").slice(0, 10)),
+  ).length;
 }
 
 // Weather
@@ -118,20 +117,21 @@ function getWeatherEntries() {
 
 function getWeatherDaysInPeriod(within = 14) {
   const entries = getWeatherEntries();
-  const dates = getRecentDates(within);
-  return entries.filter((e) => dates.includes(e.date)).length;
+  const dates   = getRecentDates(within);
+  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
 }
 
 function getMostCommonWeather(within = 14) {
   const entries = getWeatherEntries();
-  const dates = getRecentDates(within);
-  const recent = entries.filter((e) => dates.includes(e.date));
+  const dates   = getRecentDates(within);
+  const recent  = entries.filter((e) => e?.date && dates.includes(e.date));
   if (recent.length === 0) return null;
   const counts = {};
   recent.forEach((e) => {
-    counts[e.weather] = (counts[e.weather] ?? 0) + 1;
+    if (e.weather) counts[e.weather] = (counts[e.weather] ?? 0) + 1;
   });
-  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  return sorted[0]?.[0] ?? null;
 }
 
 // Evening reflections
@@ -142,8 +142,8 @@ function getReflectionEntries() {
 
 function getReflectionDaysInPeriod(within = 14) {
   const entries = getReflectionEntries();
-  const dates = getRecentDates(within);
-  return entries.filter((e) => dates.includes(e.date)).length;
+  const dates   = getRecentDates(within);
+  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
 }
 
 // Mood journal
@@ -154,8 +154,8 @@ function getMoodEntries() {
 
 function getMoodDaysInPeriod(within = 14) {
   const entries = getMoodEntries();
-  const dates = getRecentDates(within);
-  return entries.filter((e) => dates.includes(e.date)).length;
+  const dates   = getRecentDates(within);
+  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
 }
 
 // Wellness
@@ -172,17 +172,14 @@ function getWellnessEntries() {
 
 function getWellnessDaysInPeriod(within = 14) {
   const entries = getWellnessEntries();
-  const dates = getRecentDates(within);
-  return entries.filter((e) => dates.includes(e.date)).length;
+  const dates   = getRecentDates(within);
+  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
 }
 
 // ── Insight candidate builders ────────────────────────────────────────────────
-// Each builder returns { category, text } or null if there is not enough
-// data to support the observation. Only eligible insights enter the pool.
 
 function hydrationInsight() {
   const days = getHydrationDaysAbove(60, 14);
-
   if (days >= 8) {
     const lines = [
       "You've been remembering water more often lately.",
@@ -204,9 +201,8 @@ function hydrationInsight() {
 }
 
 function gratitudeInsight() {
-  const days = getGratitudeDaysInPeriod(14);
+  const days  = getGratitudeDaysInPeriod(14);
   const total = getTotalGratitude();
-
   if (total >= 20 && days >= 5) {
     const lines = [
       "Your gratitude garden has grown into something real.",
@@ -228,22 +224,19 @@ function gratitudeInsight() {
 }
 
 function lettersInsight() {
-  const total = getTotalLetters();
+  const total  = getTotalLetters();
   const recent = getLettersInPeriod(14);
 
   if (total >= 5) {
+    // FIX (Batch 50): these were regular strings with ${total} never substituted.
+    // Converted to template literals so the count is actually interpolated.
     const lines = [
-      "You've written ${total} letters to yourself — a quiet archive of who you have been.",
-      "The letters you've written are becoming a small history of your inner life.",
+      `You've written ${total} letters to yourself — a quiet archive of who you have been.`,
+      `The ${total} letters you've written are becoming a small history of your inner life.`,
       "Each letter you've written is a moment of honest attention to yourself.",
       "You have been leaving things behind for your future self — that is a generous habit.",
     ];
-    // Template substitution for total
-    const raw = pick(lines, "letter-deep");
-    return {
-      category: "letters",
-      text: raw?.replace("${total}", String(total)) ?? raw,
-    };
+    return { category: "letters", text: pick(lines, "letter-deep") };
   }
   if (recent >= 1) {
     const lines = [
@@ -257,19 +250,17 @@ function lettersInsight() {
 }
 
 function weatherInsight() {
-  const days = getWeatherDaysInPeriod(14);
+  const days   = getWeatherDaysInPeriod(14);
   const common = getMostCommonWeather(14);
 
   if (days >= 7 && common) {
     const phraseMap = {
-      sunny: "Your days have carried a warmer quality recently.",
-      cloudy: "Your recent days have had a softer, quieter quality.",
-      rainy: "Your recent days have been more reflective and turned inward.",
-      stormy:
-        "You've been carrying something heavier lately — and you are still here.",
-      foggy:
-        "Uncertainty has been part of your recent days, and you have moved through it.",
-      breezy: "There has been a lightness in how your recent days have felt.",
+      sunny:         "Your days have carried a warmer quality recently.",
+      cloudy:        "Your recent days have had a softer, quieter quality.",
+      rainy:         "Your recent days have been more reflective and turned inward.",
+      stormy:        "You've been carrying something heavier lately — and you are still here.",
+      foggy:         "Uncertainty has been part of your recent days, and you have moved through it.",
+      breezy:        "There has been a lightness in how your recent days have felt.",
       "clear-night": "Your evenings have carried a particular clarity lately.",
     };
     const text = phraseMap[common];
@@ -288,8 +279,8 @@ function weatherInsight() {
 
 function reflectionInsight() {
   const eveningDays = getReflectionDaysInPeriod(14);
-  const moodDays = getMoodDaysInPeriod(14);
-  const totalDays = getAllReflectionDates().length;
+  const moodDays    = getMoodDaysInPeriod(14);
+  const totalDays   = getAllReflectionDates().length;
 
   if (eveningDays >= 5) {
     const lines = [
@@ -321,8 +312,6 @@ function reflectionInsight() {
 
 function wellnessInsight() {
   const days = getWellnessDaysInPeriod(14);
-  const total = getWellnessEntries().length;
-
   if (days >= 7) {
     const lines = [
       "You've been checking in with your wellness regularly — a small act that matters.",
@@ -382,7 +371,7 @@ function consistencyInsight() {
 }
 
 function seasonInsight() {
-  const season = getCurrentSeason();
+  const season    = getCurrentSeason();
   const insightMap = {
     spring: [
       "Spring tends to invite a quiet kind of beginning — your recent days reflect that.",
@@ -411,7 +400,7 @@ function seasonInsight() {
 
 function energyInsight() {
   const energyValue = getTodayEnergyValue();
-  const state = classifyEnergy(energyValue);
+  const state       = classifyEnergy(energyValue);
 
   if (state === ENERGY_STATES.LOW) {
     const lines = [
@@ -434,10 +423,6 @@ function energyInsight() {
 
 // ── Pool assembly ─────────────────────────────────────────────────────────────
 
-/**
- * Builds the full pool of eligible insights from all categories.
- * Returns only insights where data supports the observation.
- */
 function buildInsightPool() {
   const candidates = [
     hydrationInsight(),
@@ -448,36 +433,28 @@ function buildInsightPool() {
     wellnessInsight(),
     consistencyInsight(),
     energyInsight(),
-    seasonInsight(), // season always returns something — guaranteed minimum
+    seasonInsight(), // always returns something — guaranteed minimum
   ];
-
   return candidates.filter(Boolean);
 }
 
 // ── 3-insight selection ───────────────────────────────────────────────────────
 
-/**
- * Select 3 insights deterministically from the eligible pool.
- * Uses category diversity to avoid showing 3 of the same type.
- * Falls back gracefully if fewer than 3 eligible insights exist.
- */
 function selectThreeInsights(pool) {
   if (pool.length === 0) return [];
   if (pool.length <= 3) return pool;
 
-  // Use date-based offsets to pick 3 non-repeating entries with category diversity
-  const today = new Date().toISOString().slice(0, 10);
+  const today    = new Date().toISOString().slice(0, 10);
   const baseHash = today
     .split("")
     .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
 
-  const picked = [];
+  const picked         = [];
   const usedCategories = new Set();
-  const usedIndices = new Set();
+  const usedIndices    = new Set();
 
-  // Three passes, each with a different seed offset
   for (let pass = 0; pass < pool.length && picked.length < 3; pass++) {
-    const idx = (baseHash + pass * 7) % pool.length;
+    const idx       = (baseHash + pass * 7) % pool.length;
     const candidate = pool[idx];
     if (!usedIndices.has(idx) && !usedCategories.has(candidate.category)) {
       picked.push(candidate);
@@ -486,7 +463,6 @@ function selectThreeInsights(pool) {
     }
   }
 
-  // If we still need more (rare — all remaining have same category), just fill
   for (let i = 0; i < pool.length && picked.length < 3; i++) {
     if (!usedIndices.has(i)) {
       picked.push(pool[i]);
@@ -499,12 +475,8 @@ function selectThreeInsights(pool) {
 
 // ── Main entry point ──────────────────────────────────────────────────────────
 
-/**
- * Build today's gentle wellness insights.
- * Returns an array of 0–3 insight objects: [{ category, text }]
- */
 export function buildGentleInsights() {
-  const pool = buildInsightPool();
+  const pool     = buildInsightPool();
   const insights = selectThreeInsights(pool);
   return insights;
 }

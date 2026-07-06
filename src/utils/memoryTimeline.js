@@ -2,6 +2,8 @@
 // Reads existing app data to build the Memory Timeline.
 // Does NOT write to any existing storage keys.
 // Derives all timeline entries from read-only access to existing localStorage.
+// Batch 50: added null guards on all entry field accesses to prevent crashes
+//           from corrupted or partially-written localStorage entries.
 
 // ── Memory types ─────────────────────────────────────────────────────────────
 
@@ -34,10 +36,6 @@ export const MEMORY_TYPE_EMOJIS = {
 
 // ── Season detection ──────────────────────────────────────────────────────────
 
-/**
- * Returns the season for a given month number (0–11).
- * Uses Northern Hemisphere seasons. Adjust for Southern if needed.
- */
 export function getSeasonForMonth(month) {
   if (month >= 2 && month <= 4) return "spring";
   if (month >= 5 && month <= 7) return "summer";
@@ -76,9 +74,6 @@ export const SEASON_META = {
   },
 };
 
-/**
- * Returns YYYY season label for display grouping, e.g. "Spring 2025".
- */
 export function getSeasonLabel(dateKey) {
   const d = new Date(dateKey + "T12:00:00");
   const season = getSeasonForMonth(d.getMonth());
@@ -100,123 +95,99 @@ function safeRead(key) {
   }
 }
 
-// ── Entry builders (read-only) ────────────────────────────────────────────────
+// ── Entry builders (read-only, null-guarded) ──────────────────────────────────
 
 function buildGratitudeEntries() {
   const data = safeRead("sthira_gratitude_garden");
   if (!Array.isArray(data)) return [];
-  return data.map((e) => ({
-    id: `mem-grat-${e.id}`,
-    sourceId: e.id,
-    type: MEMORY_TYPES.GRATITUDE,
-    date: e.date,
-    timestamp: e.timestamp,
-    title: "A moment of gratitude",
-    preview: e.text?.slice(0, 120) ?? "",
-    meta: { category: e.category },
-  }));
+  return data
+    .filter((e) => e?.id && e?.date)
+    .map((e) => ({
+      id: `mem-grat-${e.id}`,
+      sourceId: e.id,
+      type: MEMORY_TYPES.GRATITUDE,
+      date: e.date,
+      timestamp: e.timestamp ?? `${e.date}T12:00:00.000Z`,
+      title: "A moment of gratitude",
+      preview: e.text ? String(e.text).slice(0, 120) : "",
+      meta: { category: e.category ?? null },
+    }));
 }
 
 function buildLetterEntries() {
   const data = safeRead("sthira_letters");
   if (!Array.isArray(data)) return [];
-  return data.map((e) => ({
-    id: `mem-letter-${e.id}`,
-    sourceId: e.id,
-    type: MEMORY_TYPES.LETTER,
-    date: e.createdAt?.slice(0, 10) ?? e.date,
-    timestamp: e.createdAt,
-    title: e.title ?? "A letter to myself",
-    preview: e.body?.slice(0, 120) ?? "",
-    meta: { mood: e.mood, deliveryType: e.deliveryType },
-  }));
+  return data
+    .filter((e) => e?.id && (e?.createdAt || e?.date))
+    .map((e) => ({
+      id: `mem-letter-${e.id}`,
+      sourceId: e.id,
+      type: MEMORY_TYPES.LETTER,
+      date: (e.createdAt ?? e.date ?? "").slice(0, 10),
+      timestamp: e.createdAt ?? `${e.date}T12:00:00.000Z`,
+      title: e.title ? String(e.title).slice(0, 80) : "A letter to myself",
+      preview: e.body ? String(e.body).slice(0, 120) : "",
+      meta: { mood: e.mood ?? null, deliveryType: e.deliveryType ?? null },
+    }));
 }
 
 function buildWeatherEntries() {
   const data = safeRead("sthira_emotional_weather");
   if (!Array.isArray(data)) return [];
-  return data.map((e) => ({
-    id: `mem-weather-${e.id}`,
-    sourceId: e.id,
-    type: MEMORY_TYPES.WEATHER,
-    date: e.date,
-    timestamp: e.timestamp,
-    title: `Feeling ${e.weather}`,
-    preview: e.note?.trim()
-      ? e.note.slice(0, 120)
-      : `The weather inside was ${e.weather}.`,
-    meta: { weatherId: e.weather },
-  }));
+  return data
+    .filter((e) => e?.id && e?.date && e?.weather)
+    .map((e) => ({
+      id: `mem-weather-${e.id}`,
+      sourceId: e.id,
+      type: MEMORY_TYPES.WEATHER,
+      date: e.date,
+      timestamp: e.timestamp ?? `${e.date}T12:00:00.000Z`,
+      title: `Feeling ${e.weather}`,
+      preview: e.note?.trim()
+        ? String(e.note).slice(0, 120)
+        : `The weather inside was ${e.weather}.`,
+      meta: { weatherId: e.weather },
+    }));
 }
 
 function buildMoodEntries() {
   const data = safeRead("sthira_mood_journal");
   if (!Array.isArray(data)) return [];
-  return data.map((e) => ({
-    id: `mem-mood-${e.id}`,
-    sourceId: e.id,
-    type: MEMORY_TYPES.MOOD,
-    date: e.date,
-    timestamp: e.timestamp,
-    title: `Mood: ${e.mood}`,
-    preview: e.text?.slice(0, 120) ?? "",
-    meta: { mood: e.mood },
-  }));
+  return data
+    .filter((e) => e?.id && e?.date)
+    .map((e) => ({
+      id: `mem-mood-${e.id}`,
+      sourceId: e.id,
+      type: MEMORY_TYPES.MOOD,
+      date: e.date,
+      timestamp: e.timestamp ?? `${e.date}T12:00:00.000Z`,
+      title: e.mood ? `Mood: ${e.mood}` : "Mood entry",
+      preview: e.text ? String(e.text).slice(0, 120) : "",
+      meta: { mood: e.mood ?? null },
+    }));
 }
 
 function buildReflectionEntries() {
   const data = safeRead("sthira_evening_reflections");
   if (!Array.isArray(data)) return [];
-  return data.map((e) => ({
-    id: `mem-refl-${e.id}`,
-    sourceId: e.id,
-    type: MEMORY_TYPES.REFLECTION,
-    date: e.date,
-    timestamp: e.timestamp,
-    title: "Evening reflection",
-    preview: (e.wentWell || e.difficult || e.tomorrowIntention || "").slice(
-      0,
-      120,
-    ),
-    meta: {
-      mood: e.mood,
-      wentWell: e.wentWell,
-      difficult: e.difficult,
-      intention: e.tomorrowIntention,
-    },
-  }));
-}
-
-function buildWellnessEntries() {
-  // Read from the wellness context storage (sthira_wellness or similar)
-  // Try common key patterns used by the wellness context
-  const data =
-    safeRead("sthira_wellness_data") ?? safeRead("sthira_wellness") ?? null;
-
-  if (!data) return [];
-
-  // Handle array or object with entries property
-  const entries = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.entries)
-      ? data.entries
-      : [];
-
-  return entries
-    .filter((e) => e && e.date)
+  return data
+    .filter((e) => e?.id && e?.date)
     .map((e) => ({
-      id: `mem-well-${e.date}-${e.timestamp ?? "0"}`,
-      sourceId: `well-${e.date}`,
-      type: MEMORY_TYPES.WELLNESS,
+      id: `mem-refl-${e.id}`,
+      sourceId: e.id,
+      type: MEMORY_TYPES.REFLECTION,
       date: e.date,
-      timestamp: e.timestamp ?? e.date + "T12:00:00.000Z",
-      title: "Wellness check-in",
-      preview: buildWellnessPreview(e),
+      timestamp: e.timestamp ?? `${e.date}T12:00:00.000Z`,
+      title: "Evening reflection",
+      preview: (e.wentWell || e.difficult || e.tomorrowIntention || "").slice(
+        0,
+        120,
+      ),
       meta: {
-        energy: e.energy,
-        focus: e.focus,
-        stress: e.stress,
-        mood: e.mood,
+        mood: e.mood ?? null,
+        wentWell: e.wentWell ?? null,
+        difficult: e.difficult ?? null,
+        intention: e.tomorrowIntention ?? null,
       },
     }));
 }
@@ -227,15 +198,42 @@ function buildWellnessPreview(e) {
   if (e.focus) parts.push(`Focus ${e.focus}/5`);
   if (e.stress) parts.push(`Stress ${e.stress}/5`);
   if (e.mood) parts.push(`Mood ${e.mood}/5`);
-  return parts.join(" · ") || "Checked in today.";
+  return parts.length > 0 ? parts.join(" · ") : "Checked in today.";
+}
+
+function buildWellnessEntries() {
+  const data =
+    safeRead("sthira_wellness_data") ?? safeRead("sthira_wellness") ?? null;
+
+  if (!data) return [];
+
+  const entries = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.entries)
+      ? data.entries
+      : [];
+
+  return entries
+    .filter((e) => e?.date)
+    .map((e) => ({
+      id: `mem-well-${e.date}-${e.timestamp ?? "0"}`,
+      sourceId: `well-${e.date}`,
+      type: MEMORY_TYPES.WELLNESS,
+      date: e.date,
+      timestamp: e.timestamp ?? `${e.date}T12:00:00.000Z`,
+      title: "Wellness check-in",
+      preview: buildWellnessPreview(e),
+      meta: {
+        energy: e.energy ?? null,
+        focus: e.focus ?? null,
+        stress: e.stress ?? null,
+        mood: e.mood ?? null,
+      },
+    }));
 }
 
 // ── Main timeline builder ─────────────────────────────────────────────────────
 
-/**
- * Build the full memory timeline from all available data sources.
- * Sorted newest first. Deduplicates by id.
- */
 export function buildMemoryTimeline() {
   const all = [
     ...buildGratitudeEntries(),
@@ -262,13 +260,10 @@ export function buildMemoryTimeline() {
   });
 }
 
-/**
- * Group a timeline array by season+year.
- * Returns [{ seasonKey, label, season, year, entries[] }] newest first.
- */
 export function groupBySeasons(entries) {
   const map = new Map();
   for (const entry of entries) {
+    if (!entry?.date) continue;
     const { season, year, label } = getSeasonLabel(entry.date);
     const key = `${season}-${year}`;
     if (!map.has(key)) {
@@ -276,7 +271,6 @@ export function groupBySeasons(entries) {
     }
     map.get(key).entries.push(entry);
   }
-  // Sort groups newest first
   return Array.from(map.values()).sort((a, b) => {
     if (b.year !== a.year) return b.year - a.year;
     const order = { winter: 4, autumn: 3, summer: 2, spring: 1 };
@@ -284,30 +278,23 @@ export function groupBySeasons(entries) {
   });
 }
 
-/**
- * Filter entries by type. Passes all if type is "all".
- */
 export function filterByType(entries, type) {
   if (!type || type === "all") return entries;
-  return entries.filter((e) => e.type === type);
+  return entries.filter((e) => e?.type === type);
 }
 
-/**
- * Find an older memory (at least 14 days ago) to surface in "On this journey".
- * Returns a random entry from eligible ones, or null.
- */
 export function findOlderMemory(entries) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 14);
-  const eligible = entries.filter((e) => new Date(e.timestamp) < cutoff);
+  const eligible = entries.filter(
+    (e) => e?.timestamp && new Date(e.timestamp) < cutoff,
+  );
   if (eligible.length === 0) return null;
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
 
-/**
- * Format a date key for display.
- */
 export function formatMemoryDate(dateKey) {
+  if (!dateKey) return "";
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
   if (dateKey === today) return "Today";
@@ -320,21 +307,20 @@ export function formatMemoryDate(dateKey) {
   });
 }
 
-/**
- * Format a relative time label like "2 months ago", "3 weeks ago".
- */
 export function formatRelativeTime(timestamp) {
+  if (!timestamp) return "some time ago";
   const now = Date.now();
   const then = new Date(timestamp).getTime();
   const days = Math.floor((now - then) / 86400000);
   if (days < 1) return "today";
   if (days === 1) return "yesterday";
   if (days < 7) return `${days} days ago`;
-  if (days < 30)
-    return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? "s" : ""} ago`;
-  if (days < 365)
-    return `${Math.floor(days / 30)} month${Math.floor(days / 30) > 1 ? "s" : ""} ago`;
-  return `${Math.floor(days / 365)} year${Math.floor(days / 365) > 1 ? "s" : ""} ago`;
+  const weeks = Math.floor(days / 7);
+  if (days < 30) return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+  const months = Math.floor(days / 30);
+  if (days < 365) return `${months} month${months > 1 ? "s" : ""} ago`;
+  const years = Math.floor(days / 365);
+  return `${years} year${years > 1 ? "s" : ""} ago`;
 }
 
 // ── Persistence for filter preference ────────────────────────────────────────
@@ -352,5 +338,7 @@ export function loadFilterPreference() {
 export function saveFilterPreference(type) {
   try {
     localStorage.setItem(FILTER_KEY, type);
-  } catch (_) {}
+  } catch (_) {
+    // Fail silently — preference is non-critical
+  }
 }
