@@ -3,6 +3,8 @@
 // Business logic only. No UI. No new storage. Read-only from existing keys.
 // Produces 4–6 moment suggestions tailored to energy, time, season, weather,
 // hydration, and emotional state — never a task list, always a gentle invitation.
+// Batch 51: hardened all division-by-zero guards in getTodayHydrationPercentage;
+//           added null guard on getSoundById result (already safe but made explicit).
 
 import { getTimePhase, getCurrentSeason } from "./atmosphereEngine";
 import { getTodayEntry as getTodayWeather } from "./emotionalWeather";
@@ -23,33 +25,47 @@ function safeRead(key) {
 
 function getTodayHydrationPercentage() {
   try {
-    // Try common hydration storage patterns used by the app
+    const today      = new Date().toISOString().slice(0, 10);
     const candidates = ["sthira_hydration", "sthira_hydration_data"];
+
     for (const key of candidates) {
       const data = safeRead(key);
       if (!data) continue;
-      const today = new Date().toISOString().slice(0, 10);
 
       if (Array.isArray(data)) {
-        const entry = data.find((e) => e.date === today);
-        if (entry && entry.goal > 0) {
-          return Math.min(100, Math.round((entry.total / entry.goal) * 100));
+        const entry = data.find((e) => e?.date === today);
+        if (entry) {
+          const total = Number(entry.total ?? 0);
+          const goal  = Number(entry.goal  ?? 0);
+          if (goal > 0) return Math.min(100, Math.round((total / goal) * 100));
+        }
+        continue;
+      }
+
+      if (typeof data === "object") {
+        // Pattern: { todayTotal, goal }
+        const todayTotal = Number(data.todayTotal ?? NaN);
+        const goal       = Number(data.goal ?? NaN);
+        if (!isNaN(todayTotal) && !isNaN(goal) && goal > 0) {
+          return Math.min(100, Math.round((todayTotal / goal) * 100));
+        }
+
+        // Pattern: { [YYYY-MM-DD]: { total, goal } }
+        const entry = data[today];
+        if (entry) {
+          const total = Number(entry.total ?? 0);
+          const g     = Number(entry.goal  ?? 0);
+          if (g > 0) return Math.min(100, Math.round((total / g) * 100));
         }
       }
-      if (data?.todayTotal != null && data?.goal > 0) {
-        return Math.min(100, Math.round((data.todayTotal / data.goal) * 100));
-      }
-      if (data?.[today]?.total != null && data?.[today]?.goal > 0) {
-        return Math.min(100, Math.round((data[today].total / data[today].goal) * 100));
-      }
     }
-  } catch (_) {}
-  return null; // Unknown hydration state
+  } catch (_) {
+    // Fall through
+  }
+  return null;
 }
 
 // ── Moment definitions ────────────────────────────────────────────────────────
-// All 50+ handcrafted descriptions live here.
-// Each moment has variants to prevent repetition across energy states.
 
 export const MOMENT_POOL = {
   hydration: {
@@ -266,10 +282,6 @@ export const MOMENT_POOL = {
 
 // ── Description selector ──────────────────────────────────────────────────────
 
-/**
- * Returns a deterministic description variant for a given moment on today's date.
- * Same date + same moment id = same description.
- */
 function pickDescription(momentKey) {
   const moment = MOMENT_POOL[momentKey];
   if (!moment) return "";
@@ -277,12 +289,11 @@ function pickDescription(momentKey) {
   const hash  = (today + momentKey)
     .split("")
     .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  return moment.descriptions[hash % moment.descriptions.length];
+  const pool = moment.descriptions;
+  if (!Array.isArray(pool) || pool.length === 0) return "";
+  return pool[hash % pool.length];
 }
 
-/**
- * Build a renderable moment object from a pool key.
- */
 function buildMoment(key) {
   const def = MOMENT_POOL[key];
   if (!def) return null;
@@ -300,138 +311,90 @@ function buildMoment(key) {
 
 function buildLowEnergyPlan({ phase, weatherId, hydrationPct }) {
   const moments = [];
-
-  // Always include hydration when below 50%
-  if (hydrationPct === null || hydrationPct < 50) {
-    moments.push("hydration");
-  }
-
-  // Breathing is always appropriate for low energy
+  if (hydrationPct === null || hydrationPct < 50) moments.push("hydration");
   moments.push("breathing");
-
-  // Calm sounds for ambience and support
   moments.push("calmSounds");
-
-  // Sanctuary for rest
   moments.push("sanctuary");
 
-  // Evening/night phases: wind-down
   if (phase === "evening" || phase === "late-evening" || phase === "night") {
     moments.push("sleepWindDown");
   } else {
-    // Daytime low energy: gentle companion or self-compassion
-    if (weatherId === "stormy" || weatherId === "rainy") {
-      moments.push("selfCompassion");
-    } else {
-      moments.push("companion");
-    }
+    moments.push(
+      weatherId === "stormy" || weatherId === "rainy"
+        ? "selfCompassion"
+        : "companion",
+    );
   }
 
-  // Add gratitude if not already 5 moments and it feels supportive
-  if (moments.length < 5) {
-    moments.push("gratitude");
-  }
-
+  if (moments.length < 5) moments.push("gratitude");
   return moments.slice(0, 6);
 }
 
 function buildMediumEnergyPlan({ phase, season, weatherId, hydrationPct }) {
   const moments = [];
+  if (hydrationPct === null || hydrationPct < 60) moments.push("hydration");
 
-  // Hydration check
-  if (hydrationPct === null || hydrationPct < 60) {
-    moments.push("hydration");
+  if (phase === "morning" || phase === "early-morning") {
+    moments.push("morningRoutine", "eyeRecovery");
+  } else if (phase === "afternoon") {
+    moments.push("studyBreak", "eyeRecovery");
+  } else if (phase === "evening" || phase === "late-evening") {
+    moments.push("eveningReflection", "sleepWindDown");
+  } else {
+    moments.push("sleepWindDown", "calmSounds");
   }
 
-  // Time-sensitive recommendations
-  if (phase === "morning" || phase === "early-morning") {
-    moments.push("morningRoutine");
-    moments.push("eyeRecovery");
-  } else if (phase === "afternoon") {
-    moments.push("studyBreak");
-    moments.push("eyeRecovery");
-  } else if (phase === "evening" || phase === "late-evening") {
-    moments.push("eveningReflection");
-    moments.push("sleepWindDown");
-  } else {
-    // Night
-    moments.push("sleepWindDown");
+  moments.push(
+    season === "spring" || season === "summer" ? "gratitude" : "letters",
+  );
+
+  if (
+    (weatherId === "rainy" || weatherId === "stormy" || weatherId === "foggy") &&
+    !moments.includes("calmSounds")
+  ) {
     moments.push("calmSounds");
   }
 
-  // Seasonal additions
-  if (season === "spring" || season === "summer") {
-    moments.push("gratitude");
-  } else {
-    moments.push("letters");
-  }
-
-  // Weather-aware
-  if (weatherId === "rainy" || weatherId === "stormy" || weatherId === "foggy") {
-    if (!moments.includes("calmSounds")) moments.push("calmSounds");
-  }
-
-  // Fill to min 4
   if (moments.length < 4) moments.push("companion");
-
   return moments.slice(0, 6);
 }
 
 function buildHighEnergyPlan({ phase, season, weatherId, hydrationPct }) {
   const moments = [];
+  if (hydrationPct === null || hydrationPct < 70) moments.push("hydration");
 
-  // Hydration for active days
-  if (hydrationPct === null || hydrationPct < 70) {
-    moments.push("hydration");
-  }
-
-  // Morning phase: full energy, movement focus
   if (phase === "morning" || phase === "early-morning") {
-    moments.push("morningRoutine");
-    moments.push("focus");
-    moments.push("eyeRecovery");
-    moments.push("gratitude");
+    moments.push("morningRoutine", "focus", "eyeRecovery", "gratitude");
   } else if (phase === "afternoon") {
-    moments.push("focus");
-    moments.push("studyBreak");
-    moments.push("eyeRecovery");
-    moments.push("gratitude");
+    moments.push("focus", "studyBreak", "eyeRecovery", "gratitude");
   } else if (phase === "evening" || phase === "late-evening") {
-    moments.push("eveningReflection");
-    moments.push("letters");
-    moments.push("sleepWindDown");
+    moments.push("eveningReflection", "letters", "sleepWindDown");
   } else {
-    // Night with high energy — guide toward rest
-    moments.push("calmSounds");
-    moments.push("sleepWindDown");
-    moments.push("companion");
+    moments.push("calmSounds", "sleepWindDown", "companion");
   }
 
-  // Fill to min 4
   if (moments.length < 4) moments.push("breathing");
-
   return moments.slice(0, 6);
 }
 
 function buildUnknownEnergyPlan({ phase }) {
-  const moments = [
-    "wellnessCheckIn", // Always first when no check-in
-    "hydration",
-    "breathing",
-  ];
+  const moments = ["wellnessCheckIn", "hydration", "breathing"];
 
   if (phase === "morning" || phase === "early-morning") {
     moments.push("morningRoutine");
   } else if (phase === "afternoon") {
     moments.push("studyBreak");
-  } else if (phase === "evening" || phase === "late-evening" || phase === "night") {
+  } else if (
+    phase === "evening" ||
+    phase === "late-evening" ||
+    phase === "night"
+  ) {
     moments.push("eveningReflection");
   } else {
     moments.push("companion");
   }
 
   moments.push("calmSounds");
-
   return moments.slice(0, 6);
 }
 
@@ -446,50 +409,33 @@ const SUBTITLES = {
 
 // ── Main entry point ──────────────────────────────────────────────────────────
 
-/**
- * Build the complete daily companion plan.
- * Returns:
- * {
- *   energyState,
- *   subtitle,
- *   moments: [{ id, emoji, title, description, duration, pathKey }]
- * }
- */
 export function buildDailyCompanionPlan() {
-  const phase       = getTimePhase();
-  const season      = getCurrentSeason();
+  const phase        = getTimePhase();
+  const season       = getCurrentSeason();
   const weatherEntry = getTodayWeather();
-  const weatherId   = weatherEntry?.weather ?? null;
-  const energyValue = getTodayEnergyValue();
-  const energyState = classifyEnergy(energyValue);
+  const weatherId    = weatherEntry?.weather ?? null;
+  const energyValue  = getTodayEnergyValue();
+  const energyState  = classifyEnergy(energyValue);
   const hydrationPct = getTodayHydrationPercentage();
 
   const context = { phase, season, weatherId, hydrationPct };
 
   let keys;
   switch (energyState) {
-    case ENERGY_STATES.LOW:
-      keys = buildLowEnergyPlan(context);
-      break;
-    case ENERGY_STATES.MEDIUM:
-      keys = buildMediumEnergyPlan(context);
-      break;
-    case ENERGY_STATES.HIGH:
-      keys = buildHighEnergyPlan(context);
-      break;
-    default:
-      keys = buildUnknownEnergyPlan(context);
+    case ENERGY_STATES.LOW:    keys = buildLowEnergyPlan(context);     break;
+    case ENERGY_STATES.MEDIUM: keys = buildMediumEnergyPlan(context);  break;
+    case ENERGY_STATES.HIGH:   keys = buildHighEnergyPlan(context);    break;
+    default:                   keys = buildUnknownEnergyPlan(context);
   }
 
-  // Deduplicate keys while preserving order
-  const seen = new Set();
+  // Deduplicate while preserving order
+  const seen       = new Set();
   const dedupedKeys = keys.filter((k) => {
     if (seen.has(k)) return false;
     seen.add(k);
     return true;
   });
 
-  // Build moment objects
   const moments = dedupedKeys
     .map((k) => buildMoment(k))
     .filter(Boolean)

@@ -2,8 +2,9 @@
 // State detection and 250+ message pools for the Context-Aware Gentle Companion.
 // Pure functions only. Read-only. No side effects. No new storage.
 // Deterministic — same context always produces same message.
-// Batch 49: MESSAGE_POOLS now exported so companionEngine can import it
-// directly at the top level (removes the require() anti-pattern).
+// Batch 49: MESSAGE_POOLS exported (removes require() anti-pattern).
+// Batch 51: hardened getTodayHydrationPct against division-by-zero and
+//           null/undefined object key access.
 
 import { getTimePhase, getCurrentSeason } from "./atmosphereEngine";
 import { getTodayEntry as getTodayWeather } from "./emotionalWeather";
@@ -12,7 +13,7 @@ import {
   classifyEnergy,
   ENERGY_STATES,
 } from "./energyGuidance";
-import { hasReflectedToday, getAllReflectionDates } from "./gentleStreaks";
+import { hasReflectedToday } from "./gentleStreaks";
 
 // ── Safe reader ───────────────────────────────────────────────────────────────
 
@@ -28,23 +29,41 @@ function safeRead(key) {
 // ── Data helpers ──────────────────────────────────────────────────────────────
 
 function getTodayHydrationPct() {
-  const today = new Date().toISOString().slice(0, 10);
-  const candidates = ["sthira_hydration", "sthira_hydration_data"];
-  for (const key of candidates) {
-    const data = safeRead(key);
-    if (!data) continue;
-    if (Array.isArray(data)) {
-      const e = data.find((x) => x.date === today);
-      if (e?.goal > 0)
-        return Math.min(100, Math.round((e.total / e.goal) * 100));
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const candidates = ["sthira_hydration", "sthira_hydration_data"];
+
+    for (const key of candidates) {
+      const data = safeRead(key);
+      if (!data) continue;
+
+      if (Array.isArray(data)) {
+        const entry = data.find((e) => e?.date === today);
+        if (entry) {
+          const total = Number(entry.total ?? 0);
+          const goal = Number(entry.goal ?? 0);
+          if (goal > 0) return Math.min(100, Math.round((total / goal) * 100));
+        }
+        continue;
+      }
+
+      if (typeof data === "object") {
+        const todayTotal = Number(data.todayTotal ?? NaN);
+        const goal = Number(data.goal ?? NaN);
+        if (!isNaN(todayTotal) && !isNaN(goal) && goal > 0) {
+          return Math.min(100, Math.round((todayTotal / goal) * 100));
+        }
+
+        const entry = data[today];
+        if (entry) {
+          const total = Number(entry.total ?? 0);
+          const g = Number(entry.goal ?? 0);
+          if (g > 0) return Math.min(100, Math.round((total / g) * 100));
+        }
+      }
     }
-    if (data?.todayTotal != null && data?.goal > 0)
-      return Math.min(100, Math.round((data.todayTotal / data.goal) * 100));
-    if (data?.[today]?.total != null && data?.[today]?.goal > 0)
-      return Math.min(
-        100,
-        Math.round((data[today].total / data[today].goal) * 100),
-      );
+  } catch (_) {
+    // Fall through
   }
   return null;
 }
@@ -53,14 +72,17 @@ function getTodayGratitudeCount() {
   const today = new Date().toISOString().slice(0, 10);
   const data = safeRead("sthira_gratitude_garden");
   if (!Array.isArray(data)) return 0;
-  return data.filter((e) => e.date === today).length;
+  return data.filter((e) => e?.date === today).length;
 }
 
 function getTodayLetterCount() {
   const today = new Date().toISOString().slice(0, 10);
   const data = safeRead("sthira_letters");
   if (!Array.isArray(data)) return 0;
-  return data.filter((e) => (e.createdAt ?? "").slice(0, 10) === today).length;
+  return data.filter((e) => {
+    const raw = e?.createdAt ?? e?.date ?? "";
+    return typeof raw === "string" && raw.slice(0, 10) === today;
+  }).length;
 }
 
 function hasCompletedMorningRoutineToday() {
@@ -70,12 +92,23 @@ function hasCompletedMorningRoutineToday() {
     const data = safeRead(key);
     if (!data) continue;
     if (Array.isArray(data)) {
-      if (data.some((e) => (e.date ?? e.completedAt?.slice?.(0, 10)) === today))
+      if (
+        data.some(
+          (e) =>
+            e?.date === today ||
+            (typeof e?.completedAt === "string" &&
+              e.completedAt.slice(0, 10) === today),
+        )
+      )
         return true;
     }
     if (data?.lastCompletedDate === today) return true;
-    if (data?.completions && Array.isArray(data.completions)) {
-      if (data.completions.some((e) => (e.date ?? "").slice(0, 10) === today))
+    if (Array.isArray(data?.completions)) {
+      if (
+        data.completions.some(
+          (e) => typeof e?.date === "string" && e.date.slice(0, 10) === today,
+        )
+      )
         return true;
     }
   }
@@ -86,11 +119,7 @@ function hasReflectedEveningToday() {
   const today = new Date().toISOString().slice(0, 10);
   const data = safeRead("sthira_evening_reflections");
   if (!Array.isArray(data)) return false;
-  return data.some((e) => e.date === today);
-}
-
-function hasWellnessCheckInToday() {
-  return getTodayEnergyValue() !== null;
+  return data.some((e) => e?.date === today);
 }
 
 // ── Companion states ──────────────────────────────────────────────────────────
@@ -169,9 +198,9 @@ export function detectCompanionState() {
   return COMPANION_STATES.GENTLE_MORNING;
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-// MESSAGE POOLS — exported so companionEngine can import at top level
-// ════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════════
+// MESSAGE POOLS — exported for companionEngine top-level import
+// ═══════════════════════════════════════════════════════════════════════════════
 
 export const MESSAGE_POOLS = {
   [COMPANION_STATES.GENTLE_MORNING]: [
@@ -191,7 +220,6 @@ export const MESSAGE_POOLS = {
     "Today is here. There is no need to rush into it.",
     "This morning has a particular unhurried quality.",
   ],
-
   [COMPANION_STATES.SLOW_MORNING]: [
     "A slow morning is not a lost morning.",
     "Not everything needs to begin at full speed.",
@@ -209,7 +237,6 @@ export const MESSAGE_POOLS = {
     "This morning is asking something quieter of you.",
     "Not all mornings need to be productive to be worthwhile.",
   ],
-
   [COMPANION_STATES.FRESH_START]: [
     "The very first part of the day has a quality nothing else does.",
     "Something about this early hour is yours alone.",
@@ -227,7 +254,6 @@ export const MESSAGE_POOLS = {
     "This quiet beginning is already something.",
     "You arrived at today before it fully arrived.",
   ],
-
   [COMPANION_STATES.CALM_AFTERNOON]: [
     "The rhythm of today has become a little steadier.",
     "Afternoon has its own kind of settled quality.",
@@ -245,7 +271,6 @@ export const MESSAGE_POOLS = {
     "You have been in today long enough to know its texture.",
     "The day is continuing, and so are you.",
   ],
-
   [COMPANION_STATES.FOCUSED_AFTERNOON]: [
     "There is a particular kind of focus that arrives in the afternoon.",
     "The afternoon can hold real depth, if you let it.",
@@ -263,7 +288,6 @@ export const MESSAGE_POOLS = {
     "The middle of the day has its own kind of focus.",
     "Afternoons can carry the most substance of any part of the day.",
   ],
-
   [COMPANION_STATES.QUIET_EVENING]: [
     "The evening is settling. So can you.",
     "Nothing about this evening needs to be rushed.",
@@ -281,7 +305,6 @@ export const MESSAGE_POOLS = {
     "Evening is here. The day is becoming what it was.",
     "Something in this hour is asking you to soften.",
   ],
-
   [COMPANION_STATES.REFLECTIVE_EVENING]: [
     "You've made room for yourself today.",
     "Something quiet happened today — you turned toward yourself.",
@@ -299,7 +322,6 @@ export const MESSAGE_POOLS = {
     "Reflection is a way of honoring what the day actually was.",
     "You brought a certain attention to today that most days don't receive.",
   ],
-
   [COMPANION_STATES.LATE_NIGHT]: [
     "Rest is becoming part of today's journey.",
     "The night is here. Everything else can wait until morning.",
@@ -317,7 +339,6 @@ export const MESSAGE_POOLS = {
     "Nothing needs to be decided in the dark.",
     "Rest is already the most productive thing available right now.",
   ],
-
   [COMPANION_STATES.RAINY_MOOD]: [
     "Rainy days have their own particular invitation to go inward.",
     "Something about today's weather is asking for softness.",
@@ -335,7 +356,6 @@ export const MESSAGE_POOLS = {
     "Today is a good day to be gentle — with yourself and with everything.",
     "The rhythm of rain has a kind of steadiness worth borrowing.",
   ],
-
   [COMPANION_STATES.SUNNY_MOOD]: [
     "The sun is simply out — a straightforward kind of good.",
     "Something in today's light makes the small things more visible.",
@@ -353,7 +373,6 @@ export const MESSAGE_POOLS = {
     "The warmth today is real. So is your place in it.",
     "A sunny day is always enough reason to notice something small.",
   ],
-
   [COMPANION_STATES.CLOUDY_MOOD]: [
     "Cloudy days have a softness that clear ones rarely do.",
     "Something about today's sky is asking for a quieter pace.",
@@ -371,7 +390,6 @@ export const MESSAGE_POOLS = {
     "Today has a quality of introspection that is worth honouring.",
     "A day without bright sun has its own distinct value.",
   ],
-
   [COMPANION_STATES.FOGGY_MOOD]: [
     "Fog makes everything a little less certain — and that is allowed.",
     "Something about today feels a little unclear. That is an honest way to be.",
@@ -389,7 +407,6 @@ export const MESSAGE_POOLS = {
     "The fog is not hiding anything important. It is simply here.",
     "Uncertainty is the weather of many good days.",
   ],
-
   [COMPANION_STATES.HIGH_ENERGY]: [
     "There is a little more available today than usual.",
     "Something in today has a quality of readiness.",
@@ -407,7 +424,6 @@ export const MESSAGE_POOLS = {
     "The day seems willing today. So can you be.",
     "Today's energy is yours to direct, gently.",
   ],
-
   [COMPANION_STATES.LOW_ENERGY]: [
     "Your body may be asking for something slower today.",
     "A low-energy day is not a failed day.",
@@ -425,7 +441,6 @@ export const MESSAGE_POOLS = {
     "Low energy is not emptiness. It is information.",
     "Your body is asking something of you today. Listening is enough.",
   ],
-
   [COMPANION_STATES.HYDRATED]: [
     "Water has already been one kind thing you've done today.",
     "You've been taking care of the simplest things — that matters.",
@@ -443,7 +458,6 @@ export const MESSAGE_POOLS = {
     "Something good and simple has already happened today.",
     "You've been attending to the basics — which is more than it sounds.",
   ],
-
   [COMPANION_STATES.NEEDS_REST]: [
     "The night is the right place for what today couldn't finish.",
     "Rest is becoming part of today's journey.",
@@ -461,7 +475,6 @@ export const MESSAGE_POOLS = {
     "Resting now is not giving up. It is taking care of yourself.",
     "Nothing that matters will be lost by sleeping tonight.",
   ],
-
   [COMPANION_STATES.RECENT_REFLECTION]: [
     "You've already made space for yourself today.",
     "Something worthwhile happened today — you turned toward yourself.",
@@ -479,7 +492,6 @@ export const MESSAGE_POOLS = {
     "You came back to yourself today. That is always worth acknowledging.",
     "The quiet work of noticing has already been done today.",
   ],
-
   [COMPANION_STATES.RECENT_GRATITUDE]: [
     "You noticed something good today. That is already something.",
     "Something was worth appreciating today — and you found it.",
@@ -497,7 +509,6 @@ export const MESSAGE_POOLS = {
     "The small act of appreciation changes what a day is made of.",
     "You looked for something worth finding today — and you found it.",
   ],
-
   [COMPANION_STATES.ROUTINE_COMPLETED]: [
     "You've already done enough to begin.",
     "The morning routine is behind you — and something has shifted.",
@@ -545,9 +556,6 @@ function deterministicIndex(seed, total) {
 
 // ── Main exports ──────────────────────────────────────────────────────────────
 
-/**
- * Detect state and return one deterministic contextual companion message.
- */
 export function getContextAwareCompanionMessage() {
   const state = detectCompanionState();
   const pool = MESSAGE_POOLS[state] ?? FALLBACK_MESSAGES;
@@ -555,9 +563,6 @@ export function getContextAwareCompanionMessage() {
   return { text, state };
 }
 
-/**
- * Display label for a companion state.
- */
 export const STATE_LABELS = {
   [COMPANION_STATES.GENTLE_MORNING]: "Morning",
   [COMPANION_STATES.SLOW_MORNING]: "Morning",

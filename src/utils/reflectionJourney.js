@@ -2,15 +2,12 @@
 // Generates one personalized gentle reflection card per day.
 // Read-only — uses exclusively existing app data.
 // No new storage created. No existing structures modified.
-// 80+ unique message components assembled deterministically.
+// Batch 51: hardened getTodayHydrationPct against division-by-zero and
+//           null/undefined object key access; added guards to all string ops.
 
 import { getTimePhase, getCurrentSeason } from "./atmosphereEngine";
 import { getTodayEntry as getTodayWeather } from "./emotionalWeather";
-import {
-  getTodayEnergyValue,
-  classifyEnergy,
-  ENERGY_STATES,
-} from "./energyGuidance";
+import { getTodayEnergyValue, classifyEnergy, ENERGY_STATES } from "./energyGuidance";
 import { getAllReflectionDates, hasReflectedToday } from "./gentleStreaks";
 
 // ── Safe reader ───────────────────────────────────────────────────────────────
@@ -28,36 +25,57 @@ function safeRead(key) {
 
 function getTodayGratitudeCount() {
   const today = new Date().toISOString().slice(0, 10);
-  const data = safeRead("sthira_gratitude_garden");
+  const data  = safeRead("sthira_gratitude_garden");
   if (!Array.isArray(data)) return 0;
-  return data.filter((e) => e.date === today).length;
+  return data.filter((e) => e?.date === today).length;
 }
 
 function getTodayLetterCount() {
   const today = new Date().toISOString().slice(0, 10);
-  const data = safeRead("sthira_letters");
+  const data  = safeRead("sthira_letters");
   if (!Array.isArray(data)) return 0;
-  return data.filter((e) => (e.createdAt ?? "").slice(0, 10) === today).length;
+  return data.filter((e) => {
+    const raw = e?.createdAt ?? e?.date ?? "";
+    return typeof raw === "string" && raw.slice(0, 10) === today;
+  }).length;
 }
 
 function getTodayHydrationPct() {
-  const today = new Date().toISOString().slice(0, 10);
-  const candidates = ["sthira_hydration", "sthira_hydration_data"];
-  for (const key of candidates) {
-    const data = safeRead(key);
-    if (!data) continue;
-    if (Array.isArray(data)) {
-      const e = data.find((x) => x.date === today);
-      if (e?.goal > 0)
-        return Math.min(100, Math.round((e.total / e.goal) * 100));
+  try {
+    const today      = new Date().toISOString().slice(0, 10);
+    const candidates = ["sthira_hydration", "sthira_hydration_data"];
+
+    for (const key of candidates) {
+      const data = safeRead(key);
+      if (!data) continue;
+
+      if (Array.isArray(data)) {
+        const entry = data.find((e) => e?.date === today);
+        if (entry) {
+          const total = Number(entry.total ?? 0);
+          const goal  = Number(entry.goal  ?? 0);
+          if (goal > 0) return Math.min(100, Math.round((total / goal) * 100));
+        }
+        continue;
+      }
+
+      if (typeof data === "object") {
+        const todayTotal = Number(data.todayTotal ?? NaN);
+        const goal       = Number(data.goal ?? NaN);
+        if (!isNaN(todayTotal) && !isNaN(goal) && goal > 0) {
+          return Math.min(100, Math.round((todayTotal / goal) * 100));
+        }
+
+        const entry = data[today];
+        if (entry) {
+          const total = Number(entry.total ?? 0);
+          const g     = Number(entry.goal  ?? 0);
+          if (g > 0) return Math.min(100, Math.round((total / g) * 100));
+        }
+      }
     }
-    if (data?.todayTotal != null && data?.goal > 0)
-      return Math.min(100, Math.round((data.todayTotal / data.goal) * 100));
-    if (data?.[today]?.total != null && data?.[today]?.goal > 0)
-      return Math.min(
-        100,
-        Math.round((data[today].total / data[today].goal) * 100),
-      );
+  } catch (_) {
+    // Fall through
   }
   return null;
 }
@@ -83,26 +101,24 @@ function getTotalMemoryCount() {
 function deterministicIndex(seed, total) {
   if (total <= 0) return 0;
   const today = new Date().toISOString().slice(0, 10);
-  const hash = (today + seed)
+  const hash  = (today + seed)
     .split("")
     .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return hash % total;
 }
 
-// ── Message banks (80+ unique lines across all banks) ────────────────────────
+// ── Message banks ─────────────────────────────────────────────────────────────
 
-// Emotional tone phrases — keyed to weather id
 const WEATHER_TONE_PHRASES = {
-  sunny: "Today carried a warmth that was worth noticing.",
-  cloudy: "Today had a soft, muted quality to it.",
-  rainy: "Today had the particular stillness that rain tends to bring.",
-  stormy: "Today asked more of you than most days do.",
-  foggy: "Today felt a little unclear — and that is allowed.",
-  breezy: "There was something light and moving about today.",
+  sunny:         "Today carried a warmth that was worth noticing.",
+  cloudy:        "Today had a soft, muted quality to it.",
+  rainy:         "Today had the particular stillness that rain tends to bring.",
+  stormy:        "Today asked more of you than most days do.",
+  foggy:         "Today felt a little unclear — and that is allowed.",
+  breezy:        "There was something light and moving about today.",
   "clear-night": "Today ended with a particular kind of quiet clarity.",
 };
 
-// Fallback tone phrases when no weather logged — vary by energy + time
 const FALLBACK_TONE_PHRASES = [
   "Today unfolded at its own pace, as all days do.",
   "Today was simply a day — and that is enough.",
@@ -114,7 +130,6 @@ const FALLBACK_TONE_PHRASES = [
   "Whatever today held, you were present for it.",
 ];
 
-// Gentle observations — vary by energy state
 const OBSERVATIONS = {
   [ENERGY_STATES.LOW]: [
     "You kept going on a day when that genuinely took something.",
@@ -154,39 +169,38 @@ const OBSERVATIONS = {
   ],
 };
 
-// Appreciation lines — vary by what data shows
 function getAppreciationLine(ctx) {
   if (ctx.todayGratitudeCount > 0) {
     const lines = [
-      `You took a moment to notice something good today. That matters.`,
-      `Adding to the gratitude garden today was a quiet act of attention.`,
-      `You paused to acknowledge something worth appreciating. That is not small.`,
-      `Gratitude, noted even once, shifts something in how a day is remembered.`,
+      "You took a moment to notice something good today. That matters.",
+      "Adding to the gratitude garden today was a quiet act of attention.",
+      "You paused to acknowledge something worth appreciating. That is not small.",
+      "Gratitude, noted even once, shifts something in how a day is remembered.",
     ];
     return lines[deterministicIndex("grat-appr", lines.length)];
   }
   if (ctx.todayLetterCount > 0) {
     const lines = [
-      `Writing to yourself today was an act of kindness toward your future self.`,
-      `A letter to yourself is a gift that travels through time.`,
-      `You gave your future self something to return to. That is a generous thing to do.`,
+      "Writing to yourself today was an act of kindness toward your future self.",
+      "A letter to yourself is a gift that travels through time.",
+      "You gave your future self something to return to. That is a generous thing to do.",
     ];
     return lines[deterministicIndex("letter-appr", lines.length)];
   }
   if (ctx.reflectedToday) {
     const lines = [
-      `You took a moment to check in with yourself today. Most people do not.`,
-      `Reflecting, even briefly, is a form of self-attention that compounds over time.`,
-      `You noticed yourself today. That is more than it sounds.`,
-      `Even a single reflection is a thread in the fabric of who you are becoming.`,
+      "You took a moment to check in with yourself today. Most people do not.",
+      "Reflecting, even briefly, is a form of self-attention that compounds over time.",
+      "You noticed yourself today. That is more than it sounds.",
+      "Even a single reflection is a thread in the fabric of who you are becoming.",
     ];
     return lines[deterministicIndex("refl-appr", lines.length)];
   }
   if (ctx.hydrationPct !== null && ctx.hydrationPct >= 60) {
     const lines = [
-      `You kept yourself hydrated today. A small, foundational act of care.`,
-      `Drinking water seems simple, but it requires remembering to take care of yourself.`,
-      `Hydration is one of the quietest forms of self-respect. You practiced it today.`,
+      "You kept yourself hydrated today. A small, foundational act of care.",
+      "Drinking water seems simple, but it requires remembering to take care of yourself.",
+      "Hydration is one of the quietest forms of self-respect. You practiced it today.",
     ];
     return lines[deterministicIndex("hydration-appr", lines.length)];
   }
@@ -198,7 +212,6 @@ function getAppreciationLine(ctx) {
     ];
     return lines[deterministicIndex("journey-appr", lines.length)];
   }
-  // Generic appreciation lines
   const lines = [
     "You made it through today. Whatever that required, you did it.",
     "You were here for today. That is always enough.",
@@ -211,7 +224,6 @@ function getAppreciationLine(ctx) {
   return lines[deterministicIndex("generic-appr", lines.length)];
 }
 
-// Tomorrow suggestion lines — vary by energy + time + season
 const TOMORROW_SUGGESTIONS = {
   [ENERGY_STATES.LOW]: [
     "Tomorrow, if rest is still needed, let that be the plan without apology.",
@@ -247,15 +259,13 @@ const TOMORROW_SUGGESTIONS = {
   ],
 };
 
-// Season-specific emoji and flavour
 const SEASON_FLAVOURS = {
-  spring: { emoji: "🌸", flavour: "spring" },
-  summer: { emoji: "☀️", flavour: "summer" },
-  autumn: { emoji: "🍂", flavour: "autumn" },
-  winter: { emoji: "❄️", flavour: "winter" },
+  spring: { emoji: "🌸" },
+  summer: { emoji: "☀️" },
+  autumn: { emoji: "🍂" },
+  winter: { emoji: "❄️" },
 };
 
-// Reflection titles — 20 warm, editorial titles
 const REFLECTION_TITLES = [
   "The shape of today",
   "Looking back, gently",
@@ -281,32 +291,24 @@ const REFLECTION_TITLES = [
 
 // ── Main entry point ──────────────────────────────────────────────────────────
 
-/**
- * Build the daily reflection card data.
- * Returns:
- * {
- *   emoji, title, toneLine, observation, appreciationLine,
- *   tomorrowSuggestion, showExploreButton
- * }
- */
 export function buildReflectionJourney() {
-  const season = getCurrentSeason();
-  const phase = getTimePhase();
+  const season       = getCurrentSeason();
+  const phase        = getTimePhase();
   const weatherEntry = getTodayWeather();
-  const weatherId = weatherEntry?.weather ?? null;
-  const energyValue = getTodayEnergyValue();
-  const energyState = classifyEnergy(energyValue);
+  const weatherId    = weatherEntry?.weather ?? null;
+  const energyValue  = getTodayEnergyValue();
+  const energyState  = classifyEnergy(energyValue);
 
   const ctx = {
     energyState,
     phase,
     season,
     todayGratitudeCount: getTodayGratitudeCount(),
-    todayLetterCount: getTodayLetterCount(),
-    reflectedToday: hasReflectedToday(),
-    hydrationPct: getTodayHydrationPct(),
+    todayLetterCount:    getTodayLetterCount(),
+    reflectedToday:      hasReflectedToday(),
+    hydrationPct:        getTodayHydrationPct(),
     totalReflectionDays: getAllReflectionDates().length,
-    totalMemories: getTotalMemoryCount(),
+    totalMemories:       getTotalMemoryCount(),
   };
 
   // Tone line
@@ -318,27 +320,23 @@ export function buildReflectionJourney() {
         ];
 
   // Observation
-  const obsPool =
-    OBSERVATIONS[energyState] ?? OBSERVATIONS[ENERGY_STATES.UNKNOWN];
+  const obsPool    = OBSERVATIONS[energyState] ?? OBSERVATIONS[ENERGY_STATES.UNKNOWN];
   const observation = obsPool[deterministicIndex("obs", obsPool.length)];
 
   // Appreciation
   const appreciationLine = getAppreciationLine(ctx);
 
   // Tomorrow suggestion
-  const tmrPool =
-    TOMORROW_SUGGESTIONS[energyState] ??
-    TOMORROW_SUGGESTIONS[ENERGY_STATES.UNKNOWN];
+  const tmrPool          = TOMORROW_SUGGESTIONS[energyState] ?? TOMORROW_SUGGESTIONS[ENERGY_STATES.UNKNOWN];
   const tomorrowSuggestion = tmrPool[deterministicIndex("tmr", tmrPool.length)];
 
   // Title
-  const title =
-    REFLECTION_TITLES[deterministicIndex("title", REFLECTION_TITLES.length)];
+  const title = REFLECTION_TITLES[deterministicIndex("title", REFLECTION_TITLES.length)];
 
-  // Emoji — season-flavoured or weather-flavoured
+  // Emoji
   const { emoji } = SEASON_FLAVOURS[season] ?? SEASON_FLAVOURS.spring;
 
-  // Show explore button only in evening, late-evening, or night phases
+  // Show explore button only in evening / late-evening / night
   const showExploreButton =
     phase === "evening" || phase === "late-evening" || phase === "night";
 
