@@ -3,12 +3,19 @@
 // Read-only. No new storage. No new contexts. No new hooks.
 // Deterministic — same date always produces same 3 insights.
 // Emotionally observational, never analytical or motivational.
-// Batch 50: fixed letters insight — template literal was a regular string,
-//           total count was never substituted.
+// Batch 50: fixed letters template literal bug.
+// Batch 51: null guards throughout.
+// Batch 53: getRecentDates(14) was called once per aggregator function (7 calls
+//           total during buildInsightPool). Now computed once and passed through.
+//           Also hoisted `today` string to avoid repeated Date construction.
 
 import { getCurrentSeason } from "./atmosphereEngine";
 import { getAllReflectionDates, hasReflectedToday } from "./gentleStreaks";
-import { getTodayEnergyValue, classifyEnergy, ENERGY_STATES } from "./energyGuidance";
+import {
+  getTodayEnergyValue,
+  classifyEnergy,
+  ENERGY_STATES,
+} from "./energyGuidance";
 
 // ── Safe reader ───────────────────────────────────────────────────────────────
 
@@ -26,7 +33,7 @@ function safeRead(key) {
 function deterministicIndex(seed, total) {
   if (total <= 0) return 0;
   const today = new Date().toISOString().slice(0, 10);
-  const hash  = (today + seed)
+  const hash = (today + seed)
     .split("")
     .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return hash % total;
@@ -37,10 +44,10 @@ function pick(pool, seed) {
   return pool[deterministicIndex(seed, pool.length)];
 }
 
-// ── Data aggregators (all read-only) ─────────────────────────────────────────
+// ── Recent dates helper (computed once, passed as argument) ───────────────────
 
-function getRecentDates(days = 14) {
-  const today  = new Date();
+function buildRecentDates(days = 14) {
+  const today = new Date();
   const result = [];
   for (let i = 0; i < days; i++) {
     const d = new Date(today);
@@ -50,7 +57,8 @@ function getRecentDates(days = 14) {
   return result;
 }
 
-// Hydration
+// ── Data aggregators — all accept pre-built recentDates ──────────────────────
+
 function getHydrationHistory() {
   const candidates = ["sthira_hydration", "sthira_hydration_data"];
   for (const key of candidates) {
@@ -62,27 +70,25 @@ function getHydrationHistory() {
   return [];
 }
 
-function getHydrationDaysAbove(pct = 60, within = 14) {
-  const hist  = getHydrationHistory();
-  const dates = getRecentDates(within);
+function getHydrationDaysAbove(recentDates, pct = 60) {
+  const hist = getHydrationHistory();
   return hist.filter((e) => {
-    if (!dates.includes(e?.date)) return false;
-    if (!e?.goal || e.goal === 0) return false;
-    return ((e.total ?? 0) / e.goal) * 100 >= pct;
+    if (!recentDates.includes(e?.date)) return false;
+    const goal = Number(e?.goal ?? 0);
+    if (goal === 0) return false;
+    return (Number(e?.total ?? 0) / goal) * 100 >= pct;
   }).length;
 }
 
-// Gratitude
 function getGratitudeEntries() {
   const data = safeRead("sthira_gratitude_garden");
   return Array.isArray(data) ? data : [];
 }
 
-function getGratitudeDaysInPeriod(within = 14) {
+function getGratitudeDaysInPeriod(recentDates) {
   const entries = getGratitudeEntries();
-  const dates   = getRecentDates(within);
-  const days    = new Set(
-    entries.map((e) => e?.date).filter((d) => d && dates.includes(d)),
+  const days = new Set(
+    entries.map((e) => e?.date).filter((d) => d && recentDates.includes(d)),
   );
   return days.size;
 }
@@ -91,7 +97,6 @@ function getTotalGratitude() {
   return getGratitudeEntries().length;
 }
 
-// Letters
 function getLetterEntries() {
   const data = safeRead("sthira_letters");
   return Array.isArray(data) ? data : [];
@@ -101,30 +106,26 @@ function getTotalLetters() {
   return getLetterEntries().length;
 }
 
-function getLettersInPeriod(within = 14) {
+function getLettersInPeriod(recentDates) {
   const entries = getLetterEntries();
-  const dates   = getRecentDates(within);
   return entries.filter((e) =>
-    dates.includes((e?.createdAt ?? "").slice(0, 10)),
+    recentDates.includes((e?.createdAt ?? "").slice(0, 10)),
   ).length;
 }
 
-// Weather
 function getWeatherEntries() {
   const data = safeRead("sthira_emotional_weather");
   return Array.isArray(data) ? data : [];
 }
 
-function getWeatherDaysInPeriod(within = 14) {
+function getWeatherDaysInPeriod(recentDates) {
   const entries = getWeatherEntries();
-  const dates   = getRecentDates(within);
-  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
+  return entries.filter((e) => e?.date && recentDates.includes(e.date)).length;
 }
 
-function getMostCommonWeather(within = 14) {
+function getMostCommonWeather(recentDates) {
   const entries = getWeatherEntries();
-  const dates   = getRecentDates(within);
-  const recent  = entries.filter((e) => e?.date && dates.includes(e.date));
+  const recent = entries.filter((e) => e?.date && recentDates.includes(e.date));
   if (recent.length === 0) return null;
   const counts = {};
   recent.forEach((e) => {
@@ -134,31 +135,26 @@ function getMostCommonWeather(within = 14) {
   return sorted[0]?.[0] ?? null;
 }
 
-// Evening reflections
 function getReflectionEntries() {
   const data = safeRead("sthira_evening_reflections");
   return Array.isArray(data) ? data : [];
 }
 
-function getReflectionDaysInPeriod(within = 14) {
+function getReflectionDaysInPeriod(recentDates) {
   const entries = getReflectionEntries();
-  const dates   = getRecentDates(within);
-  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
+  return entries.filter((e) => e?.date && recentDates.includes(e.date)).length;
 }
 
-// Mood journal
 function getMoodEntries() {
   const data = safeRead("sthira_mood_journal");
   return Array.isArray(data) ? data : [];
 }
 
-function getMoodDaysInPeriod(within = 14) {
+function getMoodDaysInPeriod(recentDates) {
   const entries = getMoodEntries();
-  const dates   = getRecentDates(within);
-  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
+  return entries.filter((e) => e?.date && recentDates.includes(e.date)).length;
 }
 
-// Wellness
 function getWellnessEntries() {
   const candidates = ["sthira_wellness_data", "sthira_wellness"];
   for (const key of candidates) {
@@ -170,16 +166,15 @@ function getWellnessEntries() {
   return [];
 }
 
-function getWellnessDaysInPeriod(within = 14) {
+function getWellnessDaysInPeriod(recentDates) {
   const entries = getWellnessEntries();
-  const dates   = getRecentDates(within);
-  return entries.filter((e) => e?.date && dates.includes(e.date)).length;
+  return entries.filter((e) => e?.date && recentDates.includes(e.date)).length;
 }
 
-// ── Insight candidate builders ────────────────────────────────────────────────
+// ── Insight candidate builders — all accept pre-built recentDates ─────────────
 
-function hydrationInsight() {
-  const days = getHydrationDaysAbove(60, 14);
+function hydrationInsight(recentDates) {
+  const days = getHydrationDaysAbove(recentDates, 60);
   if (days >= 8) {
     const lines = [
       "You've been remembering water more often lately.",
@@ -200,8 +195,8 @@ function hydrationInsight() {
   return null;
 }
 
-function gratitudeInsight() {
-  const days  = getGratitudeDaysInPeriod(14);
+function gratitudeInsight(recentDates) {
+  const days = getGratitudeDaysInPeriod(recentDates);
   const total = getTotalGratitude();
   if (total >= 20 && days >= 5) {
     const lines = [
@@ -223,13 +218,10 @@ function gratitudeInsight() {
   return null;
 }
 
-function lettersInsight() {
-  const total  = getTotalLetters();
-  const recent = getLettersInPeriod(14);
-
+function lettersInsight(recentDates) {
+  const total = getTotalLetters();
+  const recent = getLettersInPeriod(recentDates);
   if (total >= 5) {
-    // FIX (Batch 50): these were regular strings with ${total} never substituted.
-    // Converted to template literals so the count is actually interpolated.
     const lines = [
       `You've written ${total} letters to yourself — a quiet archive of who you have been.`,
       `The ${total} letters you've written are becoming a small history of your inner life.`,
@@ -249,18 +241,19 @@ function lettersInsight() {
   return null;
 }
 
-function weatherInsight() {
-  const days   = getWeatherDaysInPeriod(14);
-  const common = getMostCommonWeather(14);
-
+function weatherInsight(recentDates) {
+  const days = getWeatherDaysInPeriod(recentDates);
+  const common = getMostCommonWeather(recentDates);
   if (days >= 7 && common) {
     const phraseMap = {
-      sunny:         "Your days have carried a warmer quality recently.",
-      cloudy:        "Your recent days have had a softer, quieter quality.",
-      rainy:         "Your recent days have been more reflective and turned inward.",
-      stormy:        "You've been carrying something heavier lately — and you are still here.",
-      foggy:         "Uncertainty has been part of your recent days, and you have moved through it.",
-      breezy:        "There has been a lightness in how your recent days have felt.",
+      sunny: "Your days have carried a warmer quality recently.",
+      cloudy: "Your recent days have had a softer, quieter quality.",
+      rainy: "Your recent days have been more reflective and turned inward.",
+      stormy:
+        "You've been carrying something heavier lately — and you are still here.",
+      foggy:
+        "Uncertainty has been part of your recent days, and you have moved through it.",
+      breezy: "There has been a lightness in how your recent days have felt.",
       "clear-night": "Your evenings have carried a particular clarity lately.",
     };
     const text = phraseMap[common];
@@ -277,10 +270,10 @@ function weatherInsight() {
   return null;
 }
 
-function reflectionInsight() {
-  const eveningDays = getReflectionDaysInPeriod(14);
-  const moodDays    = getMoodDaysInPeriod(14);
-  const totalDays   = getAllReflectionDates().length;
+function reflectionInsight(recentDates) {
+  const eveningDays = getReflectionDaysInPeriod(recentDates);
+  const moodDays = getMoodDaysInPeriod(recentDates);
+  const totalDays = getAllReflectionDates().length;
 
   if (eveningDays >= 5) {
     const lines = [
@@ -310,8 +303,8 @@ function reflectionInsight() {
   return null;
 }
 
-function wellnessInsight() {
-  const days = getWellnessDaysInPeriod(14);
+function wellnessInsight(recentDates) {
+  const days = getWellnessDaysInPeriod(recentDates);
   if (days >= 7) {
     const lines = [
       "You've been checking in with your wellness regularly — a small act that matters.",
@@ -335,10 +328,11 @@ function wellnessInsight() {
 function consistencyInsight() {
   const dates = getAllReflectionDates();
   const total = dates.length;
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 7);
   const recentCount = dates.filter((d) => {
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 7);
-    return new Date(d + "T12:00:00") >= cutoff;
+    const dt = new Date(d + "T12:00:00");
+    return !isNaN(dt.getTime()) && dt >= cutoff;
   }).length;
 
   if (recentCount >= 5) {
@@ -371,7 +365,7 @@ function consistencyInsight() {
 }
 
 function seasonInsight() {
-  const season    = getCurrentSeason();
+  const season = getCurrentSeason();
   const insightMap = {
     spring: [
       "Spring tends to invite a quiet kind of beginning — your recent days reflect that.",
@@ -400,8 +394,7 @@ function seasonInsight() {
 
 function energyInsight() {
   const energyValue = getTodayEnergyValue();
-  const state       = classifyEnergy(energyValue);
-
+  const state = classifyEnergy(energyValue);
   if (state === ENERGY_STATES.LOW) {
     const lines = [
       "Your body seems to be asking for something slower today — and you have noticed.",
@@ -423,18 +416,25 @@ function energyInsight() {
 
 // ── Pool assembly ─────────────────────────────────────────────────────────────
 
+/**
+ * Batch 53: recentDates built ONCE here, then passed to every aggregator.
+ * Previously each aggregator called buildRecentDates() independently (7 calls).
+ */
 function buildInsightPool() {
+  const recentDates = buildRecentDates(14); // computed once
+
   const candidates = [
-    hydrationInsight(),
-    gratitudeInsight(),
-    lettersInsight(),
-    weatherInsight(),
-    reflectionInsight(),
-    wellnessInsight(),
-    consistencyInsight(),
+    hydrationInsight(recentDates),
+    gratitudeInsight(recentDates),
+    lettersInsight(recentDates),
+    weatherInsight(recentDates),
+    reflectionInsight(recentDates),
+    wellnessInsight(recentDates),
+    consistencyInsight(), // uses getAllReflectionDates() internally — acceptable
     energyInsight(),
     seasonInsight(), // always returns something — guaranteed minimum
   ];
+
   return candidates.filter(Boolean);
 }
 
@@ -444,17 +444,17 @@ function selectThreeInsights(pool) {
   if (pool.length === 0) return [];
   if (pool.length <= 3) return pool;
 
-  const today    = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
   const baseHash = today
     .split("")
     .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
 
-  const picked         = [];
+  const picked = [];
   const usedCategories = new Set();
-  const usedIndices    = new Set();
+  const usedIndices = new Set();
 
   for (let pass = 0; pass < pool.length && picked.length < 3; pass++) {
-    const idx       = (baseHash + pass * 7) % pool.length;
+    const idx = (baseHash + pass * 7) % pool.length;
     const candidate = pool[idx];
     if (!usedIndices.has(idx) && !usedCategories.has(candidate.category)) {
       picked.push(candidate);
@@ -476,7 +476,7 @@ function selectThreeInsights(pool) {
 // ── Main entry point ──────────────────────────────────────────────────────────
 
 export function buildGentleInsights() {
-  const pool     = buildInsightPool();
+  const pool = buildInsightPool();
   const insights = selectThreeInsights(pool);
   return insights;
 }

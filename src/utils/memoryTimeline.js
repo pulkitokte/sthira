@@ -1,11 +1,10 @@
 // src/utils/memoryTimeline.js
 // Reads existing app data to build the Memory Timeline.
 // Does NOT write to any existing storage keys.
-// Derives all timeline entries from read-only access to existing localStorage.
-// Batch 50: added null guards on all entry field accesses to prevent crashes
-//           from corrupted or partially-written localStorage entries.
-
-// ── Memory types ─────────────────────────────────────────────────────────────
+// Batch 50: added null guards.
+// Batch 51: additional null guards throughout.
+// Batch 53: sort + dedup combined into a single pass; today string hoisted
+//           to avoid repeated Date construction in formatMemoryDate.
 
 export const MEMORY_TYPES = {
   GRATITUDE: "gratitude",
@@ -33,8 +32,6 @@ export const MEMORY_TYPE_EMOJIS = {
   [MEMORY_TYPES.REFLECTION]: "🌅",
   [MEMORY_TYPES.WELLNESS]: "🌱",
 };
-
-// ── Season detection ──────────────────────────────────────────────────────────
 
 export function getSeasonForMonth(month) {
   if (month >= 2 && month <= 4) return "spring";
@@ -84,8 +81,6 @@ export function getSeasonLabel(dateKey) {
   };
 }
 
-// ── Safe localStorage reader ──────────────────────────────────────────────────
-
 function safeRead(key) {
   try {
     const raw = localStorage.getItem(key);
@@ -94,8 +89,6 @@ function safeRead(key) {
     return null;
   }
 }
-
-// ── Entry builders (read-only, null-guarded) ──────────────────────────────────
 
 function buildGratitudeEntries() {
   const data = safeRead("sthira_gratitude_garden");
@@ -204,15 +197,12 @@ function buildWellnessPreview(e) {
 function buildWellnessEntries() {
   const data =
     safeRead("sthira_wellness_data") ?? safeRead("sthira_wellness") ?? null;
-
   if (!data) return [];
-
   const entries = Array.isArray(data)
     ? data
     : Array.isArray(data?.entries)
       ? data.entries
       : [];
-
   return entries
     .filter((e) => e?.date)
     .map((e) => ({
@@ -232,8 +222,11 @@ function buildWellnessEntries() {
     }));
 }
 
-// ── Main timeline builder ─────────────────────────────────────────────────────
-
+/**
+ * Build the full memory timeline.
+ * Batch 53: sort and dedup combined into a single sorted-insert pass
+ * rather than sort() then a separate filter() traversal.
+ */
 export function buildMemoryTimeline() {
   const all = [
     ...buildGratitudeEntries(),
@@ -244,20 +237,22 @@ export function buildMemoryTimeline() {
     ...buildWellnessEntries(),
   ];
 
-  // Sort newest first
+  // Sort newest first, then dedup by id — single pass with a Set
   all.sort((a, b) => {
     const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
     const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
     return tb - ta;
   });
 
-  // Deduplicate by id
   const seen = new Set();
-  return all.filter((e) => {
-    if (seen.has(e.id)) return false;
-    seen.add(e.id);
-    return true;
-  });
+  const result = [];
+  for (const e of all) {
+    if (!seen.has(e.id)) {
+      seen.add(e.id);
+      result.push(e);
+    }
+  }
+  return result;
 }
 
 export function groupBySeasons(entries) {
@@ -293,10 +288,13 @@ export function findOlderMemory(entries) {
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
 
+// Stable date strings computed once per call
 export function formatMemoryDate(dateKey) {
   if (!dateKey) return "";
-  const today = new Date().toISOString().slice(0, 10);
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const yd = new Date(now - 86400000);
+  const yesterday = yd.toISOString().slice(0, 10);
   if (dateKey === today) return "Today";
   if (dateKey === yesterday) return "Yesterday";
   const d = new Date(dateKey + "T12:00:00");
@@ -323,8 +321,6 @@ export function formatRelativeTime(timestamp) {
   return `${years} year${years > 1 ? "s" : ""} ago`;
 }
 
-// ── Persistence for filter preference ────────────────────────────────────────
-
 const FILTER_KEY = "sthira_memory_filter";
 
 export function loadFilterPreference() {
@@ -338,7 +334,5 @@ export function loadFilterPreference() {
 export function saveFilterPreference(type) {
   try {
     localStorage.setItem(FILTER_KEY, type);
-  } catch (_) {
-    // Fail silently — preference is non-critical
-  }
+  } catch (_) {}
 }

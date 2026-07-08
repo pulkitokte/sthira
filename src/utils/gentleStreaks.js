@@ -2,8 +2,9 @@
 // Reads existing app data to compute gentle, compassionate consistency stats.
 // Does NOT write to any existing storage. Read-only across all sources.
 // No guilt language. No "broken streak" framing. Ever.
-// Batch 51: null-guarded all array entry field accesses; hardened date sorts
-//           and string operations against null/undefined values.
+// Batch 51: null-guarded all array entry field accesses; hardened date sorts.
+// Batch 53: getAllReflectionDates() result cached within buildGentleConsistencySummary()
+//           to avoid 4× repeated localStorage reads + dedup during a single call.
 
 // ── 60+ handcrafted compassionate messages ────────────────────────────────────
 
@@ -71,15 +72,9 @@ export const GENTLE_MESSAGES = [
   "Today's return is enough reason to be here.",
 ];
 
-/**
- * Returns today's compassionate message.
- * Deterministic — same date always returns the same message.
- */
 export function getTodayGentleMessage() {
   const today = new Date().toISOString().slice(0, 10);
-  const hash  = today
-    .split("")
-    .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const hash = today.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return GENTLE_MESSAGES[hash % GENTLE_MESSAGES.length];
 }
 
@@ -109,7 +104,6 @@ function getLetterDates() {
   if (!Array.isArray(data)) return [];
   return data
     .map((e) => {
-      // createdAt may be missing; date is the fallback
       const raw = e?.createdAt ?? e?.date ?? "";
       return typeof raw === "string" ? raw.slice(0, 10) : "";
     })
@@ -155,82 +149,80 @@ export function getAllReflectionDates() {
   return [...new Set(all)];
 }
 
-// ── Derived stats ──────────────────────────────────────────────────────────────
+// ── Derived stats (accept pre-computed dates to avoid repeated reads) ──────────
 
-/**
- * Total number of unique days across all tracked reflection activities.
- */
-export function getTotalReflectionDays() {
-  return getAllReflectionDates().length;
+function _getTotalReflectionDays(dates) {
+  return dates.length;
 }
 
-/**
- * Number of unique reflection days within the last 7 days (including today).
- */
-export function getReflectionsThisWeek() {
-  const dates  = getAllReflectionDates();
+function _getReflectionsThisWeek(dates) {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 6);
   cutoff.setHours(0, 0, 0, 0);
-
   return dates.filter((d) => {
     const dt = new Date(d + "T00:00:00");
     return !isNaN(dt.getTime()) && dt >= cutoff;
   }).length;
 }
 
-/**
- * Whether the user has reflected today (any tracked activity).
- */
+function _hasReflectedToday(dates, today) {
+  return dates.includes(today);
+}
+
+function _getDaysSinceLastReflection(dates) {
+  if (dates.length === 0) return null;
+  const sorted = [...dates]
+    .filter((d) => typeof d === "string" && d.length === 10)
+    .sort()
+    .reverse();
+  if (sorted.length === 0) return null;
+  const last = new Date(sorted[0] + "T00:00:00");
+  if (isNaN(last.getTime())) return null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  return Math.max(0, Math.round((now - last) / 86400000));
+}
+
+// ── Public single-call API (for callers that only need one stat) ──────────────
+
+export function getTotalReflectionDays() {
+  return getAllReflectionDates().length;
+}
+
+export function getReflectionsThisWeek() {
+  return _getReflectionsThisWeek(getAllReflectionDates());
+}
+
 export function hasReflectedToday() {
   const today = new Date().toISOString().slice(0, 10);
   return getAllReflectionDates().includes(today);
 }
 
-/**
- * Days since the most recent reflection (any tracked activity).
- * Returns null if there is no reflection history at all.
- * Returns 0 if the most recent reflection was today.
- */
 export function getDaysSinceLastReflection() {
-  const dates = getAllReflectionDates();
-  if (dates.length === 0) return null;
-
-  // Sort descending — guard against any non-string values slipping through
-  const sorted = [...dates]
-    .filter((d) => typeof d === "string" && d.length === 10)
-    .sort()
-    .reverse();
-
-  if (sorted.length === 0) return null;
-
-  const mostRecent = sorted[0];
-  const today      = new Date();
-  today.setHours(0, 0, 0, 0);
-  const last = new Date(mostRecent + "T00:00:00");
-
-  if (isNaN(last.getTime())) return null;
-
-  const diffMs = today - last;
-  return Math.max(0, Math.round(diffMs / 86400000));
+  return _getDaysSinceLastReflection(getAllReflectionDates());
 }
 
 // ── State classification ──────────────────────────────────────────────────────
 
 export const CONSISTENCY_STATE = {
-  FIRST_TIME:      "first-time",
+  FIRST_TIME: "first-time",
   REFLECTED_TODAY: "today",
-  RETURNING:       "returning",
-  ONGOING:         "ongoing",
+  RETURNING: "returning",
+  ONGOING: "ongoing",
 };
 
-export function getConsistencyState() {
-  const total = getTotalReflectionDays();
-  if (total === 0) return CONSISTENCY_STATE.FIRST_TIME;
-  if (hasReflectedToday()) return CONSISTENCY_STATE.REFLECTED_TODAY;
-  const daysSince = getDaysSinceLastReflection();
+function _getConsistencyState(dates, today) {
+  if (dates.length === 0) return CONSISTENCY_STATE.FIRST_TIME;
+  if (_hasReflectedToday(dates, today))
+    return CONSISTENCY_STATE.REFLECTED_TODAY;
+  const daysSince = _getDaysSinceLastReflection(dates);
   if (daysSince !== null && daysSince >= 7) return CONSISTENCY_STATE.RETURNING;
   return CONSISTENCY_STATE.ONGOING;
+}
+
+export function getConsistencyState() {
+  const today = new Date().toISOString().slice(0, 10);
+  return _getConsistencyState(getAllReflectionDates(), today);
 }
 
 export function getStateHeadline(state) {
@@ -247,11 +239,21 @@ export function getStateHeadline(state) {
   }
 }
 
+/**
+ * Build the complete gentle consistency summary.
+ * Batch 53: reads localStorage once, passes the result to all derived stats.
+ * Previously: getAllReflectionDates() was called 4 separate times (total, week,
+ * today, and state), each performing 5 localStorage reads + Set dedup.
+ */
 export function buildGentleConsistencySummary() {
-  const totalDays    = getTotalReflectionDays();
-  const weekCount    = getReflectionsThisWeek();
-  const state        = getConsistencyState();
-  const headline     = getStateHeadline(state);
+  // Single localStorage read pass — reused for all derived stats
+  const dates = getAllReflectionDates();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const totalDays = _getTotalReflectionDays(dates);
+  const weekCount = _getReflectionsThisWeek(dates);
+  const state = _getConsistencyState(dates, today);
+  const headline = getStateHeadline(state);
   const dailyMessage = getTodayGentleMessage();
 
   return {
@@ -259,7 +261,6 @@ export function buildGentleConsistencySummary() {
     weekCount,
     state,
     headline,
-    secondaryMessage:
-      state === CONSISTENCY_STATE.ONGOING ? null : dailyMessage,
+    secondaryMessage: state === CONSISTENCY_STATE.ONGOING ? null : dailyMessage,
   };
 }
