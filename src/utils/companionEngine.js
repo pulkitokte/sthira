@@ -1,8 +1,10 @@
 // src/utils/companionEngine.js
 // Gentle Companion engine.
 // Delegates intelligent message generation to contextAwareCompanion.js.
-// Batch 49: removed require() anti-pattern — all imports now at module top-level.
-// All exports remain backwards-compatible.
+// Batch 49: removed require() anti-pattern — all imports at module top-level.
+// Batch 54: removed dead unreachable code in getRefreshMessage that produced
+//           an ESLint no-unused-vars warning (const available was assigned
+//           but never read before the function fell through to the legacy path).
 
 import {
   COMPANION_MESSAGES,
@@ -28,7 +30,7 @@ export function getCurrentHour() {
 
 export function getTimeOfDay() {
   const h = getCurrentHour();
-  if (h >= 5 && h < 12) return "morning";
+  if (h >= 5  && h < 12) return "morning";
   if (h >= 12 && h < 17) return "afternoon";
   if (h >= 17 && h < 21) return "evening";
   return "night";
@@ -44,7 +46,7 @@ export function selectCategory({
   wellnessEnergy = null,
 }) {
   const highStressWeather = ["stormy"];
-  const lowMoodWeather = ["rainy", "foggy"];
+  const lowMoodWeather    = ["rainy", "foggy"];
 
   if (wellnessStress !== null && wellnessStress >= 4) {
     return COMPANION_CATEGORIES.HIGH_STRESS;
@@ -86,7 +88,9 @@ export function selectMessage(category, excludeId = null) {
     return fallback[Math.floor(Math.random() * fallback.length)];
   }
   const today = new Date().toISOString().slice(0, 10);
-  const hash = today.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const hash  = today
+    .split("")
+    .reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return pool[hash % pool.length];
 }
 
@@ -97,10 +101,10 @@ export function selectMessage(category, excludeId = null) {
  * Returns { id, category, text } compatible with the existing UI.
  */
 export function getTodayCompanionMessage(context = {}) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today           = new Date().toISOString().slice(0, 10);
   const { text, state } = getContextAwareCompanionMessage();
   return {
-    id: `context-${state}-${today}`,
+    id:       `context-${state}-${today}`,
     category: state,
     text,
   };
@@ -108,22 +112,13 @@ export function getTodayCompanionMessage(context = {}) {
 
 /**
  * Get a fresh contextual message for "show another" in CompanionSpace.
- * Uses the legacy category pool to avoid repeating the same context message.
+ * Uses the legacy category pool for rotation variety.
  */
 export function getRefreshMessage(excludeId, context = {}) {
-  const state = detectCompanionState();
-  const pool = MESSAGE_POOLS[state] ?? [];
-
-  // Build a pool that excludes the current message id
-  const available = pool.filter((_, i) => {
-    // The current message id is `context-${state}-${today}` — we just need
-    // a different index, so we use the legacy system for refresh variety.
-    return true;
-  });
-
-  // Fall back to legacy category pool for rotation variety
+  // Use legacy category pool for the refresh rotation so that
+  // "show another" feels genuinely different from the context-aware message.
   const timeOfDay = getTimeOfDay();
-  const category = selectCategory({ timeOfDay, ...context });
+  const category  = selectCategory({ timeOfDay, ...context });
   return selectMessage(category, excludeId);
 }
 
@@ -138,16 +133,16 @@ export function getCategoryLabel(categoryOrState) {
   if (stateLabel && stateLabel !== "Today") return stateLabel;
 
   const legacyLabels = {
-    [COMPANION_CATEGORIES.MORNING]: "Morning",
-    [COMPANION_CATEGORIES.LOW_ENERGY]: "Low Energy",
-    [COMPANION_CATEGORIES.HIGH_STRESS]: "Stress",
-    [COMPANION_CATEGORIES.EVENING]: "Evening",
-    [COMPANION_CATEGORIES.CELEBRATION]: "Consistency",
-    [COMPANION_CATEGORIES.REST]: "Rest",
-    [COMPANION_CATEGORIES.STUDY]: "Study",
-    [COMPANION_CATEGORIES.SELF_KINDNESS]: "Self-Kindness",
+    [COMPANION_CATEGORIES.MORNING]:         "Morning",
+    [COMPANION_CATEGORIES.LOW_ENERGY]:      "Low Energy",
+    [COMPANION_CATEGORIES.HIGH_STRESS]:     "Stress",
+    [COMPANION_CATEGORIES.EVENING]:         "Evening",
+    [COMPANION_CATEGORIES.CELEBRATION]:     "Consistency",
+    [COMPANION_CATEGORIES.REST]:            "Rest",
+    [COMPANION_CATEGORIES.STUDY]:           "Study",
+    [COMPANION_CATEGORIES.SELF_KINDNESS]:   "Self-Kindness",
     [COMPANION_CATEGORIES.BEGINNING_AGAIN]: "Beginning Again",
-    [COMPANION_CATEGORIES.QUIET_JOY]: "Quiet Joy",
+    [COMPANION_CATEGORIES.QUIET_JOY]:       "Quiet Joy",
   };
   return legacyLabels[categoryOrState] ?? "Today";
 }
@@ -169,8 +164,8 @@ export function isFavorited(messageId) {
 
 export function toggleFavorite(messageId) {
   try {
-    const ids = loadFavoriteIds();
-    const exists = ids.includes(messageId);
+    const ids     = loadFavoriteIds();
+    const exists  = ids.includes(messageId);
     const updated = exists
       ? ids.filter((id) => id !== messageId)
       : [messageId, ...ids];
