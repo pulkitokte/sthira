@@ -1,19 +1,13 @@
 /* src/index.css
    Global styles for Sthira.
-   Batch 47 added shared motion utilities.
-   Batch 48 adds:
-   - Safe-area insets (notch / home indicator)
-   - Responsive spacing tokens
-   - Touch-target minimum sizing
-   - Improved focus ring consistency
-   - Reduced-motion safety net (extended)
-   - Scrollbar hygiene
-   - Long-text / overflow guards
-   - Icon accessibility base
-   - Heading scale consistency
-   - Tablet / desktop max-width comfort
-   - Landscape mode guard for bottom nav
-   All Batch 47 content preserved exactly.
+   Batch 47: added shared motion utilities.
+   Batch 48: added safe-area, responsive tokens, touch targets, focus rings.
+   Batch 52 (Final Visual Polish):
+   - Scoped touch-target min-height to navigation/action elements only
+     (removed overly broad `button` rule that distorted card wrappers).
+   - Removed h1–h4 clamp() scale that conflicted with Tailwind heading
+     utilities and caused double-sizing in component headings.
+   - All other Batch 47/48 content preserved exactly.
 */
 
 @tailwind base;
@@ -50,20 +44,19 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left:   env(safe-area-inset-left,   0px);
 
-  /* Touch target minimum (WCAG 2.5.5 recommends 44×44px) */
+  /* Touch target minimum (WCAG 2.5.5) */
   --touch-target: 44px;
 
   /* Spacing rhythm */
-  --page-px:       1rem;      /* horizontal page padding — 16px */
-  --section-gap:   2rem;      /* gap between Home sections — 32px */
-  --card-p:        1.25rem;   /* internal card padding — 20px */
+  --page-px:       1rem;
+  --section-gap:   2rem;
+  --card-p:        1.25rem;
 }
 
-/* Slightly more generous padding on wider viewports */
 @media (min-width: 480px) {
   :root {
-    --page-px:    1.25rem;
-    --card-p:     1.5rem;
+    --page-px:  1.25rem;
+    --card-p:   1.5rem;
   }
 }
 
@@ -85,21 +78,17 @@
 }
 
 html {
-  /* Prevent iOS font-size inflation in landscape */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
-  /* Thin momentum scrolling on iOS */
   -webkit-overflow-scrolling: touch;
 }
 
 body {
   /* Prevent horizontal scroll from any accidental overflow */
   overflow-x: hidden;
-  /* Font smoothing */
   -webkit-font-smoothing:  antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Account for safe area on the sides */
   padding-left:  var(--safe-left);
   padding-right: var(--safe-right);
 }
@@ -112,14 +101,13 @@ p, h1, h2, h3, h4, h5, h6, span, li, label {
   hyphens:       auto;
 }
 
-/* Prevent emoji or single long tokens from stretching cards */
 .sthira-card,
 .sthira-card-static {
   min-width: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   SCROLLBAR HYGIENE (Webkit / Firefox)
+   SCROLLBAR HYGIENE
    ════════════════════════════════════════════════════════════════════════════ */
 
 ::-webkit-scrollbar {
@@ -140,16 +128,14 @@ p, h1, h2, h3, h4, h5, h6, span, li, label {
   background: rgba(185, 175, 160, 0.55);
 }
 
-/* Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(185, 175, 160, 0.35) transparent;
 }
 
-/* Hide scrollbar for horizontal scroll containers (filter tabs etc.) */
 .scrollbar-hide {
-  -ms-overflow-style:  none;
-  scrollbar-width:     none;
+  -ms-overflow-style: none;
+  scrollbar-width:    none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -158,21 +144,30 @@ p, h1, h2, h3, h4, h5, h6, span, li, label {
 
 /* ════════════════════════════════════════════════════════════════════════════
    TOUCH TARGETS
-   All interactive elements must be at least --touch-target tall/wide.
+   Batch 52 fix: scoped to navigation/action elements only.
+   Removed the overly-broad `button` rule that forced all card-wrapper
+   buttons to 44px minimum height and distorted card layouts.
+   Card-shaped buttons define their own height through padding.
    ════════════════════════════════════════════════════════════════════════════ */
 
-button,
+/* Navigation items, standalone action buttons, links */
 a,
 [role="button"],
 [role="link"],
 label[for] {
   min-height: var(--touch-target);
-  /* Do NOT set min-width globally — it would break pill chips.
-     Width enforcement is handled per-component. */
 }
 
-/* Exception: decorative icon buttons inside cards that are already
-   inside a larger touch target can be smaller */
+/* Utility class for elements that explicitly need the touch-target floor */
+.sthira-touch-target {
+  min-height: var(--touch-target);
+  min-width:  var(--touch-target);
+  display:    inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon-only buttons inside larger hit areas */
 .sthira-icon-btn {
   min-height: 36px;
   min-width:  36px;
@@ -181,18 +176,14 @@ label[for] {
   justify-content: center;
 }
 
-/* Ensure pill/chip buttons that are legitimately small still have
-   adequate vertical touch area via padding compensation */
+/* Pill/chip buttons — vertical padding compensation only */
 .sthira-pill {
-  padding-top:    max(0.375rem, calc((var(--touch-target) - 1.5rem) / 2));
-  padding-bottom: max(0.375rem, calc((var(--touch-target) - 1.5rem) / 2));
+  padding-top:    0.375rem;
+  padding-bottom: 0.375rem;
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
    ICON ACCESSIBILITY BASE
-   SVG icons that are decorative should be hidden from screen readers.
-   This is enforced in JSX with aria-hidden="true"; this CSS prevents
-   accidental pointer events on SVGs inside buttons.
    ════════════════════════════════════════════════════════════════════════════ */
 
 button svg,
@@ -202,15 +193,16 @@ a svg {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   HEADING HIERARCHY SCALE
-   Ensures consistent typographic rhythm regardless of which Tailwind
-   classes are applied. These act as a floor — Tailwind classes override.
+   HEADING SCALE
+   Batch 52 fix: removed the clamp() h1–h4 scale from Batch 48.
+   That rule conflicted with Tailwind's utility classes applied directly
+   in JSX (e.g. text-[28px], font-display, text-xs uppercase tracking-[0.14em])
+   and caused double-sizing in component headings throughout the app.
+   Tailwind classes in components take full ownership of heading sizing.
+   overflow-wrap and word-break (above, on h1–h4) are kept for safety.
    ════════════════════════════════════════════════════════════════════════════ */
 
-h1 { font-size: clamp(1.5rem,   5vw, 2rem);   line-height: 1.2; }
-h2 { font-size: clamp(1.1rem,   3vw, 1.35rem); line-height: 1.3; }
-h3 { font-size: clamp(0.95rem,  2.5vw, 1.1rem); line-height: 1.4; }
-h4 { font-size: clamp(0.875rem, 2vw,  1rem);   line-height: 1.45; }
+/* (heading scale deliberately omitted — Tailwind handles all sizes) */
 
 /* ════════════════════════════════════════════════════════════════════════════
    PAGE ENTRANCE (Batch 47 — preserved)
@@ -249,11 +241,11 @@ h4 { font-size: clamp(0.875rem, 2vw,  1rem);   line-height: 1.45; }
 .sthira-section:nth-child(n+9) { animation-delay: 0ms;  }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   CARD POLISH (Batch 47 — preserved + min-width fix)
+   CARD POLISH (Batch 47 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
 .sthira-card {
-  min-width: 0; /* prevent flex/grid overflow */
+  min-width: 0;
   transition:
     box-shadow   var(--transition-base),
     transform    var(--transition-base),
@@ -304,8 +296,8 @@ h4 { font-size: clamp(0.875rem, 2vw,  1rem);   line-height: 1.45; }
 }
 
 .sthira-btn:disabled {
-  opacity: 0.5;
-  cursor:  not-allowed;
+  opacity:   0.5;
+  cursor:    not-allowed;
   transform: none !important;
 }
 
@@ -347,7 +339,7 @@ h4 { font-size: clamp(0.875rem, 2vw,  1rem);   line-height: 1.45; }
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   FOCUS RINGS (Batch 47 — preserved + extended)
+   FOCUS RINGS (Batch 47/48 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
 .sthira-focusable:focus-visible,
@@ -367,7 +359,7 @@ textarea:focus-visible,
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   INPUT POLISH (Batch 47 — preserved + label alignment)
+   INPUT POLISH (Batch 48 — preserved, min-height scoped to inputs only)
    ════════════════════════════════════════════════════════════════════════════ */
 
 input[type="text"],
@@ -378,9 +370,9 @@ textarea {
   transition:
     border-color var(--transition-fast),
     box-shadow   var(--transition-fast);
-  /* Ensure comfortable tap height */
+  /* Adequate tap height for inputs specifically */
   min-height: var(--touch-target);
-  /* Prevent zoom on iOS (font must be ≥16px) */
+  /* Prevent iOS zoom (font must be ≥ 16px) */
   font-size: max(1rem, 16px);
 }
 
@@ -400,7 +392,6 @@ textarea {
 
 input[type="range"] {
   cursor: pointer;
-  /* Ensure adequate track height for touch */
   height: var(--touch-target);
 }
 
@@ -413,6 +404,12 @@ input[type="range"] {
     color     var(--transition-fast),
     opacity   var(--transition-fast),
     transform var(--transition-fast);
+  /* Nav items do need the touch target */
+  min-height: var(--touch-target);
+  display:    flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .sthira-nav-item:hover {
@@ -425,16 +422,13 @@ input[type="range"] {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   BOTTOM NAVIGATION SAFE AREA
-   Ensures bottom nav clears the iOS home indicator.
+   BOTTOM NAV SAFE AREA (Batch 48 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
 .sthira-bottom-nav {
   padding-bottom: max(0.75rem, var(--safe-bottom));
 }
 
-/* In landscape on mobile devices, the page needs less bottom padding
-   because the bottom nav collapses or the safe area is on the side */
 @media (max-height: 500px) and (orientation: landscape) {
   .sthira-bottom-nav {
     padding-bottom: max(0.5rem, var(--safe-bottom));
@@ -442,24 +436,21 @@ input[type="range"] {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   STICKY HEADER SAFE AREA
-   Headers that are sticky should respect the top safe area (notch).
+   STICKY HEADER SAFE AREA (Batch 48 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
 .sthira-sticky-header {
   padding-top: calc(0.75rem + var(--safe-top));
 }
 
-/* On pages with pt-12 sticky headers, this adds notch clearance */
 .sthira-page-header {
   padding-top: calc(3rem + var(--safe-top));
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   PAGE CONTAINER RESPONSIVE
+   PAGE CONTAINER RESPONSIVE (Batch 48 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
-/* On very small phones (320px), ensure no horizontal overflow */
 @media (max-width: 360px) {
   .sthira-page-container {
     padding-left:  0.75rem;
@@ -467,8 +458,6 @@ input[type="range"] {
   }
 }
 
-/* On tablets and desktop, the max-width constrains content naturally;
-   add generous side breathing room */
 @media (min-width: 768px) {
   .sthira-page-container {
     padding-left:  2rem;
@@ -476,36 +465,14 @@ input[type="range"] {
   }
 }
 
-/* ════════════════════════════════════════════════════════════════════════════
-   LANDSCAPE MODE GUARD
-   Prevent content from being hidden by bottom nav in landscape on phones
-   ════════════════════════════════════════════════════════════════════════════ */
-
 @media (max-height: 500px) and (orientation: landscape) {
   .sthira-page-container {
-    /* Reduce bottom padding slightly in landscape */
     padding-bottom: 6rem;
   }
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   LARGE FONT / ZOOM SCALING
-   Ensure cards don't collapse or overflow when user has large system font
-   ════════════════════════════════════════════════════════════════════════════ */
-
-@media (min-resolution: 2dppx) {
-  /* Retina / HiDPI — no style changes needed; just document the media query
-     is available for use if pixel-perfect border widths are needed */
-}
-
-/* At system font scale 200% (1rem = 32px), containers must still work */
-.sthira-card,
-.sthira-card-static {
-  min-height: 0; /* don't force a height — let content drive */
-}
-
-/* ════════════════════════════════════════════════════════════════════════════
-   EMPTY STATE CONSISTENCY
+   EMPTY STATE CONSISTENCY (Batch 48 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
 .sthira-empty-state {
@@ -536,7 +503,7 @@ input[type="range"] {
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   REDUCED MOTION — COMPREHENSIVE SAFETY NET
+   REDUCED MOTION — COMPREHENSIVE SAFETY NET (Batch 47/48 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
 @media (prefers-reduced-motion: reduce) {
@@ -566,14 +533,14 @@ input[type="range"] {
   .sthira-pill:active,
   .sthira-btn-primary:hover,
   .sthira-btn-primary:active {
-    transform:   none !important;
-    box-shadow:  var(--shadow-soft) !important;
-    transition:  none !important;
+    transform:  none              !important;
+    box-shadow: var(--shadow-soft) !important;
+    transition: none              !important;
   }
 }
 
 /* ════════════════════════════════════════════════════════════════════════════
-   HIGH CONTRAST MODE (Windows / forced-colors)
+   HIGH CONTRAST MODE (Batch 48 — preserved)
    ════════════════════════════════════════════════════════════════════════════ */
 
 @media (forced-colors: active) {

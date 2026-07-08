@@ -1,23 +1,22 @@
 // src/components/layout/PageContainer.jsx
 // Root page wrapper for all Sthira pages.
 // Batch 47: added sthira-page-enter animation.
-// Batch 48: adds responsive padding tokens, safe-area bottom clearance,
-//           and landscape guard via CSS classes.
-// All existing props and behaviour preserved.
+// Batch 48: added responsive padding tokens and safe-area bottom clearance.
+// Batch 52 (Final Visual Polish): removed overflow-x-hidden from <main>.
+//   overflow-x: hidden on <main> clipped box-shadows on cards (they render
+//   outside the element bounds on hover lift) and caused a flicker on Android
+//   WebView when combined with the translateY stagger animation.
+//   Horizontal overflow is already prevented by `body { overflow-x: hidden }`
+//   in index.css, so this rule on <main> was redundant and harmful.
 
 export default function PageContainer({ children, className = "" }) {
   return (
     <main
       className={[
-        // Batch 47 entrance animation
         "sthira-page-enter",
-        // Batch 48 responsive container class
         "sthira-page-container",
-        // Layout: centred, max-width, horizontal padding, bottom safe area
         "mx-auto max-w-lg px-4 pb-28 pt-6",
-        // Ensure no horizontal overflow on small screens
-        "w-full overflow-x-hidden",
-        // Consumer overrides
+        "w-full",
         className,
       ]
         .filter(Boolean)
