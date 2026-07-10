@@ -1,6 +1,9 @@
 // src/components/companion/CompanionCard.jsx
 // Reusable companion message card.
 // Used both on the home section and inside CompanionSpace.
+// Bug fix: onToggleFavorite now receives the full message object instead of
+// just message.id, so context-aware messages can be saved with a full
+// snapshot (see companionEngine.js toggleFavorite for why this is needed).
 
 import { Heart, RefreshCw } from "lucide-react";
 
@@ -74,7 +77,7 @@ export default function CompanionCard({
 
             {onToggleFavorite && (
               <button
-                onClick={() => onToggleFavorite(message.id)}
+                onClick={() => onToggleFavorite(message)}
                 className="p-1.5 rounded-xl transition-all duration-200 focus:outline-none"
                 style={{
                   color: isFavorited ? "#c07860" : "#b0a898",

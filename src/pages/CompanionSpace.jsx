@@ -1,6 +1,9 @@
 // src/pages/CompanionSpace.jsx
 // Gentle Companion — today's message, refresh, favorites.
 // Warm, paper-like, editorial. No AI. No chat. Fully deterministic.
+// Bug fix: the "remove from saved" heart now passes the full favorited
+// message object (msg) to handleToggleFavorite instead of msg.id, matching
+// the updated toggleFavorite signature in companionEngine.js.
 
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Heart } from "lucide-react";
@@ -167,7 +170,7 @@ export default function CompanionSpace() {
                       {msg.category.replace("-", " ")}
                     </span>
                     <button
-                      onClick={() => handleToggleFavorite(msg.id)}
+                      onClick={() => handleToggleFavorite(msg)}
                       className="p-1.5 rounded-xl transition-all"
                       style={{ color: "#c07860" }}
                       aria-label="Remove from saved"

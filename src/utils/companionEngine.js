@@ -5,6 +5,16 @@
 // Batch 54: removed dead unreachable code in getRefreshMessage that produced
 //           an ESLint no-unused-vars warning (const available was assigned
 //           but never read before the function fell through to the legacy path).
+// Bug fix: favorites previously stored only a message's id. Context-aware
+//          messages (from contextAwareCompanion.js) have synthetic ids like
+//          "context-morning-2026-07-10" that do not exist in the static
+//          COMPANION_MESSAGES array, so getMessageById(id) returned null and
+//          the saved message silently disappeared from the list (while the
+//          count, which only counts ids, still looked correct).
+//          Favorites now store a full { id, category, text } snapshot at
+//          save time. Legacy entries saved as plain id strings (from static
+//          messages, before this fix) are still supported via getMessageById
+//          fallback, so nothing already saved is lost.
 
 import {
   COMPANION_MESSAGES,
@@ -148,35 +158,86 @@ export function getCategoryLabel(categoryOrState) {
 }
 
 // ── Favorites ─────────────────────────────────────────────────────────────────
+//
+// Storage shape: an array under FAVORITES_KEY. Each entry is either:
+//   - a full snapshot object: { id, category, text }  (current format)
+//   - a bare id string                                 (legacy format,
+//     from before this fix — resolved via getMessageById for static
+//     messages only)
 
-export function loadFavoriteIds() {
+function loadFavoriteEntries() {
   try {
     const raw = localStorage.getItem(FAVORITES_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch (_) {
     return [];
   }
+}
+
+function entryId(entry) {
+  return typeof entry === "string" ? entry : entry?.id;
+}
+
+function saveFavoriteEntries(entries) {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(entries));
+  } catch (_) {
+    // Fail silently — storage may be full
+  }
+}
+
+/**
+ * Returns just the ids of favorited messages (legacy-compatible shape,
+ * used for membership checks like "is this message currently favorited").
+ */
+export function loadFavoriteIds() {
+  return loadFavoriteEntries().map(entryId).filter(Boolean);
 }
 
 export function isFavorited(messageId) {
   return loadFavoriteIds().includes(messageId);
 }
 
-export function toggleFavorite(messageId) {
+/**
+ * Toggle a message's favorited state.
+ * Accepts the full message object ({ id, category, text }) so that
+ * context-aware messages — whose ids don't exist in the static
+ * COMPANION_MESSAGES array — can still be fully recovered later.
+ * A bare id string is also accepted for backward compatibility, in which
+ * case only the id is stored (matching the old behavior).
+ */
+export function toggleFavorite(message) {
   try {
-    const ids     = loadFavoriteIds();
-    const exists  = ids.includes(messageId);
+    const targetId = typeof message === "string" ? message : message?.id;
+    if (!targetId) return false;
+
+    const entries = loadFavoriteEntries();
+    const exists  = entries.some((e) => entryId(e) === targetId);
+
     const updated = exists
-      ? ids.filter((id) => id !== messageId)
-      : [messageId, ...ids];
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+      ? entries.filter((e) => entryId(e) !== targetId)
+      : [typeof message === "string" ? message : message, ...entries];
+
+    saveFavoriteEntries(updated);
     return !exists;
   } catch (_) {
     return false;
   }
 }
 
+/**
+ * Returns full { id, category, text } objects for every favorited message.
+ * - Snapshot entries (current format) are returned as-is.
+ * - Legacy bare-id entries are resolved against the static message list;
+ *   if not found there (e.g. an old saved context-aware id with no
+ *   snapshot from before this fix), they are dropped, since there is no
+ *   way to recover their original text.
+ */
 export function loadFavoriteMessages() {
-  const ids = loadFavoriteIds();
-  return ids.map((id) => getMessageById(id)).filter(Boolean);
+  return loadFavoriteEntries()
+    .map((entry) =>
+      typeof entry === "string" ? getMessageById(entry) : entry,
+    )
+    .filter(Boolean);
 }
