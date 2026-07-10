@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import Header from "./components/layout/Header";
 import BottomNavigation from "./components/layout/BottomNavigation";
@@ -7,6 +7,7 @@ import AchievementUnlockBanner from "./components/achievements/AchievementUnlock
 import AppRoutes from "./routes/AppRoutes";
 import { useOnboarding } from "./context/OnboardingContext";
 import { useAchievements } from "./context/AchievementsContext";
+import { ScrollContainerProvider } from "./context/ScrollContainerContext";
 import { PATHS } from "./constants/navigation";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
   const isOnboarding = pathname === PATHS.ONBOARDING;
 
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const goOnline = () => setIsOnline(true);
@@ -33,17 +35,22 @@ function App() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-canvas sm:my-8 sm:h-[844px] sm:min-h-0 sm:overflow-y-auto sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-border">
-      {!isOnboarding && <Header />}
-      {!isOnline && <OfflineBanner />}
-      {!isOnboarding && currentBannerAchievement && (
-        <AchievementUnlockBanner
-          achievement={currentBannerAchievement}
-          onDismiss={dismissBanner}
-        />
-      )}
-      <AppRoutes />
-      {!isOnboarding && <BottomNavigation />}
+    <div
+      ref={containerRef}
+      className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-canvas sm:my-8 sm:h-[844px] sm:min-h-0 sm:overflow-y-auto sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-border"
+    >
+      <ScrollContainerProvider containerRef={containerRef}>
+        {!isOnboarding && <Header />}
+        {!isOnline && <OfflineBanner />}
+        {!isOnboarding && currentBannerAchievement && (
+          <AchievementUnlockBanner
+            achievement={currentBannerAchievement}
+            onDismiss={dismissBanner}
+          />
+        )}
+        <AppRoutes />
+        {!isOnboarding && <BottomNavigation />}
+      </ScrollContainerProvider>
     </div>
   );
 }

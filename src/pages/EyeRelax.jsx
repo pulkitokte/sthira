@@ -5,12 +5,14 @@ import EyeRecoveryCategorySection from "../components/eyeRecovery/EyeRecoveryCat
 import { EYE_RECOVERY_CATEGORIES } from "../data/eyeRecoveryCategories";
 import { getEyeSessionsByCategory } from "../utils/eyeRecovery";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useScrollRestoration } from "../hooks/useScrollRestoration";
 import { PATHS } from "../constants/navigation";
 
 export default function EyeRelax() {
   const navigate = useNavigate();
   const location = useLocation();
   useDocumentTitle("Eye Recovery");
+  useScrollRestoration(PATHS.EYE_RELAX);
 
   // Only shown when arriving via an in-app CTA (e.g. Wellness Tracker's
   // "Try Eye Recovery" insight). Bottom-nav and direct-URL entry never set

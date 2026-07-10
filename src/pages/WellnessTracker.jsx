@@ -8,7 +8,9 @@ import { useWellness } from "../context/WellnessContext";
 import { useDismissibleHint } from "../hooks/useDismissibleHint";
 import { getWellnessInsight } from "../utils/wellness";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useScrollRestoration } from "../hooks/useScrollRestoration";
 import { HINT_IDS } from "../constants/hints";
+import { PATHS } from "../constants/navigation";
 
 const REQUIRED_FIELDS = ["energy", "focus", "stress", "mood"];
 
@@ -16,6 +18,7 @@ export default function WellnessTracker() {
   const { todayEntry, recentEntries } = useWellness();
   const wellnessHint = useDismissibleHint(HINT_IDS.WELLNESS_DAILY_CHECKIN);
   useDocumentTitle("Wellness");
+  useScrollRestoration(PATHS.WELLNESS_TRACKER);
 
   const isComplete =
     Boolean(todayEntry) && REQUIRED_FIELDS.every((field) => todayEntry[field]);

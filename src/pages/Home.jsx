@@ -50,6 +50,7 @@ import { useDismissibleHint } from "../hooks/useDismissibleHint";
 import { useDailyCheckIn } from "../hooks/useDailyCheckIn";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { useAtmosphere } from "../hooks/useAtmosphere";
+import { useScrollRestoration } from "../hooks/useScrollRestoration";
 import { getRecommendedSession } from "../utils/recovery";
 import { getRecommendedEyeSession } from "../utils/eyeRecovery";
 import {
@@ -100,6 +101,8 @@ export default function Home() {
   const atmosphere = useAtmosphere();
   const gratitudeCount = getTotalGratitudeCount();
   const letterCount = getTotalLetterCount();
+
+  useScrollRestoration(PATHS.HOME);
 
   const todayWisdom = useMemo(() => getTodayWisdom(), []);
   const todayWeatherEntry = useMemo(() => getTodayEntry(), []);
