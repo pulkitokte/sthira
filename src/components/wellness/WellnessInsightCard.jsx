@@ -37,7 +37,9 @@ export default function WellnessInsightCard({ insight }) {
       <p className="leading-relaxed text-stone">{insight.message}</p>
       {action && (
         <button
-          onClick={() => navigate(action.path)}
+          onClick={() =>
+            navigate(action.path, { state: { from: "wellness-insight" } })
+          }
           className="mt-4 flex items-center gap-1 text-sm font-medium text-moss"
         >
           {action.label} <ChevronRight size={14} />
