@@ -19,6 +19,7 @@ import PageContainer from "../components/layout/PageContainer";
 import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
 import HelperHint from "../components/common/HelperHint";
+import FeatureSearchBar from "../components/home/FeatureSearchBar";
 import RecommendedCard from "../components/home/RecommendedCard";
 import DailyRitualCard from "../components/home/DailyRitualCard";
 import TodaysJourneySection from "../components/journey/TodaysJourneySection";
@@ -201,6 +202,9 @@ export default function Home() {
           </p>
         )}
       </section>
+
+      {/* ── Quick Feature Search ── */}
+      <FeatureSearchBar />
 
       {/* ── Adaptive Home Companion ── */}
       <AdaptiveHomeBanner banner={adaptiveBanner} />
