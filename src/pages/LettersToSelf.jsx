@@ -1,8 +1,12 @@
 // src/pages/LettersToSelf.jsx
 // Letters to Self — compose, timeline, and open views.
 // Warm, ceremonial, deeply personal.
+//
+// TEMPORARY DEBUG TRACING — added only to diagnose the back-button bug.
+// No logic has been changed. Remove all console.log lines once the root
+// cause is confirmed.
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, Lock } from "lucide-react";
 import { useLettersToSelf, LETTERS_VIEW } from "../hooks/useLettersToSelf";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
@@ -13,6 +17,7 @@ import LettersEmptyState from "../components/letters/LettersEmptyState";
 
 export default function LettersToSelf() {
   const navigate = useNavigate();
+  const location = useLocation();
   const letters = useLettersToSelf();
   useDocumentTitle("Letters to Self");
 
@@ -54,8 +59,22 @@ export default function LettersToSelf() {
       : "Letters to Self";
 
   const handleBack = () => {
-    if (isTimeline) navigate(-1);
-    else goToTimeline();
+    console.log("[DEBUG] handleBack fired");
+    console.log("[DEBUG] view:", view);
+    console.log("[DEBUG] isTimeline:", isTimeline);
+    console.log("[DEBUG] location.pathname:", location.pathname);
+    console.log("[DEBUG] location.key:", location.key);
+    console.log("[DEBUG] window.history.length:", window.history.length);
+
+    if (isTimeline) {
+      console.log("[DEBUG] branch: calling navigate(-1) now");
+      navigate(-1);
+      console.log("[DEBUG] navigate(-1) call completed (sync return)");
+    } else {
+      console.log("[DEBUG] branch: calling goToTimeline() now");
+      goToTimeline();
+      console.log("[DEBUG] goToTimeline() call completed");
+    }
   };
 
   return (
@@ -97,7 +116,10 @@ export default function LettersToSelf() {
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
-              onClick={handleBack}
+              onClick={() => {
+                console.log("[DEBUG] back button onClick fired");
+                handleBack();
+              }}
               className="p-2 -ml-2 rounded-xl transition-all"
               style={{ color: "#8a8070" }}
               aria-label="Go back"
