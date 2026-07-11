@@ -6,14 +6,15 @@
 // Regression fix (round 1): restored createLetter() export.
 // Regression fix (round 2): added groupLetters, isLetterUnlocked, getTomorrowKey.
 // Regression fix (round 3 — full audit): added formatLetterDate,
-// formatUnlockDate, daysUntilUnlock, which LetterCard.jsx and
-// LetterOpenView.jsx depend on. This file has now been reconciled against
-// every known importer in the project:
-//   - useLettersToSelf.js
-//   - LetterCard.jsx
-//   - LetterComposer.jsx
-//   - LetterOpenView.jsx
-//   - Home.jsx
+// formatUnlockDate, daysUntilUnlock.
+// Bug fix (delete not working): createLetter() never assigned an `id` to
+// new letters. deleteLetter(id) has an `if (!id) return;` guard, so every
+// delete attempt silently no-op'd — the confirmation modal closed and
+// state "refreshed," but storage was never touched, so the letter always
+// reappeared. createLetter now generates an id (and createdAt, also
+// expected elsewhere but previously unset) if not already present.
+// loadLetters() also backfills id/createdAt for any letters already saved
+// before this fix, so existing stuck letters become deletable too.
 
 import { DELIVERY_TYPES } from "../data/lettersData";
 
@@ -48,15 +49,14 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
-/**
- * Safely parses a date-like value (ISO string or YYYY-MM-DD key) into a
- * Date object. Returns null if the value is missing or unparseable —
- * callers must null-guard on the result.
- */
 function safeParseDate(value) {
   if (!value) return null;
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function generateLetterId() {
+  return `letter-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
@@ -64,20 +64,44 @@ function safeParseDate(value) {
 /**
  * Load all letters from storage.
  * Always returns an array, never null or undefined.
+ * Backfills `id`/`createdAt` on any letter missing them (e.g. letters saved
+ * before this fix), persisting the repair so it only happens once.
  */
 export function loadLetters() {
-  return ensureArray(safeRead());
+  const letters = ensureArray(safeRead());
+  let needsWrite = false;
+
+  const backfilled = letters.map((l) => {
+    if (l && typeof l === "object" && !l.id) {
+      needsWrite = true;
+      return {
+        ...l,
+        id: generateLetterId(),
+        createdAt: l.createdAt ?? new Date().toISOString(),
+      };
+    }
+    return l;
+  });
+
+  if (needsWrite) safeWrite(backfilled);
+  return backfilled;
 }
 
 /**
  * Create and save a new letter entry.
- * This is the primary export name — matches the original Batch 32 API
- * and what useLettersToSelf.js imports.
+ * Assigns `id` and `createdAt` if not already present on the given object —
+ * every other function in this file (delete, update, lookup, unlock checks)
+ * depends on `id` existing.
  */
 export function createLetter(letter) {
   if (!letter || typeof letter !== "object") return;
   const existing = loadLetters();
-  safeWrite([letter, ...existing]);
+  const complete = {
+    ...letter,
+    id: letter.id ?? generateLetterId(),
+    createdAt: letter.createdAt ?? new Date().toISOString(),
+  };
+  safeWrite([complete, ...existing]);
 }
 
 /**
@@ -163,12 +187,6 @@ export function getTomorrowKey() {
 /**
  * Determines whether a given letter (compose-form shape: deliveryType +
  * unlockDate) is currently unlocked/readable.
- * - Malformed entries default to unlocked (fail open, never hide content
- *   behind a broken guard).
- * - DELIVERY_TYPES.ANYTIME letters are always unlocked regardless of any
- *   stored unlockDate.
- * - Any other delivery type is unlocked once today's date key is on or
- *   after the letter's unlockDate.
  */
 export function isLetterUnlocked(letter) {
   if (!letter || typeof letter !== "object") return true;
@@ -179,7 +197,6 @@ export function isLetterUnlocked(letter) {
 
 /**
  * Splits letters into { available, future } based on isLetterUnlocked.
- * Used by useLettersToSelf.js to drive the timeline view.
  */
 export function groupLetters(letters) {
   const list = ensureArray(letters);
@@ -196,10 +213,7 @@ export function groupLetters(letters) {
 }
 
 /**
- * Formats a letter's createdAt timestamp (ISO string) into a friendly
- * display date, e.g. "Jul 10, 2026".
- * Null/unparseable input returns an empty string rather than throwing,
- * so LetterCard/LetterOpenView never crash on malformed data.
+ * Formats a letter's createdAt timestamp into a friendly display date.
  */
 export function formatLetterDate(createdAt) {
   const d = safeParseDate(createdAt);
@@ -212,8 +226,7 @@ export function formatLetterDate(createdAt) {
 }
 
 /**
- * Formats a letter's unlockDate (YYYY-MM-DD key) into a friendly display
- * date, e.g. "Jul 15, 2026". Same fail-safe behavior as formatLetterDate.
+ * Formats a letter's unlockDate into a friendly display date.
  */
 export function formatUnlockDate(unlockDate) {
   const d = safeParseDate(unlockDate);
@@ -227,8 +240,6 @@ export function formatUnlockDate(unlockDate) {
 
 /**
  * Number of whole days between today and the given unlockDate key.
- * Returns 0 for missing/unparseable dates or dates that are today/past,
- * so LetterCard's "{days} days away" text never shows a negative number.
  */
 export function daysUntilUnlock(unlockDate) {
   const target = safeParseDate(unlockDate);
