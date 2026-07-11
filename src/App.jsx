@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import Header from "./components/layout/Header";
 import BottomNavigation from "./components/layout/BottomNavigation";
@@ -7,18 +7,18 @@ import AchievementUnlockBanner from "./components/achievements/AchievementUnlock
 import AppRoutes from "./routes/AppRoutes";
 import { useOnboarding } from "./context/OnboardingContext";
 import { useAchievements } from "./context/AchievementsContext";
+import { ScrollContainerProvider } from "./context/ScrollContainerContext";
 import { PATHS } from "./constants/navigation";
 
 // Routes that render their own complete custom header (sticky top bar,
-// back button, title) rather than using the shared PageContainer/Header
-// pattern. Rendering the global Header on these routes as well produced
-// two overlapping position:sticky top-0 elements, which caused the
-// Letters to Self back button to become unreliable/unclickable depending
-// on scroll position. Only Letters is excluded here, scoped to the
-// reported bug — CalmSounds/CompanionSpace use the same custom-header
-// pattern and may warrant the same exclusion, but that's left untouched
-// pending a separate report.
-const HAS_OWN_HEADER = [PATHS.LETTERS];
+// back button, title) rather than relying on the shared PageContainer/
+// Header pattern. Rendering the global Header on these routes as well
+// produces two overlapping position:sticky top-0 elements, which caused
+// the Letters to Self back button to become unreliable depending on
+// scroll position. Hydration and Wellness were moved to the same
+// shared header pattern used by Letters/Companion/Calm Sounds for UI
+// consistency, so they are excluded here for the same reason.
+const HAS_OWN_HEADER = [PATHS.LETTERS, PATHS.HYDRATION, PATHS.WELLNESS_TRACKER];
 
 function App() {
   const { pathname } = useLocation();
@@ -28,6 +28,7 @@ function App() {
   const rendersOwnHeader = HAS_OWN_HEADER.includes(pathname);
 
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const goOnline = () => setIsOnline(true);
@@ -45,17 +46,22 @@ function App() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-canvas sm:my-8 sm:h-[844px] sm:min-h-0 sm:overflow-y-auto sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-border">
-      {!isOnboarding && !rendersOwnHeader && <Header />}
-      {!isOnline && <OfflineBanner />}
-      {!isOnboarding && currentBannerAchievement && (
-        <AchievementUnlockBanner
-          achievement={currentBannerAchievement}
-          onDismiss={dismissBanner}
-        />
-      )}
-      <AppRoutes />
-      {!isOnboarding && <BottomNavigation />}
+    <div
+      ref={containerRef}
+      className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-canvas sm:my-8 sm:h-[844px] sm:min-h-0 sm:overflow-y-auto sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-border"
+    >
+      <ScrollContainerProvider containerRef={containerRef}>
+        {!isOnboarding && !rendersOwnHeader && <Header />}
+        {!isOnline && <OfflineBanner />}
+        {!isOnboarding && currentBannerAchievement && (
+          <AchievementUnlockBanner
+            achievement={currentBannerAchievement}
+            onDismiss={dismissBanner}
+          />
+        )}
+        <AppRoutes />
+        {!isOnboarding && <BottomNavigation />}
+      </ScrollContainerProvider>
     </div>
   );
 }
