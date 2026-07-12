@@ -25,7 +25,6 @@ export default function SelfCompassion() {
     dismissFeedback,
   } = sc;
 
-  // When in support view, delegate entirely to that component
   if (view === COMPASSION_VIEW.SUPPORT && activeCard) {
     return (
       <CompassionSupportScreen
@@ -44,7 +43,6 @@ export default function SelfCompassion() {
     );
   }
 
-  // ── Home grid ─────────────────────────────────────────────────────────────
   return (
     <div
       className="min-h-screen"
@@ -53,7 +51,6 @@ export default function SelfCompassion() {
           "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
       }}
     >
-      {/* Ambient orb */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -71,11 +68,9 @@ export default function SelfCompassion() {
         />
       </div>
 
-      <FeatureHeader title="Self-Compassion" showSettings={false} />
+      <FeatureHeader title="Self-Compassion" />
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 space-y-8 pb-20">
-        {/* Intro */}
         <div className="space-y-2">
           <p
             className="font-display font-light text-ink leading-snug"
@@ -88,14 +83,12 @@ export default function SelfCompassion() {
           </p>
         </div>
 
-        {/* Cards */}
         <div className="flex flex-col gap-3">
           {COMPASSION_CARDS.map((card) => (
             <CompassionCard key={card.id} card={card} onOpen={openCard} />
           ))}
         </div>
 
-        {/* Footer note */}
         <p className="text-center text-xs text-stone font-light italic opacity-40 pt-2">
           This space is private. Nothing here is shared.
         </p>
