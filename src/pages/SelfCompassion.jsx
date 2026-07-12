@@ -1,9 +1,4 @@
-// src/pages/SelfCompassion.jsx
-// Self-Compassion Toolkit — home grid and individual support screens.
-// Warm, safe, human, premium. No toxic positivity. No productivity pressure.
-
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import { useSelfCompassion, COMPASSION_VIEW } from "../hooks/useSelfCompassion";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import CompassionCard from "../components/compassion/CompassionCard";
@@ -11,7 +6,6 @@ import CompassionSupportScreen from "../components/compassion/CompassionSupportS
 import { COMPASSION_CARDS } from "../data/selfCompassionData";
 
 export default function SelfCompassion() {
-  const navigate = useNavigate();
   const sc = useSelfCompassion();
   useDocumentTitle("Self-Compassion");
 
@@ -77,33 +71,7 @@ export default function SelfCompassion() {
         />
       </div>
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.92)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 -ml-2 rounded-xl transition-all"
-            style={{ color: "#8a8070" }}
-            aria-label="Go back"
-          >
-            <ChevronLeft size={20} strokeWidth={1.5} />
-          </button>
-          <h1
-            className="font-display font-light text-ink tracking-tight"
-            style={{ fontSize: "1.2rem" }}
-          >
-            Self-Compassion
-          </h1>
-        </div>
-      </div>
+      <FeatureHeader title="Self-Compassion" showSettings={false} />
 
       {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 space-y-8 pb-20">

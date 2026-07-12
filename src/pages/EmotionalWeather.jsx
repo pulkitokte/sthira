@@ -1,14 +1,10 @@
-// src/pages/EmotionalWeather.jsx
-// Emotional Weather page — daily check-in, landscape, timeline.
-// Poetic, calm, non-clinical. Never diagnoses.
-
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import {
   useEmotionalWeather,
   WEATHER_VIEW,
 } from "../hooks/useEmotionalWeather";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import WeatherPicker from "../components/weather/WeatherPicker";
 import WeatherEntryCard from "../components/weather/WeatherEntryCard";
 import EmotionalLandscape from "../components/weather/EmotionalLandscape";
@@ -16,7 +12,6 @@ import WeatherReflection from "../components/weather/WeatherReflection";
 import { getWeatherById } from "../data/emotionalWeatherData";
 import { formatWeatherTime } from "../utils/emotionalWeather";
 
-// ── Tab bar ──────────────────────────────────────────────────────────────────
 function WeatherTabs({ view, onToday, onTimeline, hasHistory }) {
   const tabs = [
     { id: WEATHER_VIEW.TODAY, label: "Today", onClick: onToday },
@@ -50,7 +45,6 @@ function WeatherTabs({ view, onToday, onTimeline, hasHistory }) {
   );
 }
 
-// ── Today's entry display (already submitted) ─────────────────────────────────
 function TodayDisplay({ entry, onEdit }) {
   const weather = getWeatherById(entry.weather);
 
@@ -63,7 +57,6 @@ function TodayDisplay({ entry, onEdit }) {
       }}
     >
       <div className="p-6 space-y-4">
-        {/* Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-stone opacity-70">
@@ -86,7 +79,6 @@ function TodayDisplay({ entry, onEdit }) {
           </button>
         </div>
 
-        {/* Weather display */}
         <div className="flex items-center gap-4">
           <span className="text-5xl leading-none">{weather.emoji}</span>
           <div>
@@ -102,7 +94,6 @@ function TodayDisplay({ entry, onEdit }) {
           </div>
         </div>
 
-        {/* Note */}
         {entry.note && entry.note.trim().length > 0 && (
           <div
             className="rounded-2xl px-4 py-3"
@@ -121,7 +112,6 @@ function TodayDisplay({ entry, onEdit }) {
   );
 }
 
-// ── Check-in form ─────────────────────────────────────────────────────────────
 function CheckInForm({
   selectedWeather,
   setSelectedWeather,
@@ -134,7 +124,6 @@ function CheckInForm({
 }) {
   return (
     <div className="space-y-7">
-      {/* Intro */}
       {!isEditing && (
         <div className="space-y-1">
           <p
@@ -153,10 +142,8 @@ function CheckInForm({
         </div>
       )}
 
-      {/* Weather picker */}
       <WeatherPicker selected={selectedWeather} onChange={setSelectedWeather} />
 
-      {/* Optional note */}
       <div className="space-y-2">
         <label
           htmlFor="weather-note"
@@ -176,7 +163,6 @@ function CheckInForm({
         />
       </div>
 
-      {/* Actions */}
       <div className="flex flex-col gap-3">
         <button
           onClick={onSave}
@@ -202,11 +188,9 @@ function CheckInForm({
   );
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
 function WeatherEmptyState({ onBegin }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 gap-6 px-6">
-      {/* Sky visual */}
       <div
         className="relative w-24 h-24 rounded-full flex items-center justify-center"
         style={{
@@ -239,9 +223,7 @@ function WeatherEmptyState({ onBegin }) {
   );
 }
 
-// ── Main page ────────────────────────────────────────────────────────────────
 export default function EmotionalWeather() {
-  const navigate = useNavigate();
   const ew = useEmotionalWeather();
   useDocumentTitle("Emotional Weather");
 
@@ -275,7 +257,6 @@ export default function EmotionalWeather() {
           "linear-gradient(180deg, #f8f6f2 0%, #f4f2ee 50%, #f8f6f2 100%)",
       }}
     >
-      {/* ── Ambient orbs ────────────────────────────────────────────────── */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -304,55 +285,35 @@ export default function EmotionalWeather() {
         />
       </div>
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(248,246,242,0.88)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto space-y-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 -ml-2 rounded-xl transition-all"
-              style={{ color: "#8a8070" }}
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <h1
-              className="font-display font-light text-ink tracking-tight"
-              style={{ fontSize: "1.2rem" }}
-            >
-              Emotional Weather
-            </h1>
-          </div>
+      <FeatureHeader title="Emotional Weather" />
 
-          {/* Tabs — only show when there is history */}
-          {!isEmpty && (
+      {!isEmpty && (
+        <div
+          className="sticky z-10 px-4 pb-4"
+          style={{
+            top: "var(--feature-header-height)",
+            background: "rgba(248,246,242,0.88)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderBottom: "1px solid rgba(185,175,160,0.12)",
+          }}
+        >
+          <div className="max-w-lg mx-auto">
             <WeatherTabs
               view={view}
               onToday={() => setView(WEATHER_VIEW.TODAY)}
               onTimeline={() => setView(WEATHER_VIEW.TIMELINE)}
               hasHistory={!isEmpty}
             />
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 space-y-6 pb-20">
-        {/* ── Today view ── */}
         {view === WEATHER_VIEW.TODAY && (
           <>
-            {/* First-ever check-in */}
             {isEmpty && !isEditing && <WeatherEmptyState onBegin={beginEdit} />}
 
-            {/* Check-in form (new or editing) */}
             {showForm && (
               <CheckInForm
                 selectedWeather={selectedWeather}
@@ -366,24 +327,20 @@ export default function EmotionalWeather() {
               />
             )}
 
-            {/* Today's completed entry */}
             {hasTodayEntry && !isEditing && (
               <TodayDisplay entry={todayEntry} onEdit={beginEdit} />
             )}
 
-            {/* Emotional landscape */}
             {!isEmpty && !isEditing && (
               <EmotionalLandscape recentIds={recentIds} />
             )}
 
-            {/* Gentle reflection */}
             {!isEmpty && !isEditing && reflection && (
               <WeatherReflection message={reflection} />
             )}
           </>
         )}
 
-        {/* ── Timeline view ── */}
         {view === WEATHER_VIEW.TIMELINE && (
           <div className="space-y-8">
             {grouped.map(({ monthKey, label, entries }) => (

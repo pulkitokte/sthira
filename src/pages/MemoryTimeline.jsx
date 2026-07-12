@@ -1,12 +1,7 @@
-// src/pages/MemoryTimeline.jsx
-// Seasonal Reflections & Memory Timeline.
-// Reads all existing app data. Writes nothing to existing keys.
-// Warm, paper-journal aesthetic. No charts, no scores, no pressure.
-
 import { useState, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import SeasonBadge from "../components/memory/SeasonBadge";
 import MemoryCard from "../components/memory/MemoryCard";
 import {
@@ -26,8 +21,6 @@ import {
   getPromptForDate,
   REFLECTION_PROMPTS,
 } from "../data/reflectionPrompts";
-
-// ── Filter tab data ───────────────────────────────────────────────────────────
 
 const FILTER_OPTIONS = [
   { id: "all", label: "All", emoji: "✨" },
@@ -57,8 +50,6 @@ const FILTER_OPTIONS = [
     emoji: MEMORY_TYPE_EMOJIS[MEMORY_TYPES.REFLECTION],
   },
 ];
-
-// ── Empty state ───────────────────────────────────────────────────────────────
 
 function EmptyState() {
   return (
@@ -100,8 +91,6 @@ function FilterEmptyState({ onClear }) {
     </div>
   );
 }
-
-// ── Older memory surface ──────────────────────────────────────────────────────
 
 function OlderMemoryCard({ entry }) {
   const typeLabel = MEMORY_TYPE_LABELS[entry.type] ?? "Memory";
@@ -148,8 +137,6 @@ function OlderMemoryCard({ entry }) {
   );
 }
 
-// ── Reflection prompt ─────────────────────────────────────────────────────────
-
 function ReflectionPromptCard({ prompt, onRefresh }) {
   return (
     <div
@@ -181,13 +168,9 @@ function ReflectionPromptCard({ prompt, onRefresh }) {
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
-
 export default function MemoryTimeline() {
-  const navigate = useNavigate();
   useDocumentTitle("Memory Timeline");
 
-  // Build timeline once on mount (won't change during session)
   const allEntries = useMemo(() => buildMemoryTimeline(), []);
 
   const [activeFilter, setActiveFilter] = useState(() =>
@@ -234,7 +217,6 @@ export default function MemoryTimeline() {
           "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
       }}
     >
-      {/* Ambient orb */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -252,88 +234,66 @@ export default function MemoryTimeline() {
         />
       </div>
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.92)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto space-y-4">
-          {/* Back + title */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate(-1)}
-                className="p-2 -ml-2 rounded-xl transition-all"
-                style={{ color: "#8a8070" }}
-                aria-label="Go back"
-              >
-                <ChevronLeft size={20} strokeWidth={1.5} />
-              </button>
-              <h1
-                className="font-display font-light text-ink tracking-tight"
-                style={{ fontSize: "1.2rem" }}
-              >
-                Memory Timeline
-              </h1>
-            </div>
-            {allEntries.length > 0 && (
-              <span className="text-xs text-stone font-light opacity-60">
-                {allEntries.length}{" "}
-                {allEntries.length === 1 ? "memory" : "memories"}
-              </span>
-            )}
+      <FeatureHeader
+        title="Memory Timeline"
+        rightAction={
+          allEntries.length > 0 ? (
+            <span className="text-xs text-stone font-light opacity-60 pr-1">
+              {allEntries.length}{" "}
+              {allEntries.length === 1 ? "memory" : "memories"}
+            </span>
+          ) : null
+        }
+      />
+
+      {!isEmpty && (
+        <div
+          className="sticky z-10 px-4 pb-4"
+          style={{
+            top: "var(--feature-header-height)",
+            background: "rgba(250,248,244,0.92)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderBottom: "1px solid rgba(185,175,160,0.12)",
+          }}
+        >
+          <div className="max-w-lg mx-auto flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {FILTER_OPTIONS.map((opt) => {
+              const isActive = activeFilter === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => handleFilterChange(opt.id)}
+                  className="shrink-0 flex items-center gap-1.5 rounded-full font-display text-xs font-medium px-3 py-1.5 transition-all duration-150 focus:outline-none"
+                  style={{
+                    background: isActive
+                      ? "rgba(185,175,160,0.2)"
+                      : "rgba(185,175,160,0.07)",
+                    border: `1.5px solid ${isActive ? "rgba(185,175,160,0.45)" : "rgba(185,175,160,0.18)"}`,
+                    color: isActive ? "#5a5040" : "#8a8070",
+                  }}
+                  aria-pressed={isActive}
+                >
+                  <span>{opt.emoji}</span>
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
           </div>
-
-          {/* Filter tabs — scrollable */}
-          {!isEmpty && (
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              {FILTER_OPTIONS.map((opt) => {
-                const isActive = activeFilter === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => handleFilterChange(opt.id)}
-                    className="shrink-0 flex items-center gap-1.5 rounded-full font-display text-xs font-medium px-3 py-1.5 transition-all duration-150 focus:outline-none"
-                    style={{
-                      background: isActive
-                        ? "rgba(185,175,160,0.2)"
-                        : "rgba(185,175,160,0.07)",
-                      border: `1.5px solid ${isActive ? "rgba(185,175,160,0.45)" : "rgba(185,175,160,0.18)"}`,
-                      color: isActive ? "#5a5040" : "#8a8070",
-                    }}
-                    aria-pressed={isActive}
-                  >
-                    <span>{opt.emoji}</span>
-                    <span>{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
-      </div>
+      )}
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 space-y-8 pb-20">
-        {/* Empty state — no data at all */}
         {isEmpty && <EmptyState />}
 
-        {/* Have data */}
         {!isEmpty && (
           <>
-            {/* Older memory surface */}
             {olderMemory && activeFilter === "all" && (
               <section>
                 <OlderMemoryCard entry={olderMemory} />
               </section>
             )}
 
-            {/* Reflection prompt */}
             {activeFilter === "all" && (
               <section>
                 <ReflectionPromptCard
@@ -343,7 +303,6 @@ export default function MemoryTimeline() {
               </section>
             )}
 
-            {/* Divider before timeline */}
             {activeFilter === "all" && (
               <div
                 className="h-px"
@@ -351,7 +310,6 @@ export default function MemoryTimeline() {
               />
             )}
 
-            {/* Timeline */}
             {hasItems ? (
               <div className="space-y-6">
                 {grouped.map(({ seasonKey, label, season, year, entries }) => (
@@ -373,7 +331,6 @@ export default function MemoryTimeline() {
               <FilterEmptyState onClear={() => handleFilterChange("all")} />
             )}
 
-            {/* Footer */}
             {hasItems && (
               <p className="text-center text-xs text-stone font-light italic opacity-40 pt-2">
                 {filtered.length}{" "}

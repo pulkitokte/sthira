@@ -1,9 +1,4 @@
-// src/pages/DigitalSanctuary.jsx
-// Digital Sanctuary — the most premium, calming page in Sthira.
-// This page is intentionally different: softer, slower, more spacious.
-
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import { useSanctuary, SANCTUARY_SECTION } from "../hooks/useSanctuary";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import SanctuaryWelcomeCard from "../components/sanctuary/SanctuaryWelcomeCard";
@@ -32,7 +27,6 @@ function Divider() {
 }
 
 export default function DigitalSanctuary() {
-  const navigate = useNavigate();
   const sanctuary = useSanctuary();
   useDocumentTitle("Digital Sanctuary");
 
@@ -91,44 +85,18 @@ export default function DigitalSanctuary() {
         />
       </div>
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(248,246,242,0.85)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={isGrounding ? finishGrounding : () => navigate(-1)}
-              className="p-2 -ml-2 rounded-xl transition-all"
-              style={{ color: "#8a8070" }}
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <div>
-              <h1
-                className="font-display font-light text-ink tracking-tight"
-                style={{ fontSize: "1.15rem" }}
-              >
-                {isGrounding ? "Grounding" : "Digital Sanctuary"}
-              </h1>
-            </div>
-          </div>
-
-          {/* Subtle "you are safe here" tag — only on main view */}
-          {!isGrounding && (
-            <p className="text-xs text-stone font-light italic opacity-50">
-              private & quiet
+      <FeatureHeader
+        title={isGrounding ? "Grounding" : "Digital Sanctuary"}
+        onBack={isGrounding ? finishGrounding : undefined}
+        showSettings={false}
+        rightAction={
+          !isGrounding ? (
+            <p className="text-xs text-stone font-light italic opacity-50 pr-1">
+              private &amp; quiet
             </p>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-10 space-y-10 pb-20">

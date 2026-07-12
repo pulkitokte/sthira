@@ -1,10 +1,7 @@
-// src/pages/MoodJournal.jsx
-// Mood Journal page — timeline, new entry, detail, and edit views.
-// All views are in-page — no nested routing needed.
-
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import { useMoodJournal, JOURNAL_VIEW } from "../hooks/useMoodJournal";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import JournalEntryCard from "../components/journal/JournalEntryCard";
@@ -33,7 +30,6 @@ export default function MoodJournal() {
     removeEntry,
   } = journal;
 
-  // ── Shared header ────────────────────────────────────────────────────────
   const isTimeline = view === JOURNAL_VIEW.TIMELINE;
   const isNew = view === JOURNAL_VIEW.NEW;
   const isDetail = view === JOURNAL_VIEW.DETAIL;
@@ -60,24 +56,12 @@ export default function MoodJournal() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-10 bg-canvas border-b border-border px-4 pt-12 pb-4">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleBack}
-              className="p-2 -ml-2 rounded-xl text-stone hover:text-ink hover:bg-surface transition-all"
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <h1 className="font-display text-xl font-semibold text-ink tracking-tight">
-              {headerTitle}
-            </h1>
-          </div>
-
-          {/* New entry button — only on timeline */}
-          {isTimeline && !isEmpty && (
+      <FeatureHeader
+        title={headerTitle}
+        onBack={handleBack}
+        showSettings={false}
+        rightAction={
+          isTimeline && !isEmpty ? (
             <button
               onClick={openNewEntry}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
@@ -87,9 +71,9 @@ export default function MoodJournal() {
               <Plus size={15} strokeWidth={2} />
               New
             </button>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="max-w-lg mx-auto px-4 py-8">

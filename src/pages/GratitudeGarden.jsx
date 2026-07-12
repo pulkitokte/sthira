@@ -1,9 +1,6 @@
-// src/pages/GratitudeGarden.jsx
-// Gratitude Garden page — overview, new entry form, and timeline views.
-// All in-page — no nested routing needed.
-
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Plus, List, Leaf } from "lucide-react";
+import { Plus, List, Leaf } from "lucide-react";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import { useGratitudeGarden, GARDEN_VIEW } from "../hooks/useGratitudeGarden";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import GardenVisual from "../components/garden/GardenVisual";
@@ -60,24 +57,12 @@ export default function GratitudeGarden() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-10 bg-canvas border-b border-border px-4 pt-12 pb-4">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleBack}
-              className="p-2 -ml-2 rounded-xl text-stone hover:text-ink hover:bg-surface transition-all"
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <h1 className="font-display text-xl font-semibold text-ink tracking-tight">
-              {headerTitle}
-            </h1>
-          </div>
-
-          {/* Header actions */}
-          {isOverview && !isEmpty && (
+      <FeatureHeader
+        title={headerTitle}
+        onBack={handleBack}
+        showSettings={false}
+        rightAction={
+          isOverview && !isEmpty ? (
             <div className="flex items-center gap-2">
               <button
                 onClick={openTimeline}
@@ -96,9 +81,7 @@ export default function GratitudeGarden() {
                 Add
               </button>
             </div>
-          )}
-
-          {isTimeline && (
+          ) : isTimeline ? (
             <button
               onClick={openNew}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
@@ -107,9 +90,9 @@ export default function GratitudeGarden() {
               <Plus size={15} strokeWidth={2} />
               Add
             </button>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="max-w-lg mx-auto px-4 py-8">

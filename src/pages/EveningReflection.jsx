@@ -1,10 +1,7 @@
-// src/pages/EveningReflection.jsx
-// Evening Reflection page — form, timeline, detail, and completion views.
-// All views are in-page — no nested routing needed.
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import {
   useEveningReflection,
   REFLECTION_VIEW,
@@ -118,24 +115,12 @@ export default function EveningReflection() {
 
   return (
     <div className="min-h-screen bg-canvas">
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-10 bg-canvas border-b border-border px-4 pt-12 pb-4">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleBack}
-              className="p-2 -ml-2 rounded-xl text-stone hover:text-ink hover:bg-surface transition-all"
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <h1 className="font-display text-xl font-semibold text-ink tracking-tight">
-              {headerTitle}
-            </h1>
-          </div>
-
-          {/* New reflection button — only on timeline when entries exist */}
-          {isTimeline && !isEmpty && (
+      <FeatureHeader
+        title={headerTitle}
+        onBack={handleBack}
+        showSettings={false}
+        rightAction={
+          isTimeline && !isEmpty ? (
             <button
               onClick={openForm}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
@@ -145,9 +130,9 @@ export default function EveningReflection() {
               <Plus size={15} strokeWidth={2} />
               New
             </button>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="max-w-lg mx-auto px-4 py-8">

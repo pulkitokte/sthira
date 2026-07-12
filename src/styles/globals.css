@@ -19,6 +19,16 @@ body,
   height: 100%;
 }
 
+:root {
+  /* Single source of truth for FeatureHeader's rendered height.
+     Used by FeatureHeader itself (min-height) and by any sticky element
+     that needs to sit directly beneath it (e.g. tab bars on Daily Wisdom,
+     Memory Timeline, Emotional Weather). Change this once and every
+     consumer stays in sync — no hardcoded pixel offsets duplicated
+     across pages. */
+  --feature-header-height: 72px;
+}
+
 body {
   @apply bg-canvas text-ink font-sans antialiased sm:bg-backdrop;
   line-height: 1.6;

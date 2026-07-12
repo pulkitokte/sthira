@@ -10,15 +10,25 @@ import { useAchievements } from "./context/AchievementsContext";
 import { ScrollContainerProvider } from "./context/ScrollContainerContext";
 import { PATHS } from "./constants/navigation";
 
-// Routes that render their own complete custom header (sticky top bar,
-// back button, title) rather than relying on the shared PageContainer/
-// Header pattern. Rendering the global Header on these routes as well
-// produces two overlapping position:sticky top-0 elements, which caused
-// the Letters to Self back button to become unreliable depending on
-// scroll position. Hydration and Wellness were moved to the same
-// shared header pattern used by Letters/Companion/Calm Sounds for UI
-// consistency, so they are excluded here for the same reason.
-const HAS_OWN_HEADER = [PATHS.LETTERS, PATHS.HYDRATION, PATHS.WELLNESS_TRACKER];
+// Routes that render their own FeatureHeader (or other complete custom
+// header) instead of relying on the global Header component. Rendering
+// the global Header on these routes as well produces two overlapping
+// headers/back buttons — this is what the HAS_OWN_HEADER list prevents.
+const HAS_OWN_HEADER = [
+  PATHS.LETTERS,
+  PATHS.HYDRATION,
+  PATHS.WELLNESS_TRACKER,
+  PATHS.MOOD_JOURNAL,
+  PATHS.EVENING_REFLECTION,
+  PATHS.GRATITUDE_GARDEN,
+  PATHS.SANCTUARY,
+  PATHS.SELF_COMPASSION,
+  PATHS.WISDOM,
+  PATHS.MEMORIES,
+  PATHS.EMOTIONAL_WEATHER,
+  PATHS.COMPANION,
+  PATHS.CALM_SOUNDS,
+];
 
 function App() {
   const { pathname } = useLocation();

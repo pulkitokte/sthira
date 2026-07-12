@@ -2,7 +2,8 @@
 // The full-screen support experience for each card.
 // Warm, generous whitespace, editorial typography.
 
-import { ChevronLeft, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
+import FeatureHeader from "../layout/FeatureHeader";
 import FeedbackPrompt from "./FeedbackPrompt";
 import { FEEDBACK_STATE } from "../../hooks/useSelfCompassion";
 
@@ -106,36 +107,16 @@ export default function CompassionSupportScreen({
           "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
       }}
     >
-      {/* ── Header ────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.92)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center gap-2">
-          <button
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-xl transition-all"
-            style={{ color: "#8a8070" }}
-            aria-label="Back to toolkit"
-          >
-            <ChevronLeft size={20} strokeWidth={1.5} />
-          </button>
-          <div className="flex items-center gap-2">
+      <FeatureHeader
+        title={
+          <span className="inline-flex items-center gap-2">
             <span className="text-lg leading-none">{card.emoji}</span>
-            <h2
-              className="font-display font-light text-ink tracking-tight"
-              style={{ fontSize: "1.05rem" }}
-            >
-              {card.title}
-            </h2>
-          </div>
-        </div>
-      </div>
+            {card.title}
+          </span>
+        }
+        onBack={onBack}
+        showSettings={false}
+      />
 
       {/* ── Body ──────────────────────────────────────────────────────── */}
       <div className="max-w-lg mx-auto px-4 py-8 space-y-6 pb-20">

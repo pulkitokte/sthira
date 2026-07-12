@@ -1,6 +1,6 @@
-import { useNavigate } from "react-router-dom";
-import { Leaf, ChevronLeft, Settings as SettingsIcon } from "lucide-react";
+import { Leaf } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import HelperHint from "../components/common/HelperHint";
 import WellnessCheckIn from "../components/wellness/WellnessCheckIn";
 import WellnessInsightCard from "../components/wellness/WellnessInsightCard";
@@ -16,7 +16,6 @@ import { PATHS } from "../constants/navigation";
 const REQUIRED_FIELDS = ["energy", "focus", "stress", "mood"];
 
 export default function WellnessTracker() {
-  const navigate = useNavigate();
   const { todayEntry, recentEntries } = useWellness();
   const wellnessHint = useDismissibleHint(HINT_IDS.WELLNESS_DAILY_CHECKIN);
   useDocumentTitle("Wellness");
@@ -28,43 +27,7 @@ export default function WellnessTracker() {
 
   return (
     <>
-      {/* ── Header — shared pattern used by Letters/Companion/Calm Sounds ── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.9)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 -ml-2 rounded-xl transition-all"
-              style={{ color: "#8a8070" }}
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <h1
-              className="font-display font-light text-ink tracking-tight"
-              style={{ fontSize: "1.15rem" }}
-            >
-              Wellness
-            </h1>
-          </div>
-          <button
-            onClick={() => navigate(PATHS.SETTINGS)}
-            aria-label="Settings"
-            className="rounded-full p-2 text-stone transition-colors hover:bg-moss/10 hover:text-moss"
-          >
-            <SettingsIcon size={19} strokeWidth={2} />
-          </button>
-        </div>
-      </div>
-
+      <FeatureHeader title="Wellness" />
       <PageContainer className="flex flex-col gap-8">
         {wellnessHint.isVisible && (
           <HelperHint

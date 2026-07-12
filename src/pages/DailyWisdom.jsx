@@ -1,10 +1,7 @@
-// src/pages/DailyWisdom.jsx
-// Daily Wisdom page — today's card, favorites, and full archive with search/filter.
-
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useDailyWisdom, WISDOM_VIEW } from "../hooks/useDailyWisdom";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import WisdomCard from "../components/wisdom/WisdomCard";
 import WisdomCategoryFilter from "../components/wisdom/WisdomCategoryFilter";
 import WisdomArchiveCard from "../components/wisdom/WisdomArchiveCard";
@@ -99,7 +96,6 @@ function ArchiveEmpty({ onClear }) {
 
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function DailyWisdom() {
-  const navigate = useNavigate();
   const wisdom = useDailyWisdom();
   useDocumentTitle("Daily Wisdom");
 
@@ -129,36 +125,20 @@ export default function DailyWisdom() {
           "linear-gradient(180deg, #f8f6f2 0%, #f5f2ee 60%, #f8f6f2 100%)",
       }}
     >
-      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <FeatureHeader title="Daily Wisdom" />
+
+      {/* ── Tabs — sticky, directly beneath header ───────────────────────── */}
       <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
+        className="sticky z-10 px-4 pb-4"
         style={{
+          top: "var(--feature-header-height)",
           background: "rgba(248,246,242,0.9)",
           backdropFilter: "blur(10px)",
           WebkitBackdropFilter: "blur(10px)",
           borderBottom: "1px solid rgba(185,175,160,0.12)",
         }}
       >
-        <div className="max-w-lg mx-auto space-y-4">
-          {/* Back + title */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 -ml-2 rounded-xl transition-all"
-              style={{ color: "#8a8070" }}
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <h1
-              className="font-display font-light text-ink tracking-tight"
-              style={{ fontSize: "1.2rem" }}
-            >
-              Daily Wisdom
-            </h1>
-          </div>
-
-          {/* Tabs */}
+        <div className="max-w-lg mx-auto">
           <WisdomTabs
             view={view}
             onToday={goToToday}
@@ -174,7 +154,6 @@ export default function DailyWisdom() {
         {/* ── Today view ── */}
         {view === WISDOM_VIEW.TODAY && (
           <div className="space-y-8">
-            {/* Main card */}
             <WisdomCard
               entry={todayWisdom}
               isFavorited={isFav(todayWisdom?.id)}
@@ -182,12 +161,10 @@ export default function DailyWisdom() {
               isToday
             />
 
-            {/* Gentle note */}
             <p className="text-center text-xs text-stone font-light italic opacity-50">
               A new thought arrives each day.
             </p>
 
-            {/* Browse prompt */}
             <div
               className="rounded-2xl p-5 flex items-center justify-between gap-4"
               style={{
@@ -217,7 +194,6 @@ export default function DailyWisdom() {
         {/* ── Archive view ── */}
         {view === WISDOM_VIEW.ARCHIVE && (
           <div className="space-y-5">
-            {/* Search bar */}
             <div className="relative">
               <Search
                 size={15}
@@ -243,20 +219,17 @@ export default function DailyWisdom() {
               )}
             </div>
 
-            {/* Category filter */}
             <WisdomCategoryFilter
               active={activeCategory}
               onChange={setActiveCategory}
             />
 
-            {/* Count */}
             <p className="text-xs text-stone font-light px-1">
               {archiveEntries.length === totalCount
                 ? `${totalCount} entries`
                 : `${archiveEntries.length} of ${totalCount} entries`}
             </p>
 
-            {/* Entries */}
             {archiveEntries.length === 0 ? (
               <ArchiveEmpty
                 onClear={() => {
