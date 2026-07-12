@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
-import PageContainer from "../components/layout/PageContainer";
-import FeatureHeader from "../components/layout/FeatureHeader";
 import { useMoodJournal, JOURNAL_VIEW } from "../hooks/useMoodJournal";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import JournalEntryCard from "../components/journal/JournalEntryCard";
 import JournalEntryDetail from "../components/journal/JournalEntryDetail";
 import JournalEditor from "../components/journal/JournalEditor";
@@ -49,7 +48,6 @@ export default function MoodJournal() {
     } else if (isDetail || isNew) {
       goToTimeline();
     } else if (isEdit) {
-      // Go back to detail without losing selected entry
       journal.openDetail(selectedEntry);
     }
   };
@@ -59,7 +57,7 @@ export default function MoodJournal() {
       <FeatureHeader
         title={headerTitle}
         onBack={handleBack}
-        showSettings={false}
+        showSettings={isTimeline}
         rightAction={
           isTimeline && !isEmpty ? (
             <button
@@ -75,9 +73,7 @@ export default function MoodJournal() {
         }
       />
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="max-w-lg mx-auto px-4 py-8">
-        {/* ── Timeline ── */}
         {isTimeline && (
           <>
             {isEmpty ? (
@@ -86,7 +82,6 @@ export default function MoodJournal() {
               <div className="flex flex-col gap-8">
                 {grouped.map(({ date, entries }) => (
                   <div key={date} className="flex flex-col gap-3">
-                    {/* Date group header */}
                     <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone px-1">
                       {formatEntryDate(date)}
                     </p>
@@ -99,15 +94,12 @@ export default function MoodJournal() {
                     ))}
                   </div>
                 ))}
-
-                {/* Bottom padding */}
                 <div className="pb-4" />
               </div>
             )}
           </>
         )}
 
-        {/* ── New Entry ── */}
         {isNew && (
           <JournalEditor
             onSave={saveNewEntry}
@@ -116,7 +108,6 @@ export default function MoodJournal() {
           />
         )}
 
-        {/* ── Detail ── */}
         {isDetail && selectedEntry && (
           <JournalEntryDetail
             entry={selectedEntry}
@@ -125,7 +116,6 @@ export default function MoodJournal() {
           />
         )}
 
-        {/* ── Edit ── */}
         {isEdit && selectedEntry && (
           <JournalEditor
             initialMood={selectedEntry.mood}

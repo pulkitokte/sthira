@@ -1,19 +1,13 @@
-// src/pages/LettersToSelf.jsx
-// Letters to Self — compose, timeline, and open views.
-// Warm, ceremonial, deeply personal.
-//
-// TEMPORARY DEBUG TRACING — added only to diagnose the back-button bug.
-// No logic has been changed. Remove all console.log lines once the root
-// cause is confirmed.
-
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft, Plus, Lock } from "lucide-react";
+import { Plus, Lock } from "lucide-react";
 import { useLettersToSelf, LETTERS_VIEW } from "../hooks/useLettersToSelf";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import LetterCard from "../components/letters/LetterCard";
 import LetterComposer from "../components/letters/LetterComposer";
 import LetterOpenView from "../components/letters/LetterOpenView";
 import LettersEmptyState from "../components/letters/LettersEmptyState";
+import { PATHS } from "../constants/navigation";
 
 export default function LettersToSelf() {
   const navigate = useNavigate();
@@ -59,21 +53,14 @@ export default function LettersToSelf() {
       : "Letters to Self";
 
   const handleBack = () => {
-    console.log("[DEBUG] handleBack fired");
-    console.log("[DEBUG] view:", view);
-    console.log("[DEBUG] isTimeline:", isTimeline);
-    console.log("[DEBUG] location.pathname:", location.pathname);
-    console.log("[DEBUG] location.key:", location.key);
-    console.log("[DEBUG] window.history.length:", window.history.length);
-
     if (isTimeline) {
-      console.log("[DEBUG] branch: calling navigate(-1) now");
-      navigate(-1);
-      console.log("[DEBUG] navigate(-1) call completed (sync return)");
+      if (location.key === "default") {
+        navigate(PATHS.HOME);
+      } else {
+        navigate(-1);
+      }
     } else {
-      console.log("[DEBUG] branch: calling goToTimeline() now");
       goToTimeline();
-      console.log("[DEBUG] goToTimeline() call completed");
     }
   };
 
@@ -85,7 +72,6 @@ export default function LettersToSelf() {
           "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
       }}
     >
-      {/* ── Ambient orb ─────────────────────────────────────────────────── */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -103,39 +89,12 @@ export default function LettersToSelf() {
         />
       </div>
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.9)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                console.log("[DEBUG] back button onClick fired");
-                handleBack();
-              }}
-              className="p-2 -ml-2 rounded-xl transition-all"
-              style={{ color: "#8a8070" }}
-              aria-label="Go back"
-            >
-              <ChevronLeft size={20} strokeWidth={1.5} />
-            </button>
-            <h1
-              className="font-display font-light text-ink tracking-tight"
-              style={{ fontSize: "1.15rem" }}
-            >
-              {headerTitle}
-            </h1>
-          </div>
-
-          {/* New letter button — only on timeline when letters exist */}
-          {isTimeline && !isEmpty && (
+      <FeatureHeader
+        title={headerTitle}
+        onBack={handleBack}
+        showSettings={isTimeline}
+        rightAction={
+          isTimeline && !isEmpty ? (
             <button
               onClick={openCompose}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
@@ -145,20 +104,17 @@ export default function LettersToSelf() {
               <Plus size={15} strokeWidth={2} />
               New
             </button>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 pb-20">
-        {/* ── Timeline ── */}
         {isTimeline && (
           <>
             {isEmpty ? (
               <LettersEmptyState onCompose={openCompose} />
             ) : (
               <div className="flex flex-col gap-8">
-                {/* Available letters */}
                 {available.length > 0 && (
                   <div className="space-y-3">
                     <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-stone px-1">
@@ -177,7 +133,6 @@ export default function LettersToSelf() {
                   </div>
                 )}
 
-                {/* Future / sealed letters */}
                 {future.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 px-1">
@@ -209,7 +164,6 @@ export default function LettersToSelf() {
           </>
         )}
 
-        {/* ── Compose ── */}
         {isCompose && (
           <LetterComposer
             title={title}
@@ -228,7 +182,6 @@ export default function LettersToSelf() {
           />
         )}
 
-        {/* ── Open letter ── */}
         {isOpen && selectedLetter && (
           <LetterOpenView
             letter={selectedLetter}
@@ -238,7 +191,6 @@ export default function LettersToSelf() {
         )}
       </div>
 
-      {/* ── Delete confirmation modal ─────────────────────────────────── */}
       {letterToDelete && (
         <div className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-8 bg-ink/20">
           <div className="w-full max-w-lg rounded-3xl bg-canvas p-6 shadow-2xl space-y-4">

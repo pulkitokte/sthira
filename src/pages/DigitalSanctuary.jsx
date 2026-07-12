@@ -6,7 +6,6 @@ import AmbienceSelector from "../components/sanctuary/AmbienceSelector";
 import QuietCorner from "../components/sanctuary/QuietCorner";
 import GroundingRitual from "../components/sanctuary/GroundingRitual";
 
-// ── Section divider ──────────────────────────────────────────────────────────
 function Divider() {
   return (
     <div className="flex items-center gap-4 py-2">
@@ -56,7 +55,6 @@ export default function DigitalSanctuary() {
           "linear-gradient(180deg, #f8f6f2 0%, #f4f1ec 40%, #f7f4f0 100%)",
       }}
     >
-      {/* ── Ambient background orbs — purely decorative ─────────────────── */}
       <div
         className="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -88,7 +86,7 @@ export default function DigitalSanctuary() {
       <FeatureHeader
         title={isGrounding ? "Grounding" : "Digital Sanctuary"}
         onBack={isGrounding ? finishGrounding : undefined}
-        showSettings={false}
+        showSettings={!isGrounding}
         rightAction={
           !isGrounding ? (
             <p className="text-xs text-stone font-light italic opacity-50 pr-1">
@@ -98,9 +96,7 @@ export default function DigitalSanctuary() {
         }
       />
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-10 space-y-10 pb-20">
-        {/* ── Grounding Ritual (full screen take-over within page) ── */}
         {isGrounding && (
           <GroundingRitual
             currentStep={currentGroundingStep}
@@ -111,10 +107,8 @@ export default function DigitalSanctuary() {
           />
         )}
 
-        {/* ── Main Sanctuary View ── */}
         {!isGrounding && (
           <>
-            {/* Welcome message */}
             <section>
               <SanctuaryWelcomeCard
                 message={message}
@@ -124,21 +118,18 @@ export default function DigitalSanctuary() {
 
             <Divider />
 
-            {/* Ambience selector */}
             <section>
               <AmbienceSelector selected={ambience} onSelect={selectAmbience} />
             </section>
 
             <Divider />
 
-            {/* Quiet corner */}
             <section>
               <QuietCorner exercise={exercise} onRefresh={refreshExercise} />
             </section>
 
             <Divider />
 
-            {/* Grounding ritual entry */}
             <section className="space-y-4">
               <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-stone">
                 Grounding Ritual
@@ -164,7 +155,6 @@ export default function DigitalSanctuary() {
                   </p>
                 </div>
 
-                {/* Step previews */}
                 <div className="flex flex-wrap gap-2">
                   {["See 5", "Feel 4", "Hear 3", "Smell 2", "Taste 1"].map(
                     (s) => (
@@ -193,7 +183,6 @@ export default function DigitalSanctuary() {
               </div>
             </section>
 
-            {/* Footer note */}
             <p className="text-center text-xs text-stone font-light italic opacity-40 pt-4">
               This space is yours. No data leaves this device.
             </p>

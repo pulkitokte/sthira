@@ -60,7 +60,7 @@ export default function GratitudeGarden() {
       <FeatureHeader
         title={headerTitle}
         onBack={handleBack}
-        showSettings={false}
+        showSettings={!isNew}
         rightAction={
           isOverview && !isEmpty ? (
             <div className="flex items-center gap-2">
@@ -94,16 +94,13 @@ export default function GratitudeGarden() {
         }
       />
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="max-w-lg mx-auto px-4 py-8">
-        {/* ── Overview ── */}
         {isOverview && (
           <>
             {isEmpty ? (
               <GardenEmptyState onPlant={openNew} />
             ) : (
               <div className="flex flex-col gap-6">
-                {/* Count */}
                 <div className="space-y-1">
                   <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone">
                     Your garden
@@ -118,10 +115,8 @@ export default function GratitudeGarden() {
                   </p>
                 </div>
 
-                {/* Garden visual */}
                 <GardenVisual totalCount={totalCount} />
 
-                {/* Recent entries preview */}
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone">
@@ -135,7 +130,6 @@ export default function GratitudeGarden() {
                     </button>
                   </div>
 
-                  {/* Show last 3 entries */}
                   {garden.entries.slice(0, 3).map((entry) => (
                     <GratitudeEntryCard
                       key={entry.id}
@@ -151,16 +145,13 @@ export default function GratitudeGarden() {
           </>
         )}
 
-        {/* ── New Entry Form ── */}
         {isNew && (
           <div className="flex flex-col gap-7">
-            {/* Gentle intro */}
             <p className="text-stone font-light text-sm leading-relaxed">
               What is one thing you are grateful for right now? It can be as
               small or large as feels true.
             </p>
 
-            {/* Text input */}
             <div className="space-y-2">
               <label
                 htmlFor="gratitude-text"
@@ -186,7 +177,6 @@ export default function GratitudeGarden() {
               )}
             </div>
 
-            {/* Category */}
             <div className="space-y-3">
               <p className="font-display text-sm font-medium text-ink">
                 Category
@@ -217,7 +207,6 @@ export default function GratitudeGarden() {
               </div>
             </div>
 
-            {/* Just saved celebration */}
             {justSaved && (
               <div
                 className="rounded-2xl p-4 text-center"
@@ -235,7 +224,6 @@ export default function GratitudeGarden() {
               </div>
             )}
 
-            {/* Actions */}
             {!justSaved && (
               <div className="flex flex-col gap-3 pt-1 pb-8">
                 <button
@@ -262,7 +250,6 @@ export default function GratitudeGarden() {
           </div>
         )}
 
-        {/* ── Timeline ── */}
         {isTimeline && (
           <>
             {isEmpty ? (
@@ -290,7 +277,6 @@ export default function GratitudeGarden() {
         )}
       </div>
 
-      {/* ── Delete Confirmation Modal ────────────────────────────────────── */}
       {entryToDelete && (
         <div className="fixed inset-0 z-50 flex items-end justify-center px-4 pb-8 bg-ink/20">
           <div className="w-full max-w-lg rounded-3xl bg-canvas p-6 shadow-2xl space-y-4">

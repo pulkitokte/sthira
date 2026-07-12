@@ -19,7 +19,6 @@ import {
 } from "../utils/eveningReflection";
 import { getReflectionMoodById } from "../data/eveningReflectionData";
 
-// ── Inline mood badge for detail view ───────────────────────────────────────
 function MoodBadge({ moodId }) {
   const mood = getReflectionMoodById(moodId);
   if (!mood) return null;
@@ -37,7 +36,6 @@ function MoodBadge({ moodId }) {
   );
 }
 
-// ── Detail section block ─────────────────────────────────────────────────────
 function DetailBlock({ question, answer }) {
   if (!answer || answer.trim().length === 0) return null;
   return (
@@ -86,7 +84,6 @@ export default function EveningReflection() {
   const isCompletion = view === REFLECTION_VIEW.COMPLETION;
   const isDetail = view === REFLECTION_VIEW.DETAIL;
 
-  // Header title per view
   const headerTitle = isForm
     ? "Tonight's Reflection"
     : isDetail
@@ -118,7 +115,7 @@ export default function EveningReflection() {
       <FeatureHeader
         title={headerTitle}
         onBack={handleBack}
-        showSettings={false}
+        showSettings={isTimeline}
         rightAction={
           isTimeline && !isEmpty ? (
             <button
@@ -134,9 +131,7 @@ export default function EveningReflection() {
         }
       />
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="max-w-lg mx-auto px-4 py-8">
-        {/* ── Timeline ── */}
         {isTimeline && (
           <>
             {isEmpty ? (
@@ -163,10 +158,8 @@ export default function EveningReflection() {
           </>
         )}
 
-        {/* ── Reflection Form ── */}
         {isForm && (
           <div className="flex flex-col gap-8">
-            {/* Gentle intro */}
             <div className="space-y-1">
               <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-stone">
                 {new Date().toLocaleDateString("en-IN", {
@@ -181,13 +174,10 @@ export default function EveningReflection() {
               </p>
             </div>
 
-            {/* Mood selector */}
             <ReflectionMoodSelector selected={mood} onChange={setMood} />
 
-            {/* Divider */}
             <div className="h-px bg-border" />
 
-            {/* Reflection questions */}
             <div className="flex flex-col gap-6">
               <ReflectionTextArea
                 id="went-well"
@@ -212,7 +202,6 @@ export default function EveningReflection() {
               />
             </div>
 
-            {/* Save */}
             <div className="flex flex-col gap-3 pt-2 pb-8">
               <button
                 onClick={saveReflection}
@@ -231,10 +220,8 @@ export default function EveningReflection() {
           </div>
         )}
 
-        {/* ── Completion Screen ── */}
         {isCompletion && closingMessage && (
           <div className="flex flex-col items-center justify-center text-center px-4 py-16 gap-8">
-            {/* Gentle circle */}
             <div
               className="w-20 h-20 rounded-full"
               style={{
@@ -270,10 +257,8 @@ export default function EveningReflection() {
           </div>
         )}
 
-        {/* ── Detail View ── */}
         {isDetail && selectedEntry && (
           <div className="flex flex-col gap-6">
-            {/* Meta */}
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone">
@@ -286,10 +271,8 @@ export default function EveningReflection() {
               {selectedEntry.mood && <MoodBadge moodId={selectedEntry.mood} />}
             </div>
 
-            {/* Divider */}
             <div className="h-px bg-border" />
 
-            {/* Content blocks */}
             <div className="flex flex-col gap-6">
               <DetailBlock
                 question="What went well today?"
@@ -304,7 +287,6 @@ export default function EveningReflection() {
                 answer={selectedEntry.tomorrowIntention}
               />
 
-              {/* No content at all */}
               {!selectedEntry.wentWell &&
                 !selectedEntry.difficult &&
                 !selectedEntry.tomorrowIntention && (
@@ -314,10 +296,8 @@ export default function EveningReflection() {
                 )}
             </div>
 
-            {/* Divider */}
             <div className="h-px bg-border" />
 
-            {/* Delete */}
             <div>
               {!confirmingDelete ? (
                 <button
