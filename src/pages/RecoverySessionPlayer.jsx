@@ -1,64 +1,92 @@
-import { useNavigate } from "react-router-dom";
-import PageContainer from "../components/layout/PageContainer";
-import RecoveryCategorySection from "../components/recovery/RecoveryCategorySection";
-import PersonalizedRecoverySection from "../components/recovery/PersonalizedRecoverySection";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Timer } from "lucide-react";
+import RecoverySessionIntro from "../components/recovery/RecoverySessionIntro";
+import RecoveryStepPlayer from "../components/recovery/RecoveryStepPlayer";
+import RecoveryCompletion from "../components/recovery/RecoveryCompletion";
+import MissingSelectionState from "../components/common/MissingSelectionState";
+import { getSessionById } from "../utils/recovery";
 import { RECOVERY_CATEGORIES } from "../data/recoveryCategories";
-import { getSessionsByCategory } from "../utils/recovery";
-import {
-  getPersonalizedRecoverySessions,
-  getRecoveryPersonalizationReason,
-} from "../utils/personalization";
-import { useOnboarding } from "../context/OnboardingContext";
-import { useWellness } from "../context/WellnessContext";
+import { useRecoveryProgress } from "../context/RecoveryProgressContext";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
-export default function RecoveryLibrary() {
+const STATUS = { INTRO: "intro", ACTIVE: "active", COMPLETED: "completed" };
+
+export default function RecoverySessionPlayer() {
+  const { state } = useLocation();
   const navigate = useNavigate();
-  const { data: onboardingData } = useOnboarding();
-  const { todayEntry } = useWellness();
-  useDocumentTitle("Study Break Recovery");
+  const { addCompletion } = useRecoveryProgress();
+  const session = state?.sessionId ? getSessionById(state.sessionId) : null;
 
-  const personalizedSessions = getPersonalizedRecoverySessions(
-    onboardingData,
-    todayEntry,
-  );
-  const personalizationReason = getRecoveryPersonalizationReason(
-    onboardingData,
-    todayEntry,
-  );
+  const [status, setStatus] = useState(STATUS.INTRO);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handleSelectSession = (session) => {
-    navigate(PATHS.RECOVERY_PLAYER, { state: { sessionId: session.id } });
+  useDocumentTitle(session ? session.title : "Recovery Session");
+
+  if (!session) {
+    return (
+      <MissingSelectionState
+        icon={Timer}
+        heading="No session selected"
+        description="Head back to Study Break Recovery and choose a session to begin."
+        buttonLabel="Browse Recovery"
+        onButtonClick={() => navigate(PATHS.RECOVERY_LIBRARY)}
+      />
+    );
+  }
+
+  const categoryLabel = RECOVERY_CATEGORIES.find(
+    (c) => c.id === session.categoryId,
+  )?.label;
+  const totalSteps = session.steps.length;
+
+  const handleBegin = () => {
+    setCurrentIndex(0);
+    setStatus(STATUS.ACTIVE);
   };
 
+  const handleNext = () => {
+    const isLastStep = currentIndex >= totalSteps - 1;
+    if (isLastStep) {
+      addCompletion(session);
+      setStatus(STATUS.COMPLETED);
+      return;
+    }
+    setCurrentIndex((i) => i + 1);
+  };
+
+  const handlePrevious = () => setCurrentIndex((i) => Math.max(i - 1, 0));
+
+  const handleBackToLibrary = () => navigate(PATHS.RECOVERY_LIBRARY);
+
+  if (status === STATUS.INTRO) {
+    return (
+      <RecoverySessionIntro
+        session={session}
+        categoryLabel={categoryLabel}
+        onBegin={handleBegin}
+      />
+    );
+  }
+
+  if (status === STATUS.COMPLETED) {
+    return (
+      <RecoveryCompletion
+        session={session}
+        onBackToLibrary={handleBackToLibrary}
+      />
+    );
+  }
+
   return (
-    <PageContainer className="flex flex-col gap-8">
-      <p className="leading-relaxed text-stone">
-        Short, guided pauses to recover between study sessions — no equipment,
-        no pressure, just a few minutes for your body and mind.
-      </p>
-
-      {personalizedSessions.length > 0 && (
-        <PersonalizedRecoverySection
-          sessions={personalizedSessions}
-          reason={personalizationReason}
-          onSelectSession={handleSelectSession}
-        />
-      )}
-
-      {RECOVERY_CATEGORIES.map((category) => {
-        const sessions = getSessionsByCategory(category.id);
-        if (sessions.length === 0) return null;
-        return (
-          <RecoveryCategorySection
-            key={category.id}
-            category={category}
-            sessions={sessions}
-            onSelectSession={handleSelectSession}
-          />
-        );
-      })}
-    </PageContainer>
+    <RecoveryStepPlayer
+      key={currentIndex}
+      step={session.steps[currentIndex]}
+      currentIndex={currentIndex}
+      totalSteps={totalSteps}
+      onNext={handleNext}
+      onPrevious={handlePrevious}
+    />
   );
 }
