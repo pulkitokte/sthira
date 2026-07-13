@@ -10,9 +10,6 @@ import { useAchievements } from "./context/AchievementsContext";
 import { ScrollContainerProvider } from "./context/ScrollContainerContext";
 import { PATHS } from "./constants/navigation";
 
-// Routes that render their own FeatureHeader instead of relying on the
-// global Header component. Rendering the global Header on these routes
-// as well produces two overlapping headers/back buttons.
 const HAS_OWN_HEADER = [
   PATHS.LETTERS,
   PATHS.HYDRATION,
@@ -31,6 +28,7 @@ const HAS_OWN_HEADER = [
   PATHS.EYE_RELAX,
   PATHS.FOCUS_SESSIONS,
   PATHS.RECOVERY_LIBRARY,
+  PATHS.EYE_RECOVERY_PLAYER,
 ];
 
 function App() {
