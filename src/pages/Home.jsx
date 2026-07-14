@@ -20,6 +20,7 @@ import SectionHeader from "../components/common/SectionHeader";
 import SthiraLogo from "../components/common/SthiraLogo";
 import HelperHint from "../components/common/HelperHint";
 import FeatureSearchBar from "../components/home/FeatureSearchBar";
+import MorningFlowHomeCard from "../components/home/MorningFlowHomeCard";
 import RecommendedCard from "../components/home/RecommendedCard";
 import DailyRitualCard from "../components/home/DailyRitualCard";
 import TodaysJourneySection from "../components/journey/TodaysJourneySection";
@@ -208,6 +209,16 @@ export default function Home() {
 
       {/* ── Quick Feature Search ── */}
       <FeatureSearchBar />
+
+      {/* ── Morning Flow — flagship feature, first in the feature list ── */}
+      <section>
+        <SectionHeader
+          title="Morning Flow"
+          actionLabel="Open"
+          onAction={() => navigate(PATHS.MORNING_FLOW)}
+        />
+        <MorningFlowHomeCard onSelect={() => navigate(PATHS.MORNING_FLOW)} />
+      </section>
 
       {/* ── Adaptive Home Companion ── */}
       <AdaptiveHomeBanner banner={adaptiveBanner} />
