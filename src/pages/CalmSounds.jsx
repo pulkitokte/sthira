@@ -2,16 +2,14 @@
 // Calm Sounds Sanctuary — ambient sound selection grid and player.
 // Audio via HTML Audio API. Pure CSS animations. No external audio libraries.
 
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Music } from "lucide-react";
 import { useCalmSounds, SOUNDS_VIEW } from "../hooks/useCalmSounds";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import SoundCard from "../components/calm/SoundCard";
 import SoundPlayer from "../components/calm/SoundPlayer";
 import { CALM_SOUNDS } from "../data/calmSounds";
 
 export default function CalmSounds() {
-  const navigate = useNavigate();
   const sounds = useCalmSounds();
   useDocumentTitle("Calm Sounds");
 
@@ -93,33 +91,7 @@ export default function CalmSounds() {
         />
       </div>
 
-      {/* ── Header ────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.9)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 -ml-2 rounded-xl transition-all"
-            style={{ color: "#8a8070" }}
-            aria-label="Go back"
-          >
-            <ChevronLeft size={20} strokeWidth={1.5} />
-          </button>
-          <h1
-            className="font-display font-light text-ink tracking-tight"
-            style={{ fontSize: "1.2rem" }}
-          >
-            Calm Sounds
-          </h1>
-        </div>
-      </div>
+      <FeatureHeader title="Calm Sounds" />
 
       {/* ── Body ──────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 space-y-8 pb-20">

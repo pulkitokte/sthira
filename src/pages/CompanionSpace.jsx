@@ -1,18 +1,14 @@
 // src/pages/CompanionSpace.jsx
 // Gentle Companion — today's message, refresh, favorites.
 // Warm, paper-like, editorial. No AI. No chat. Fully deterministic.
-// Bug fix: the "remove from saved" heart now passes the full favorited
-// message object (msg) to handleToggleFavorite instead of msg.id, matching
-// the updated toggleFavorite signature in companionEngine.js.
 
-import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useCompanion } from "../hooks/useCompanion";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import CompanionCard from "../components/companion/CompanionCard";
 
 export default function CompanionSpace() {
-  const navigate = useNavigate();
   const {
     currentMessage,
     categoryLabel,
@@ -63,33 +59,7 @@ export default function CompanionSpace() {
         />
       </div>
 
-      {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.92)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 -ml-2 rounded-xl transition-all"
-            style={{ color: "#8a8070" }}
-            aria-label="Go back"
-          >
-            <ChevronLeft size={20} strokeWidth={1.5} />
-          </button>
-          <h1
-            className="font-display font-light text-ink tracking-tight"
-            style={{ fontSize: "1.2rem" }}
-          >
-            Gentle Companion
-          </h1>
-        </div>
-      </div>
+      <FeatureHeader title="Gentle Companion" />
 
       {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 space-y-10 pb-20">

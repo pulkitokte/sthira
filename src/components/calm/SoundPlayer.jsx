@@ -2,14 +2,8 @@
 // The full sound player screen — emoji, controls, volume, sleep timer.
 // Pure CSS animations. No Framer Motion.
 
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  ChevronLeft,
-  Music,
-} from "lucide-react";
+import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import FeatureHeader from "../layout/FeatureHeader";
 import PulseRing from "./PulseRing";
 import SleepTimer from "./SleepTimer";
 
@@ -33,33 +27,7 @@ export default function SoundPlayer({
       className="min-h-screen flex flex-col"
       style={{ background: sound.playerBg }}
     >
-      {/* ── Header ────────────────────────────────────────────────────── */}
-      <div
-        className="sticky top-0 z-10 px-4 pt-12 pb-4"
-        style={{
-          background: "rgba(250,248,244,0.88)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(185,175,160,0.12)",
-        }}
-      >
-        <div className="max-w-lg mx-auto flex items-center gap-2">
-          <button
-            onClick={onBack}
-            className="p-2 -ml-2 rounded-xl transition-all"
-            style={{ color: "#8a8070" }}
-            aria-label="Back to sounds"
-          >
-            <ChevronLeft size={20} strokeWidth={1.5} />
-          </button>
-          <h2
-            className="font-display font-light text-ink tracking-tight"
-            style={{ fontSize: "1.1rem" }}
-          >
-            {sound.title}
-          </h2>
-        </div>
-      </div>
+      <FeatureHeader title={sound.title} onBack={onBack} />
 
       {/* ── Body ──────────────────────────────────────────────────────── */}
       <div className="flex-1 max-w-lg mx-auto w-full px-4 py-10 flex flex-col items-center gap-10">
