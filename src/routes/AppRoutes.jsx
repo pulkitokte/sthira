@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 import RoutineLibrary from "../pages/RoutineLibrary";
 import RoutinePlayer from "../pages/RoutinePlayer";
 import MorningFlow from "../pages/MorningFlow";
+import MorningFlowPlayer from "../pages/MorningFlowPlayer";
 import EyeRelax from "../pages/EyeRelax";
 import EyeRecoverySessionPlayer from "../pages/EyeRecoverySessionPlayer";
 import HydrationTracker from "../pages/HydrationTracker";
@@ -44,6 +45,7 @@ export default function AppRoutes() {
       <Route path={PATHS.LIBRARY} element={<RoutineLibrary />} />
       <Route path={PATHS.ROUTINE_PLAYER} element={<RoutinePlayer />} />
       <Route path={PATHS.MORNING_FLOW} element={<MorningFlow />} />
+      <Route path={PATHS.MORNING_FLOW_PLAYER} element={<MorningFlowPlayer />} />
       <Route path={PATHS.EYE_RELAX} element={<EyeRelax />} />
       <Route
         path={PATHS.EYE_RECOVERY_PLAYER}

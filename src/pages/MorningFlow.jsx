@@ -1,23 +1,23 @@
 // src/pages/MorningFlow.jsx
 // Morning Flow — Sthira's flagship feature.
-// Architecture + UI foundation phase only: no workout engine, no
-// exercises, no timers, no progress tracking. Future phases will
-// populate the category sections and wire the "Start Today's Flow" CTA.
+// Phase 3: "Start Today's Flow" now navigates into the real player.
 
+import { useNavigate } from "react-router-dom";
 import PageContainer from "../components/layout/PageContainer";
 import FeatureHeader from "../components/layout/FeatureHeader";
 import MorningFlowHero from "../components/morningFlow/MorningFlowHero";
 import MorningFlowCategorySection from "../components/morningFlow/MorningFlowCategorySection";
 import MorningFlowBenefitsGrid from "../components/morningFlow/MorningFlowBenefitsGrid";
 import { MORNING_FLOW_CATEGORIES } from "../data/morningFlowCategories";
+import { getExercisesByCategory } from "../data/morningFlowExercises";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { PATHS } from "../constants/navigation";
 
 export default function MorningFlow() {
+  const navigate = useNavigate();
   useDocumentTitle("Morning Flow");
 
-  // Intentionally a no-op in this phase — wired for future phases to
-  // connect to the real workout flow.
-  const handleStart = () => {};
+  const handleStart = () => navigate(PATHS.MORNING_FLOW_PLAYER);
 
   return (
     <>
@@ -26,7 +26,11 @@ export default function MorningFlow() {
         <MorningFlowHero onStart={handleStart} />
 
         {MORNING_FLOW_CATEGORIES.map((category) => (
-          <MorningFlowCategorySection key={category.id} category={category} />
+          <MorningFlowCategorySection
+            key={category.id}
+            category={category}
+            exercises={getExercisesByCategory(category.id)}
+          />
         ))}
 
         <MorningFlowBenefitsGrid />
