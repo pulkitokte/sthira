@@ -1,21 +1,23 @@
 // src/components/morningFlow/MorningFlowExercisePlayer.jsx
 // The per-exercise screen shown during an active Morning Flow session.
-// Now runs a real countdown timer for each exercise: counts down from
-// the exercise's duration, auto-advances via onNext when it reaches
-// zero, and fully stops/resumes with the player's pause state.
-// Timer resets naturally each time this component remounts (parent
-// renders it with key={currentIndex}), so Skip/Previous/auto-advance
-// all get a correctly-reset timer for free — no extra reset logic here.
+// Adds the Guidance System (a coaching message derived from existing
+// countdown values) and Exercise Tips (Safety/Mistakes/Beginner Notes)
+// below the existing content. Timer, countdown, and navigation handlers
+// are unchanged from the previous batch.
 
 import { Clock, Target, Sparkles, ListOrdered } from "lucide-react";
 import FeatureHeader from "../layout/FeatureHeader";
 import PageContainer from "../layout/PageContainer";
 import MorningFlowProgressBar from "./MorningFlowProgressBar";
 import MorningFlowExerciseIllustration from "./MorningFlowExerciseIllustration";
+import GuidanceCard from "./GuidanceCard";
+import ExerciseTipsSection from "./ExerciseTipsSection";
 import MorningFlowControls from "./MorningFlowControls";
 import StepTimer from "../routine/StepTimer";
 import { useCountdownTimer } from "../../hooks/useCountdownTimer";
 import { parseDurationToSeconds } from "../../utils/morningFlowPlayer";
+import { getGuidanceForExercise } from "../../data/morningFlowGuidance";
+import { getGuidancePhase } from "../../utils/morningFlowGuidance";
 
 export default function MorningFlowExercisePlayer({
   exercise,
@@ -37,11 +39,12 @@ export default function MorningFlowExercisePlayer({
 
   const { secondsLeft } = useCountdownTimer(durationSeconds, {
     isPaused,
-    // Reaching zero auto-advances through the same goNext used by the
-    // "Next"/"Complete" button, so there is exactly one path that moves
-    // the workout forward — no duplicated advance logic.
     onComplete: onNext,
   });
+
+  const guidance = getGuidanceForExercise(exercise);
+  const guidancePhase = getGuidancePhase(secondsLeft, durationSeconds);
+  const guidanceMessage = guidance?.[guidancePhase] ?? null;
 
   return (
     <>
@@ -56,6 +59,8 @@ export default function MorningFlowExercisePlayer({
         />
 
         <MorningFlowExerciseIllustration exercise={exercise} />
+
+        <GuidanceCard message={guidanceMessage} />
 
         <StepTimer secondsLeft={secondsLeft} totalSeconds={durationSeconds} />
 
@@ -150,6 +155,8 @@ export default function MorningFlowExercisePlayer({
             ))}
           </ul>
         </div>
+
+        <ExerciseTipsSection exercise={exercise} />
 
         <MorningFlowControls
           isPaused={isPaused}

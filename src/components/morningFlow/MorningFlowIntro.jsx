@@ -1,9 +1,12 @@
 // src/components/morningFlow/MorningFlowIntro.jsx
 // Intro screen shown before the guided flow begins.
+// Adds an Ambient Experience selector (UI/architecture only, no audio).
+// Begin button and existing content unchanged.
 
 import { Clock, Layers } from "lucide-react";
 import FeatureHeader from "../layout/FeatureHeader";
 import PageContainer from "../layout/PageContainer";
+import AmbienceSelector from "./AmbienceSelector";
 import { MORNING_FLOW_CATEGORIES } from "../../data/morningFlowCategories";
 import { getExercisesByCategory } from "../../data/morningFlowExercises";
 import { formatEstimatedTime } from "../../utils/morningFlowPlayer";
@@ -70,6 +73,8 @@ export default function MorningFlowIntro({
               })}
             </div>
           </div>
+
+          <AmbienceSelector />
 
           <p className="text-sm leading-relaxed text-stone">
             Move at your own pace. You can pause, skip, or step back to any
