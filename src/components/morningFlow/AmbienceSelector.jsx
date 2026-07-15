@@ -1,8 +1,7 @@
 // src/components/morningFlow/AmbienceSelector.jsx
-// Ambient Experience selector. UI and local selection state only — no
-// audio playback exists yet. onSelect is optional and purely informative
-// for now; a future audio phase would use the selected id to choose a
-// sound source without needing to change this component's structure.
+// Ambient Experience selector. Polish batch: refined spacing, larger
+// touch targets, focus-visible support (inherits global :focus-visible
+// styling). No functional change — still UI/architecture only.
 
 import { useState } from "react";
 import { MORNING_FLOW_AMBIENCE_OPTIONS } from "../../data/morningFlowAmbience";
@@ -18,7 +17,7 @@ export default function AmbienceSelector({ onSelect }) {
   };
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone opacity-70 px-1">
         Ambient Experience
       </p>
@@ -31,7 +30,8 @@ export default function AmbienceSelector({ onSelect }) {
               key={option.id}
               onClick={() => handleSelect(option.id)}
               aria-pressed={isSelected}
-              className="rounded-2xl p-3.5 text-left transition-all duration-150 focus:outline-none"
+              aria-label={`${option.label} ambience${isSelected ? ", selected" : ""}`}
+              className="min-h-[64px] rounded-2xl p-3.5 text-left transition-all duration-150"
               style={{
                 background: isSelected
                   ? "rgba(134,159,138,0.12)"
@@ -48,12 +48,13 @@ export default function AmbienceSelector({ onSelect }) {
                   size={15}
                   strokeWidth={1.8}
                   className={isSelected ? "text-sage" : "text-stone"}
+                  aria-hidden="true"
                 />
                 <span className="font-display text-xs font-medium text-ink">
                   {option.label}
                 </span>
               </div>
-              <p className="mt-1 text-xs text-stone font-light leading-snug">
+              <p className="mt-1.5 text-xs text-stone font-light leading-snug">
                 {option.description}
               </p>
             </button>

@@ -1,14 +1,17 @@
 // src/components/morningFlow/MorningFlowExercisePlayer.jsx
 // The per-exercise screen shown during an active Morning Flow session.
-// Adds the Guidance System (a coaching message derived from existing
-// countdown values) and Exercise Tips (Safety/Mistakes/Beginner Notes)
-// below the existing content. Timer, countdown, and navigation handlers
-// are unchanged from the previous batch.
+// Polish batch: gentle fade+scale entrance per exercise (via CSS,
+// triggered naturally by the parent's key={currentIndex} remount — no
+// new dependency, no timer/navigation change), a tiny milestone toast,
+// and refined spacing/hierarchy. Timer, countdown, and navigation
+// handlers are byte-for-byte unchanged from the previous batch.
 
+import { useMemo } from "react";
 import { Clock, Target, Sparkles, ListOrdered } from "lucide-react";
 import FeatureHeader from "../layout/FeatureHeader";
 import PageContainer from "../layout/PageContainer";
 import MorningFlowProgressBar from "./MorningFlowProgressBar";
+import MorningFlowMilestoneToast from "./MorningFlowMilestoneToast";
 import MorningFlowExerciseIllustration from "./MorningFlowExerciseIllustration";
 import GuidanceCard from "./GuidanceCard";
 import ExerciseTipsSection from "./ExerciseTipsSection";
@@ -18,6 +21,7 @@ import { useCountdownTimer } from "../../hooks/useCountdownTimer";
 import { parseDurationToSeconds } from "../../utils/morningFlowPlayer";
 import { getGuidanceForExercise } from "../../data/morningFlowGuidance";
 import { getGuidancePhase } from "../../utils/morningFlowGuidance";
+import { getMilestoneMessage } from "../../utils/morningFlowMilestones";
 
 export default function MorningFlowExercisePlayer({
   exercise,
@@ -42,14 +46,19 @@ export default function MorningFlowExercisePlayer({
     onComplete: onNext,
   });
 
-  const guidance = getGuidanceForExercise(exercise);
+  const guidance = useMemo(() => getGuidanceForExercise(exercise), [exercise]);
   const guidancePhase = getGuidancePhase(secondsLeft, durationSeconds);
   const guidanceMessage = guidance?.[guidancePhase] ?? null;
+
+  const milestoneMessage = useMemo(
+    () => getMilestoneMessage(currentIndex, totalExercises),
+    [currentIndex, totalExercises],
+  );
 
   return (
     <>
       <FeatureHeader title={exercise.title} />
-      <PageContainer className="flex flex-col gap-6">
+      <PageContainer className="mf-fade-scale-in flex flex-col gap-6">
         <MorningFlowProgressBar
           categoryLabel={categoryLabel}
           filledCount={indexWithinCategory + 1}
@@ -58,6 +67,8 @@ export default function MorningFlowExercisePlayer({
           totalGlobal={totalExercises}
         />
 
+        <MorningFlowMilestoneToast message={milestoneMessage} />
+
         <MorningFlowExerciseIllustration exercise={exercise} />
 
         <GuidanceCard message={guidanceMessage} />
@@ -65,10 +76,10 @@ export default function MorningFlowExercisePlayer({
         <StepTimer secondsLeft={secondsLeft} totalSeconds={durationSeconds} />
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-dew/15 px-2.5 py-0.5 text-xs font-medium text-dew">
+          <span className="rounded-full bg-dew/15 px-2.5 py-1 text-xs font-medium text-dew">
             {exercise.difficulty}
           </span>
-          <span className="flex items-center gap-1 rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-stone">
+          <span className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-stone">
             <Clock size={11} strokeWidth={2} />
             {exercise.duration}
           </span>
@@ -77,7 +88,7 @@ export default function MorningFlowExercisePlayer({
         <p className="leading-relaxed text-stone">{exercise.description}</p>
 
         {/* Target muscles */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex items-center gap-1.5">
             <Target
               size={12}
@@ -102,7 +113,7 @@ export default function MorningFlowExercisePlayer({
         </div>
 
         {/* Instructions */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex items-center gap-1.5">
             <ListOrdered
               size={12}
@@ -113,23 +124,23 @@ export default function MorningFlowExercisePlayer({
               Instructions
             </p>
           </div>
-          <ol className="space-y-1.5">
+          <ol className="space-y-2">
             {exercise.instructions.map((step, i) => (
               <li
                 key={step}
-                className="flex gap-2 text-sm text-stone leading-relaxed"
+                className="flex gap-2.5 text-sm text-stone leading-relaxed"
               >
-                <span className="font-display text-xs font-semibold text-sage shrink-0">
+                <span className="font-display text-xs font-semibold text-sage shrink-0 mt-0.5">
                   {i + 1}.
                 </span>
-                {step}
+                <span>{step}</span>
               </li>
             ))}
           </ol>
         </div>
 
         {/* Benefits */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex items-center gap-1.5">
             <Sparkles
               size={12}
@@ -140,7 +151,7 @@ export default function MorningFlowExercisePlayer({
               Benefits
             </p>
           </div>
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             {exercise.benefits.map((benefit) => (
               <li
                 key={benefit}

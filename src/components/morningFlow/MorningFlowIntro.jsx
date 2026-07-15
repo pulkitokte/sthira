@@ -1,7 +1,6 @@
 // src/components/morningFlow/MorningFlowIntro.jsx
-// Intro screen shown before the guided flow begins.
-// Adds an Ambient Experience selector (UI/architecture only, no audio).
-// Begin button and existing content unchanged.
+// Intro screen. Polish batch: refined spacing hierarchy and a gentle
+// entrance. Content, handlers, and navigation unchanged.
 
 import { Clock, Layers } from "lucide-react";
 import FeatureHeader from "../layout/FeatureHeader";
@@ -19,10 +18,10 @@ export default function MorningFlowIntro({
   return (
     <>
       <FeatureHeader title="Morning Flow" />
-      <PageContainer className="flex flex-1 flex-col gap-6">
-        <div className="flex-1 space-y-6">
-          <div className="space-y-2">
-            <p className="font-display text-sm font-semibold uppercase tracking-[0.12em] text-sage">
+      <PageContainer className="mf-fade-scale-in flex flex-1 flex-col gap-7">
+        <div className="flex-1 space-y-7">
+          <div className="space-y-2.5">
+            <p className="font-display text-sm font-semibold uppercase tracking-[0.14em] text-sage">
               Ready when you are
             </p>
             <h1 className="font-display text-[26px] font-semibold leading-snug text-ink">
@@ -31,21 +30,21 @@ export default function MorningFlowIntro({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-medium text-stone">
+            <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-stone">
               <Clock size={13} strokeWidth={2} />~
               {formatEstimatedTime(estimatedTotalSeconds)}
             </span>
-            <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-medium text-stone">
+            <span className="flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-stone">
               <Layers size={13} strokeWidth={2} />
               {totalExercises} exercises
             </span>
           </div>
 
-          <div className="rounded-3xl border border-border bg-surface p-5 space-y-3">
+          <div className="rounded-3xl border border-border bg-surface p-5 space-y-4">
             <p className="font-display text-sm font-semibold text-ink">
               What's ahead
             </p>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               {MORNING_FLOW_CATEGORIES.map((category) => {
                 const Icon = category.icon;
                 const count = getExercisesByCategory(category.id).length;
@@ -65,7 +64,7 @@ export default function MorningFlowIntro({
                         {category.label}
                       </p>
                     </div>
-                    <span className="text-xs text-stone font-light">
+                    <span className="text-xs text-stone font-light tabular-nums">
                       {count} {count === 1 ? "exercise" : "exercises"}
                     </span>
                   </div>

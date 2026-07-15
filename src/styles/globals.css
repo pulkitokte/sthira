@@ -20,12 +20,6 @@ body,
 }
 
 :root {
-  /* Single source of truth for FeatureHeader's rendered height.
-     Used by FeatureHeader itself (min-height) and by any sticky element
-     that needs to sit directly beneath it (e.g. tab bars on Daily Wisdom,
-     Memory Timeline, Emotional Weather). Change this once and every
-     consumer stays in sync — no hardcoded pixel offsets duplicated
-     across pages. */
   --feature-header-height: 72px;
 }
 
@@ -38,4 +32,53 @@ body {
   outline: 2px solid theme('colors.moss.DEFAULT');
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ── Morning Flow polish animations ─────────────────────────────────────
+   Pure CSS only, no dependencies. Already respected by the
+   prefers-reduced-motion rule above (animation-duration is forced to
+   0.01ms), so no extra guard is needed here. */
+
+@keyframes mf-fade-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mf-fade-scale-in {
+  animation: mf-fade-scale-in 260ms ease-out;
+}
+
+@keyframes mf-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mf-fade-in {
+  animation: mf-fade-in 300ms ease-out;
+}
+
+@keyframes mf-soft-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.88;
+  }
+}
+
+.mf-soft-pulse {
+  animation: mf-soft-pulse 2.6s ease-in-out infinite;
 }

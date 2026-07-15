@@ -1,14 +1,15 @@
 // src/components/morningFlow/ExerciseTipsSection.jsx
 // Renders Safety Tips, Common Mistakes, and Beginner Notes for the
-// current exercise, using the shared ExpandableTipCard for all three —
-// zero duplicated card markup.
+// current exercise. Memoized and derives tips via useMemo keyed on
+// exercise.id to avoid recomputing the lookup on unrelated re-renders.
 
+import { memo, useMemo } from "react";
 import { ShieldCheck, AlertTriangle, Info } from "lucide-react";
 import ExpandableTipCard from "./ExpandableTipCard";
 import { getTipsForExercise } from "../../data/morningFlowTips";
 
-export default function ExerciseTipsSection({ exercise }) {
-  const tips = getTipsForExercise(exercise);
+function ExerciseTipsSection({ exercise }) {
+  const tips = useMemo(() => getTipsForExercise(exercise), [exercise]);
   if (!tips) return null;
 
   return (
@@ -31,3 +32,5 @@ export default function ExerciseTipsSection({ exercise }) {
     </div>
   );
 }
+
+export default memo(ExerciseTipsSection);

@@ -1,12 +1,12 @@
 // src/components/morningFlow/ExpandableTipCard.jsx
-// Single reusable expandable card, used for Safety Tips, Common
-// Mistakes, and Beginner Notes — avoids three near-identical
-// implementations.
+// Reusable expandable card for Safety Tips / Common Mistakes / Beginner
+// Notes. Touch target enlarged to a full-width 44px+ row; revealed
+// content fades in gently.
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-export default function ExpandableTipCard({ title, icon: Icon, items }) {
+function ExpandableTipCard({ title, icon: Icon, items }) {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!items || items.length === 0) return null;
@@ -15,11 +15,14 @@ export default function ExpandableTipCard({ title, icon: Icon, items }) {
     <div className="rounded-2xl border border-border bg-surface overflow-hidden">
       <button
         onClick={() => setIsOpen((open) => !open)}
-        className="w-full flex items-center justify-between gap-3 p-4"
+        className="w-full flex items-center justify-between gap-3 p-4 min-h-[48px]"
         aria-expanded={isOpen}
+        aria-label={`${title}, ${isOpen ? "expanded" : "collapsed"}`}
       >
         <div className="flex items-center gap-2.5">
-          {Icon && <Icon size={15} strokeWidth={1.8} className="text-stone" />}
+          {Icon && (
+            <Icon size={15} strokeWidth={1.8} className="text-stone shrink-0" />
+          )}
           <span className="font-display text-sm font-medium text-ink">
             {title}
           </span>
@@ -27,14 +30,15 @@ export default function ExpandableTipCard({ title, icon: Icon, items }) {
         <ChevronDown
           size={16}
           strokeWidth={2}
-          className={`text-stone transition-transform duration-200 ${
+          className={`text-stone shrink-0 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
+          aria-hidden="true"
         />
       </button>
 
       {isOpen && (
-        <ul className="px-4 pb-4 space-y-1.5">
+        <ul className="mf-fade-in px-4 pb-4 space-y-2">
           {items.map((item) => (
             <li
               key={item}
@@ -52,3 +56,5 @@ export default function ExpandableTipCard({ title, icon: Icon, items }) {
     </div>
   );
 }
+
+export default memo(ExpandableTipCard);

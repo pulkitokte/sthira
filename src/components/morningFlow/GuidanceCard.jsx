@@ -1,21 +1,22 @@
 // src/components/morningFlow/GuidanceCard.jsx
-// Premium, calm coaching message card. Purely presentational — receives
-// its message as a prop; has no timer or audio logic of its own, so a
-// future batch can add voice/audio by wrapping this same component
-// without changing how it's used.
+// Premium, calm coaching message card. Purely presentational.
+// aria-live announces message changes gently for screen reader users.
 
+import { memo } from "react";
 import { MessageCircle } from "lucide-react";
 
-export default function GuidanceCard({ message }) {
+function GuidanceCard({ message }) {
   if (!message) return null;
 
   return (
     <div
-      className="rounded-2xl p-4 flex items-start gap-3"
+      className="mf-fade-in rounded-2xl p-4 flex items-start gap-3"
       style={{
         background: "rgba(134,159,138,0.07)",
         border: "1px solid rgba(134,159,138,0.18)",
       }}
+      role="status"
+      aria-live="polite"
     >
       <div
         className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
@@ -33,3 +34,5 @@ export default function GuidanceCard({ message }) {
     </div>
   );
 }
+
+export default memo(GuidanceCard);

@@ -1,8 +1,11 @@
 // src/components/morningFlow/MorningFlowProgressBar.jsx
-// Top progress display: current category name, segmented progress within
-// that category, and global "Exercise X of Y" position.
+// Top progress display. Segments now transition color smoothly instead
+// of snapping, and the "Exercise X of Y" label fades in on change via a
+// key-based remount — no new state, no logic change.
 
-export default function MorningFlowProgressBar({
+import { memo } from "react";
+
+function MorningFlowProgressBar({
   categoryLabel,
   filledCount,
   totalInCategory,
@@ -15,12 +18,15 @@ export default function MorningFlowProgressBar({
   );
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" role="group" aria-label="Workout progress">
       <div className="flex items-center justify-between">
         <p className="font-display text-xs font-semibold uppercase tracking-[0.12em] text-stone">
           {categoryLabel}
         </p>
-        <p className="text-xs text-stone font-light">
+        <p
+          key={currentIndexGlobal}
+          className="mf-fade-in text-xs text-stone font-light tabular-nums"
+        >
           Exercise {currentIndexGlobal + 1} of {totalGlobal}
         </p>
       </div>
@@ -28,7 +34,7 @@ export default function MorningFlowProgressBar({
         {segments.map((filled, i) => (
           <div
             key={i}
-            className={`h-1.5 flex-1 rounded-full ${
+            className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ease-out ${
               filled ? "bg-moss" : "bg-border"
             }`}
           />
@@ -37,3 +43,5 @@ export default function MorningFlowProgressBar({
     </div>
   );
 }
+
+export default memo(MorningFlowProgressBar);
