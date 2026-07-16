@@ -3,6 +3,7 @@ import { Plus, Lock } from "lucide-react";
 import { useLettersToSelf, LETTERS_VIEW } from "../hooks/useLettersToSelf";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import FeatureHeader from "../components/layout/FeatureHeader";
+import Button from "../components/common/Button";
 import LetterCard from "../components/letters/LetterCard";
 import LetterComposer from "../components/letters/LetterComposer";
 import LetterOpenView from "../components/letters/LetterOpenView";
@@ -97,7 +98,7 @@ export default function LettersToSelf() {
           isTimeline && !isEmpty ? (
             <button
               onClick={openCompose}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-all duration-200 active:scale-[0.98] hover:opacity-90"
               style={{ background: "#869F8A" }}
               aria-label="Write a new letter"
             >
@@ -201,18 +202,12 @@ export default function LettersToSelf() {
               This letter will be gone permanently. This cannot be undone.
             </p>
             <div className="flex gap-3 pt-1">
-              <button
-                onClick={cancelDelete}
-                className="flex-1 rounded-full border border-border py-3 font-display text-sm font-semibold text-ink transition-colors hover:bg-surface"
-              >
+              <Button variant="secondary" fullWidth onClick={cancelDelete}>
                 Keep it
-              </button>
-              <button
-                onClick={executeDelete}
-                className="flex-1 rounded-full bg-clay py-3 font-display text-sm font-semibold text-canvas"
-              >
+              </Button>
+              <Button variant="danger" fullWidth onClick={executeDelete}>
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
         </div>

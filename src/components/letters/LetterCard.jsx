@@ -1,6 +1,10 @@
 // src/components/letters/LetterCard.jsx
 // A single letter card shown in the timeline.
 // Available letters are tappable; future letters show a locked state.
+// Batch 70: added shared sthira-card-interactive class for consistent,
+// subtle hover elevation and press feedback on the available-letter
+// button. Sealed/locked cards intentionally get no interactive feedback
+// since they aren't tappable.
 
 import { Lock } from "lucide-react";
 import LetterMoodTag from "./LetterMoodTag";
@@ -20,7 +24,6 @@ export default function LetterCard({ letter, onOpen, onDelete }) {
       : letter.body;
 
   if (!unlocked) {
-    // Future / sealed letter
     return (
       <div
         className="rounded-2xl p-5 space-y-3"
@@ -55,7 +58,8 @@ export default function LetterCard({ letter, onOpen, onDelete }) {
           </p>
           <button
             onClick={() => onDelete(letter)}
-            className="text-xs text-stone font-light opacity-40 hover:opacity-70 transition-opacity"
+            className="text-xs text-stone font-light opacity-40 hover:opacity-70 transition-opacity min-h-[32px] px-1"
+            aria-label={`Remove sealed letter "${letter.title}"`}
           >
             Remove
           </button>
@@ -64,19 +68,18 @@ export default function LetterCard({ letter, onOpen, onDelete }) {
     );
   }
 
-  // Available letter
   return (
     <button
       onClick={() => onOpen(letter)}
-      className="w-full text-left rounded-2xl p-5 space-y-3 transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-1"
+      className="sthira-card-interactive w-full text-left rounded-2xl p-5 space-y-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
       style={{
         background:
           "linear-gradient(160deg, rgba(255,252,245,1) 0%, rgba(248,244,236,1) 100%)",
         border: "1px solid rgba(185,175,160,0.28)",
         boxShadow: "0 1px 8px rgba(0,0,0,0.04)",
       }}
+      aria-label={`Open letter: ${letter.title}`}
     >
-      {/* Header row */}
       <div className="flex items-start justify-between gap-3">
         <p className="font-display text-sm font-medium text-ink leading-snug line-clamp-1 flex-1">
           {letter.title}
@@ -84,12 +87,10 @@ export default function LetterCard({ letter, onOpen, onDelete }) {
         {letter.mood && <LetterMoodTag moodId={letter.mood} size="sm" />}
       </div>
 
-      {/* Preview */}
       <p className="text-sm text-stone font-light leading-relaxed line-clamp-2">
         {preview}
       </p>
 
-      {/* Date */}
       <p className="text-xs text-stone font-light opacity-60">
         {formatLetterDate(letter.createdAt)}
       </p>

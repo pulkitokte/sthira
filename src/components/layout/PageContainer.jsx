@@ -8,6 +8,10 @@
 //   WebView when combined with the translateY stagger animation.
 //   Horizontal overflow is already prevented by `body { overflow-x: hidden }`
 //   in index.css, so this rule on <main> was redundant and harmful.
+// Batch 70: sthira-page-enter's keyframes now live in globals.css keyed to
+//   the shared --motion-slow token, so page entrance timing stays in sync
+//   with every other transition in the app. No class name or markup change
+//   here — only the underlying animation definition moved/standardized.
 
 export default function PageContainer({ children, className = "" }) {
   return (

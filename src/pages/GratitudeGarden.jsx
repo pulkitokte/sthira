@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Plus, List, Leaf } from "lucide-react";
 import FeatureHeader from "../components/layout/FeatureHeader";
+import Button from "../components/common/Button";
 import { useGratitudeGarden, GARDEN_VIEW } from "../hooks/useGratitudeGarden";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import GardenVisual from "../components/garden/GardenVisual";
@@ -66,14 +67,14 @@ export default function GratitudeGarden() {
             <div className="flex items-center gap-2">
               <button
                 onClick={openTimeline}
-                className="p-2 rounded-xl text-stone hover:text-ink hover:bg-surface transition-all"
+                className="p-2 rounded-xl text-stone hover:text-ink hover:bg-surface transition-all duration-200 active:scale-[0.96] min-h-[44px] min-w-[44px] flex items-center justify-center"
                 aria-label="View timeline"
               >
                 <List size={18} strokeWidth={1.5} />
               </button>
               <button
                 onClick={openNew}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-all duration-200 active:scale-[0.98] hover:opacity-90 min-h-[44px]"
                 style={{ background: "#869F8A" }}
                 aria-label="Add gratitude moment"
               >
@@ -84,7 +85,7 @@ export default function GratitudeGarden() {
           ) : isTimeline ? (
             <button
               onClick={openNew}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-all duration-200 active:scale-[0.98] hover:opacity-90 min-h-[44px]"
               style={{ background: "#869F8A" }}
             >
               <Plus size={15} strokeWidth={2} />
@@ -124,7 +125,7 @@ export default function GratitudeGarden() {
                     </p>
                     <button
                       onClick={openTimeline}
-                      className="text-xs text-stone font-light hover:text-ink transition-colors"
+                      className="text-xs text-stone font-light hover:text-ink transition-colors min-h-[32px] px-1"
                     >
                       See all →
                     </button>
@@ -191,7 +192,7 @@ export default function GratitudeGarden() {
                     <button
                       key={cat.id}
                       onClick={() => setCategory(isSelected ? null : cat.id)}
-                      className="rounded-full font-display text-xs font-medium px-3.5 py-1.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      className="rounded-full font-display text-xs font-medium px-3.5 py-1.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 min-h-[36px]"
                       style={{
                         background: isSelected ? cat.bg : "transparent",
                         border: `1.5px solid ${isSelected ? cat.border : "rgba(160,150,130,0.25)"}`,
@@ -209,11 +210,13 @@ export default function GratitudeGarden() {
 
             {justSaved && (
               <div
-                className="rounded-2xl p-4 text-center"
+                className="rounded-2xl p-4 text-center transition-opacity duration-300 ease-out"
                 style={{
                   background: "rgba(134, 159, 138, 0.1)",
                   border: "1px solid rgba(134, 159, 138, 0.25)",
                 }}
+                role="status"
+                aria-live="polite"
               >
                 <p className="font-display text-sm font-medium text-ink">
                   🌿 Planted.
@@ -226,25 +229,17 @@ export default function GratitudeGarden() {
 
             {!justSaved && (
               <div className="flex flex-col gap-3 pt-1 pb-8">
-                <button
-                  onClick={saveEntry}
+                <Button
+                  variant="primary"
+                  fullWidth
                   disabled={!canSave}
-                  className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2"
-                  style={{
-                    background: canSave
-                      ? "#869F8A"
-                      : "rgba(134, 159, 138, 0.35)",
-                    cursor: canSave ? "pointer" : "not-allowed",
-                  }}
+                  onClick={saveEntry}
                 >
                   Plant this moment
-                </button>
-                <button
-                  onClick={openOverview}
-                  className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors"
-                >
+                </Button>
+                <Button variant="ghost" fullWidth onClick={openOverview}>
                   Cancel
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -290,18 +285,12 @@ export default function GratitudeGarden() {
               This cannot be undone.
             </p>
             <div className="flex gap-3 pt-1">
-              <button
-                onClick={cancelDelete}
-                className="flex-1 rounded-full border border-border py-3 font-display text-sm font-semibold text-ink transition-colors hover:bg-surface"
-              >
+              <Button variant="secondary" fullWidth onClick={cancelDelete}>
                 Keep it
-              </button>
-              <button
-                onClick={executeDelete}
-                className="flex-1 rounded-full bg-clay py-3 font-display text-sm font-semibold text-canvas"
-              >
+              </Button>
+              <Button variant="danger" fullWidth onClick={executeDelete}>
                 Remove
-              </button>
+              </Button>
             </div>
           </div>
         </div>

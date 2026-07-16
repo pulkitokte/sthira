@@ -22,12 +22,11 @@ body,
 :root {
   --feature-header-height: 72px;
 
-  /* Shared motion timing tokens — Part 6. Any component using a fade,
-     hover, or card transition should reference these rather than a
-     locally-chosen duration, so timing stays consistent app-wide. */
+  /* Shared motion timing tokens (Part 1, Part 3). */
   --motion-fast: 150ms;
   --motion-base: 200ms;
   --motion-slow: 300ms;
+  --motion-press: 100ms;
 }
 
 body {
@@ -39,6 +38,43 @@ body {
   outline: 2px solid theme('colors.moss.DEFAULT');
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ── Page entrance (Part 3) ──────────────────────────────────────────────
+   Standardizes the gentle fade + tiny upward motion already referenced
+   by PageContainer's sthira-page-enter class (see Batch 47 comment in
+   PageContainer.jsx). Timing pulled from --motion-slow so it stays
+   consistent with every other transition token. Already covered by the
+   prefers-reduced-motion rule above. */
+@keyframes sthira-page-enter-anim {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sthira-page-enter {
+  animation: sthira-page-enter-anim var(--motion-slow) ease-out;
+}
+
+/* ── Card interaction (Part 2) ───────────────────────────────────────────
+   Shared, subtle hover/tap elevation for interactive cards. No dramatic
+   scaling — a small shadow lift and a barely-perceptible press-down. */
+.sthira-card-interactive {
+  transition: box-shadow var(--motion-base) ease-out,
+    transform var(--motion-press) ease-out;
+}
+
+.sthira-card-interactive:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+}
+
+.sthira-card-interactive:active {
+  transform: scale(0.99);
 }
 
 /* Morning Flow animations — untouched, off limits this batch. */
