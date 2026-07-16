@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight, Trash2 } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
+import Button from "../components/common/Button";
 import { useProgress } from "../context/ProgressContext";
 import { useHydration } from "../context/HydrationContext";
 import { useEyeRecoveryProgress } from "../context/EyeRecoveryProgressContext";
@@ -78,7 +79,7 @@ export default function Settings() {
         <button
           key={path}
           onClick={() => navigate(path)}
-          className="flex items-center justify-between rounded-2xl bg-surface p-4 text-left shadow-soft"
+          className="flex items-center justify-between rounded-2xl bg-surface p-4 text-left shadow-soft min-h-[44px]"
         >
           <span className="font-display text-base font-medium text-ink">
             {label}
@@ -92,7 +93,7 @@ export default function Settings() {
         {!isEditingGoal ? (
           <button
             onClick={() => setIsEditingGoal(true)}
-            className="flex w-full items-center justify-between text-left"
+            className="flex w-full items-center justify-between text-left min-h-[44px]"
           >
             <div>
               <span className="font-display text-base font-medium text-ink">
@@ -124,18 +125,16 @@ export default function Settings() {
               className="w-full rounded-2xl border border-border bg-canvas px-4 py-3 text-ink focus:border-dew focus:outline-none"
             />
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="secondary"
+                fullWidth
                 onClick={handleCancelGoalEdit}
-                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
               >
                 Cancel
-              </button>
-              <button
-                onClick={handleSaveGoal}
-                className="flex-1 rounded-full bg-moss py-2.5 font-display text-sm font-semibold text-canvas"
-              >
+              </Button>
+              <Button variant="primary" fullWidth onClick={handleSaveGoal}>
                 Save
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -223,7 +222,7 @@ export default function Settings() {
             {!confirming ? (
               <button
                 onClick={() => setConfirming(true)}
-                className="flex w-full items-center justify-between text-left"
+                className="flex w-full items-center justify-between text-left min-h-[44px]"
               >
                 <span className="font-display text-base font-medium text-clay">
                   {label}
@@ -236,18 +235,16 @@ export default function Settings() {
                   {description}
                 </p>
                 <div className="flex gap-2">
-                  <button
+                  <Button
+                    variant="secondary"
+                    fullWidth
                     onClick={() => setConfirming(false)}
-                    className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
                   >
                     Cancel
-                  </button>
-                  <button
-                    onClick={onConfirm}
-                    className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-                  >
+                  </Button>
+                  <Button variant="danger" fullWidth onClick={onConfirm}>
                     Reset
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

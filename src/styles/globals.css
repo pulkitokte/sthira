@@ -21,6 +21,13 @@ body,
 
 :root {
   --feature-header-height: 72px;
+
+  /* Shared motion timing tokens — Part 6. Any component using a fade,
+     hover, or card transition should reference these rather than a
+     locally-chosen duration, so timing stays consistent app-wide. */
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 300ms;
 }
 
 body {
@@ -34,51 +41,21 @@ body {
   border-radius: 4px;
 }
 
-/* ── Morning Flow polish animations ─────────────────────────────────────
-   Pure CSS only, no dependencies. Already respected by the
-   prefers-reduced-motion rule above (animation-duration is forced to
-   0.01ms), so no extra guard is needed here. */
-
+/* Morning Flow animations — untouched, off limits this batch. */
 @keyframes mf-fade-scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
-
-.mf-fade-scale-in {
-  animation: mf-fade-scale-in 260ms ease-out;
-}
+.mf-fade-scale-in { animation: mf-fade-scale-in 260ms ease-out; }
 
 @keyframes mf-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-
-.mf-fade-in {
-  animation: mf-fade-in 300ms ease-out;
-}
+.mf-fade-in { animation: mf-fade-in 300ms ease-out; }
 
 @keyframes mf-soft-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.88;
-  }
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.88; }
 }
-
-.mf-soft-pulse {
-  animation: mf-soft-pulse 2.6s ease-in-out infinite;
-}
+.mf-soft-pulse { animation: mf-soft-pulse 2.6s ease-in-out infinite; }
