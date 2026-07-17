@@ -1,7 +1,3 @@
-// src/pages/CompanionSpace.jsx
-// Gentle Companion — today's message, refresh, favorites.
-// Warm, paper-like, editorial. No AI. No chat. Fully deterministic.
-
 import { Heart } from "lucide-react";
 import { useCompanion } from "../hooks/useCompanion";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
@@ -17,20 +13,12 @@ export default function CompanionSpace() {
     favoritesCount,
     refreshMessage,
     handleToggleFavorite,
-    isFav,
   } = useCompanion();
 
   useDocumentTitle("Gentle Companion");
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background:
-          "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
-      }}
-    >
-      {/* Ambient orb */}
+    <div className="min-h-screen sthira-warm-surface-bg">
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -61,14 +49,11 @@ export default function CompanionSpace() {
 
       <FeatureHeader title="Gentle Companion" />
 
-      {/* ── Body ────────────────────────────────────────────────────────── */}
       <div className="relative max-w-lg mx-auto px-4 py-8 space-y-10 pb-20">
-        {/* Subheading */}
         <p className="text-sm text-stone font-light leading-relaxed">
           A quiet place for small reminders. Nothing here is required of you.
         </p>
 
-        {/* Today's message */}
         <section className="space-y-3">
           <p className="font-display text-xs font-semibold uppercase tracking-[0.14em] text-stone opacity-70 px-1">
             Today's message
@@ -83,13 +68,11 @@ export default function CompanionSpace() {
           />
         </section>
 
-        {/* Divider */}
         <div
           className="h-px"
           style={{ background: "rgba(185,175,160,0.18)" }}
         />
 
-        {/* Favorites section */}
         <section className="space-y-4">
           <div className="flex items-center gap-2 px-1">
             <Heart
@@ -141,7 +124,7 @@ export default function CompanionSpace() {
                     </span>
                     <button
                       onClick={() => handleToggleFavorite(msg)}
-                      className="p-1.5 rounded-xl transition-all"
+                      className="p-1.5 rounded-xl transition-all min-h-[36px] min-w-[36px] flex items-center justify-center"
                       style={{ color: "#c07860" }}
                       aria-label="Remove from saved"
                     >
@@ -154,7 +137,6 @@ export default function CompanionSpace() {
           )}
         </section>
 
-        {/* Footer */}
         <p className="text-center text-xs text-stone font-light italic opacity-40 pt-2">
           Messages are offered gently, without expectation.
         </p>

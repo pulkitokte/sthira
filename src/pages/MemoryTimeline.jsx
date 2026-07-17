@@ -14,13 +14,9 @@ import {
   loadFilterPreference,
   saveFilterPreference,
   MEMORY_TYPES,
-  MEMORY_TYPE_LABELS,
   MEMORY_TYPE_EMOJIS,
 } from "../utils/memoryTimeline";
-import {
-  getPromptForDate,
-  REFLECTION_PROMPTS,
-} from "../data/reflectionPrompts";
+import { REFLECTION_PROMPTS } from "../data/reflectionPrompts";
 
 const FILTER_OPTIONS = [
   { id: "all", label: "All", emoji: "✨" },
@@ -84,7 +80,7 @@ function FilterEmptyState({ onClear }) {
       </p>
       <button
         onClick={onClear}
-        className="text-sm text-stone font-light hover:text-ink transition-colors"
+        className="text-sm text-stone font-light hover:text-ink transition-colors min-h-[44px]"
       >
         Show all memories
       </button>
@@ -93,7 +89,6 @@ function FilterEmptyState({ onClear }) {
 }
 
 function OlderMemoryCard({ entry }) {
-  const typeLabel = MEMORY_TYPE_LABELS[entry.type] ?? "Memory";
   const emoji = MEMORY_TYPE_EMOJIS[entry.type] ?? "📝";
   const relTime = formatRelativeTime(entry.timestamp);
 
@@ -158,7 +153,7 @@ function ReflectionPromptCard({ prompt, onRefresh }) {
       </p>
       <button
         onClick={onRefresh}
-        className="flex items-center gap-1.5 text-xs text-stone font-light hover:text-ink transition-colors"
+        className="flex items-center gap-1.5 text-xs text-stone font-light hover:text-ink transition-colors min-h-[36px]"
         aria-label="Show another question"
       >
         <RefreshCw size={11} strokeWidth={1.5} />
@@ -210,13 +205,7 @@ export default function MemoryTimeline() {
   const currentPrompt = REFLECTION_PROMPTS[promptIndex];
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background:
-          "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
-      }}
-    >
+    <div className="min-h-screen sthira-warm-surface-bg">
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -264,7 +253,7 @@ export default function MemoryTimeline() {
                 <button
                   key={opt.id}
                   onClick={() => handleFilterChange(opt.id)}
-                  className="shrink-0 flex items-center gap-1.5 rounded-full font-display text-xs font-medium px-3 py-1.5 transition-all duration-150 focus:outline-none"
+                  className="shrink-0 flex items-center gap-1.5 rounded-full font-display text-xs font-medium px-3 py-1.5 transition-all duration-200 focus:outline-none min-h-[36px]"
                   style={{
                     background: isActive
                       ? "rgba(185,175,160,0.2)"
@@ -312,7 +301,7 @@ export default function MemoryTimeline() {
 
             {hasItems ? (
               <div className="space-y-6">
-                {grouped.map(({ seasonKey, label, season, year, entries }) => (
+                {grouped.map(({ seasonKey, label, season, entries }) => (
                   <div key={seasonKey} className="space-y-3">
                     <SeasonBadge
                       season={season}

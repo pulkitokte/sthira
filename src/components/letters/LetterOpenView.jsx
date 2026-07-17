@@ -1,15 +1,21 @@
 // src/components/letters/LetterOpenView.jsx
 // The ceremonial letter reading experience.
 // Paper-like, generous whitespace, editorial typography.
+// Batch 72: removed a local confirmingDelete state that produced a
+// double confirmation flow — clicking "Delete this letter" showed an
+// inline confirm here, and confirming called onDelete (= confirmDelete
+// at the page level), which opened a second, separate confirmation
+// modal asking the same question again. The single page-level modal in
+// LettersToSelf.jsx already handles confirm/cancel correctly, so this
+// component now calls onDelete directly. Also removed the unused
+// onBack prop (never called in this component; back navigation is
+// already handled by FeatureHeader at the page level).
 
 import LetterMoodTag from "./LetterMoodTag";
 import { formatLetterDate } from "../../utils/lettersToSelf";
 import { Trash2 } from "lucide-react";
-import { useState } from "react";
 
-export default function LetterOpenView({ letter, onDelete, onBack }) {
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
-
+export default function LetterOpenView({ letter, onDelete }) {
   return (
     <div className="flex flex-col gap-8">
       {/* Paper card */}
@@ -74,41 +80,13 @@ export default function LetterOpenView({ letter, onDelete, onBack }) {
 
       {/* Delete */}
       <div>
-        {!confirmingDelete ? (
-          <button
-            onClick={() => setConfirmingDelete(true)}
-            className="flex items-center gap-2 text-stone font-display text-sm font-light hover:text-clay transition-colors opacity-60 hover:opacity-100"
-          >
-            <Trash2 size={13} strokeWidth={1.5} />
-            Delete this letter
-          </button>
-        ) : (
-          <div
-            className="rounded-2xl p-4 space-y-3"
-            style={{
-              background: "rgba(170,120,100,0.06)",
-              border: "1px solid rgba(170,120,100,0.2)",
-            }}
-          >
-            <p className="text-sm text-stone leading-relaxed">
-              Delete this letter permanently? This cannot be undone.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirmingDelete(false)}
-                className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
-              >
-                Keep it
-              </button>
-              <button
-                onClick={() => onDelete(letter)}
-                className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        )}
+        <button
+          onClick={() => onDelete(letter)}
+          className="flex items-center gap-2 text-stone font-display text-sm font-light hover:text-clay transition-colors opacity-60 hover:opacity-100 min-h-[44px]"
+        >
+          <Trash2 size={13} strokeWidth={1.5} />
+          Delete this letter
+        </button>
       </div>
 
       <div className="pb-4" />

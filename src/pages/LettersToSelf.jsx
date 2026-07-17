@@ -4,6 +4,7 @@ import { useLettersToSelf, LETTERS_VIEW } from "../hooks/useLettersToSelf";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import FeatureHeader from "../components/layout/FeatureHeader";
 import Button from "../components/common/Button";
+import HeaderActionButton from "../components/common/HeaderActionButton";
 import LetterCard from "../components/letters/LetterCard";
 import LetterComposer from "../components/letters/LetterComposer";
 import LetterOpenView from "../components/letters/LetterOpenView";
@@ -66,13 +67,7 @@ export default function LettersToSelf() {
   };
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background:
-          "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
-      }}
-    >
+    <div className="min-h-screen sthira-warm-surface-bg">
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
@@ -96,15 +91,12 @@ export default function LettersToSelf() {
         showSettings={isTimeline}
         rightAction={
           isTimeline && !isEmpty ? (
-            <button
+            <HeaderActionButton
+              icon={Plus}
+              label="New"
               onClick={openCompose}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-all duration-200 active:scale-[0.98] hover:opacity-90"
-              style={{ background: "#869F8A" }}
-              aria-label="Write a new letter"
-            >
-              <Plus size={15} strokeWidth={2} />
-              New
-            </button>
+              ariaLabel="Write a new letter"
+            />
           ) : null
         }
       />
@@ -184,11 +176,7 @@ export default function LettersToSelf() {
         )}
 
         {isOpen && selectedLetter && (
-          <LetterOpenView
-            letter={selectedLetter}
-            onDelete={confirmDelete}
-            onBack={goToTimeline}
-          />
+          <LetterOpenView letter={selectedLetter} onDelete={confirmDelete} />
         )}
       </div>
 

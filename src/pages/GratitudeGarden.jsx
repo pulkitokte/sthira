@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { Plus, List, Leaf } from "lucide-react";
+import { Plus, List } from "lucide-react";
 import FeatureHeader from "../components/layout/FeatureHeader";
 import Button from "../components/common/Button";
+import HeaderActionButton from "../components/common/HeaderActionButton";
 import { useGratitudeGarden, GARDEN_VIEW } from "../hooks/useGratitudeGarden";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import GardenVisual from "../components/garden/GardenVisual";
 import GratitudeEntryCard from "../components/garden/GratitudeEntryCard";
-import GratitudeCategoryBadge from "../components/garden/GratitudeCategoryBadge";
 import GardenEmptyState from "../components/garden/GardenEmptyState";
 import { GRATITUDE_CATEGORIES } from "../data/gratitudeGardenData";
 import { formatGratitudeDate } from "../utils/gratitudeGarden";
@@ -31,7 +31,6 @@ export default function GratitudeGarden() {
     openNew,
     openTimeline,
     openOverview,
-    goBack,
     saveEntry,
     confirmDelete,
     executeDelete,
@@ -72,25 +71,15 @@ export default function GratitudeGarden() {
               >
                 <List size={18} strokeWidth={1.5} />
               </button>
-              <button
+              <HeaderActionButton
+                icon={Plus}
+                label="Add"
                 onClick={openNew}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-all duration-200 active:scale-[0.98] hover:opacity-90 min-h-[44px]"
-                style={{ background: "#869F8A" }}
-                aria-label="Add gratitude moment"
-              >
-                <Plus size={15} strokeWidth={2} />
-                Add
-              </button>
+                ariaLabel="Add gratitude moment"
+              />
             </div>
           ) : isTimeline ? (
-            <button
-              onClick={openNew}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-all duration-200 active:scale-[0.98] hover:opacity-90 min-h-[44px]"
-              style={{ background: "#869F8A" }}
-            >
-              <Plus size={15} strokeWidth={2} />
-              Add
-            </button>
+            <HeaderActionButton icon={Plus} label="Add" onClick={openNew} />
           ) : null
         }
       />
@@ -192,7 +181,7 @@ export default function GratitudeGarden() {
                     <button
                       key={cat.id}
                       onClick={() => setCategory(isSelected ? null : cat.id)}
-                      className="rounded-full font-display text-xs font-medium px-3.5 py-1.5 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1 min-h-[36px]"
+                      className="rounded-full font-display text-xs font-medium px-3.5 py-1.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 min-h-[36px]"
                       style={{
                         background: isSelected ? cat.bg : "transparent",
                         border: `1.5px solid ${isSelected ? cat.border : "rgba(160,150,130,0.25)"}`,

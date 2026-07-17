@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import HeaderActionButton from "../components/common/HeaderActionButton";
 import { Plus } from "lucide-react";
+import FeatureHeader from "../components/layout/FeatureHeader";
 import { useMoodJournal, JOURNAL_VIEW } from "../hooks/useMoodJournal";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
-import FeatureHeader from "../components/layout/FeatureHeader";
 import JournalEntryCard from "../components/journal/JournalEntryCard";
 import JournalEntryDetail from "../components/journal/JournalEntryDetail";
 import JournalEditor from "../components/journal/JournalEditor";
@@ -60,15 +61,12 @@ export default function MoodJournal() {
         showSettings={isTimeline}
         rightAction={
           isTimeline && !isEmpty ? (
-            <button
+            <HeaderActionButton
+              icon={Plus}
+              label="New"
               onClick={openNewEntry}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
-              style={{ background: "#869F8A" }}
-              aria-label="New journal entry"
-            >
-              <Plus size={15} strokeWidth={2} />
-              New
-            </button>
+              ariaLabel="New journal entry"
+            />
           ) : null
         }
       />
@@ -94,6 +92,7 @@ export default function MoodJournal() {
                     ))}
                   </div>
                 ))}
+
                 <div className="pb-4" />
               </div>
             )}

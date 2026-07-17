@@ -44,13 +44,7 @@ export default function SelfCompassion() {
   }
 
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background:
-          "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
-      }}
-    >
+    <div className="min-h-screen sthira-warm-surface-bg">
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
         aria-hidden="true"

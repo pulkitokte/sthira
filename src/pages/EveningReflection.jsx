@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 import FeatureHeader from "../components/layout/FeatureHeader";
+import Button from "../components/common/Button";
+import HeaderActionButton from "../components/common/HeaderActionButton";
 import {
   useEveningReflection,
   REFLECTION_VIEW,
@@ -15,7 +17,6 @@ import { REFLECTION_QUESTIONS } from "../data/eveningReflectionData";
 import {
   formatReflectionDate,
   formatReflectionTime,
-  buildReflectionPreview,
 } from "../utils/eveningReflection";
 import { getReflectionMoodById } from "../data/eveningReflectionData";
 
@@ -63,7 +64,6 @@ export default function EveningReflection() {
     view,
     selectedEntry,
     closingMessage,
-    hasAnyContent,
     mood,
     setMood,
     wentWell,
@@ -118,15 +118,12 @@ export default function EveningReflection() {
         showSettings={isTimeline}
         rightAction={
           isTimeline && !isEmpty ? (
-            <button
+            <HeaderActionButton
+              icon={Plus}
+              label="New"
               onClick={openForm}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full font-display text-sm font-semibold text-canvas transition-opacity hover:opacity-90"
-              style={{ background: "#869F8A" }}
-              aria-label="New reflection"
-            >
-              <Plus size={15} strokeWidth={2} />
-              New
-            </button>
+              ariaLabel="New reflection"
+            />
           ) : null
         }
       />
@@ -203,19 +200,12 @@ export default function EveningReflection() {
             </div>
 
             <div className="flex flex-col gap-3 pt-2 pb-8">
-              <button
-                onClick={saveReflection}
-                className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                style={{ background: "#869F8A" }}
-              >
+              <Button variant="primary" fullWidth onClick={saveReflection}>
                 Save reflection
-              </button>
-              <button
-                onClick={goToTimeline}
-                className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors"
-              >
+              </Button>
+              <Button variant="ghost" fullWidth onClick={goToTimeline}>
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -240,19 +230,12 @@ export default function EveningReflection() {
             </div>
 
             <div className="w-full max-w-xs flex flex-col gap-3 pt-2">
-              <button
-                onClick={goToTimeline}
-                className="w-full py-3 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity hover:opacity-90"
-                style={{ background: "#869F8A" }}
-              >
+              <Button variant="primary" fullWidth onClick={goToTimeline}>
                 View all reflections
-              </button>
-              <button
-                onClick={() => navigate(-1)}
-                className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors"
-              >
+              </Button>
+              <Button variant="ghost" fullWidth onClick={() => navigate(-1)}>
                 Back to home
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -302,7 +285,7 @@ export default function EveningReflection() {
               {!confirmingDelete ? (
                 <button
                   onClick={() => setConfirmingDelete(true)}
-                  className="flex items-center gap-2 text-clay font-display text-sm font-medium hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2 text-clay font-display text-sm font-medium hover:opacity-80 transition-opacity min-h-[44px]"
                 >
                   <Trash2 size={14} strokeWidth={1.5} />
                   Delete this reflection
@@ -319,18 +302,16 @@ export default function EveningReflection() {
                     Delete this reflection? This cannot be undone.
                   </p>
                   <div className="flex gap-2">
-                    <button
+                    <Button
+                      variant="secondary"
+                      fullWidth
                       onClick={() => setConfirmingDelete(false)}
-                      className="flex-1 rounded-full border border-border py-2.5 font-display text-sm font-semibold text-ink"
                     >
                       Cancel
-                    </button>
-                    <button
-                      onClick={handleDelete}
-                      className="flex-1 rounded-full bg-clay py-2.5 font-display text-sm font-semibold text-canvas"
-                    >
+                    </Button>
+                    <Button variant="danger" fullWidth onClick={handleDelete}>
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}

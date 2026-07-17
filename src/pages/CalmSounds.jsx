@@ -55,13 +55,7 @@ export default function CalmSounds() {
 
   // ── Sound selection grid ──────────────────────────────────────────────────
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background:
-          "linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%)",
-      }}
-    >
+    <div className="min-h-screen sthira-warm-surface-bg">
       {/* Ambient orb */}
       <div
         className="fixed inset-0 pointer-events-none overflow-hidden"
@@ -157,8 +151,6 @@ export default function CalmSounds() {
                 isActive={activeSound?.id === sound.id}
                 isPlaying={isPlaying && activeSound?.id === sound.id}
                 onSelect={(s) => {
-                  // If tapping the active sound, open its player
-                  // If tapping a different sound, switch to it
                   if (activeSound?.id === s.id) {
                     openSound(s);
                   } else {

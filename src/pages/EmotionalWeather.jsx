@@ -12,7 +12,7 @@ import WeatherReflection from "../components/weather/WeatherReflection";
 import { getWeatherById } from "../data/emotionalWeatherData";
 import { formatWeatherTime } from "../utils/emotionalWeather";
 
-function WeatherTabs({ view, onToday, onTimeline, hasHistory }) {
+function WeatherTabs({ view, onToday, onTimeline }) {
   const tabs = [
     { id: WEATHER_VIEW.TODAY, label: "Today", onClick: onToday },
     { id: WEATHER_VIEW.TIMELINE, label: "History", onClick: onTimeline },
@@ -29,7 +29,7 @@ function WeatherTabs({ view, onToday, onTimeline, hasHistory }) {
           <button
             key={tab.id}
             onClick={tab.onClick}
-            className="flex-1 py-2 rounded-xl font-display text-xs font-medium transition-all duration-200 focus:outline-none"
+            className="flex-1 py-2 rounded-xl font-display text-xs font-medium transition-all duration-200 focus:outline-none min-h-[36px]"
             style={{
               background: isActive ? "#fff" : "transparent",
               color: isActive ? "#3a4a3e" : "#8a8070",
@@ -71,7 +71,7 @@ function TodayDisplay({ entry, onEdit }) {
           </div>
           <button
             onClick={onEdit}
-            className="p-2 rounded-xl transition-all hover:opacity-70"
+            className="p-2 rounded-xl transition-all hover:opacity-70 min-h-[44px] min-w-[44px] flex items-center justify-center"
             style={{ color: weather.textColor }}
             aria-label="Edit today's weather"
           >
@@ -167,9 +167,11 @@ function CheckInForm({
         <button
           onClick={onSave}
           disabled={!canSave}
-          className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity focus:outline-none focus:ring-2 focus:ring-offset-2"
+          className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px]"
           style={{
-            background: canSave ? "#869F8A" : "rgba(134,159,138,0.35)",
+            background: canSave
+              ? "var(--accent-soft)"
+              : "rgba(134,159,138,0.35)",
             cursor: canSave ? "pointer" : "not-allowed",
           }}
         >
@@ -178,7 +180,7 @@ function CheckInForm({
         {isEditing && (
           <button
             onClick={onCancel}
-            className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors"
+            className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors min-h-[44px]"
           >
             Cancel
           </button>
@@ -214,8 +216,8 @@ function WeatherEmptyState({ onBegin }) {
 
       <button
         onClick={onBegin}
-        className="px-8 py-3 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity hover:opacity-90"
-        style={{ background: "#869F8A" }}
+        className="px-8 py-3 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-all duration-200 active:scale-[0.98] hover:opacity-90 min-h-[44px]"
+        style={{ background: "var(--accent-soft)" }}
       >
         Check in for today
       </button>
@@ -303,7 +305,6 @@ export default function EmotionalWeather() {
               view={view}
               onToday={() => setView(WEATHER_VIEW.TODAY)}
               onTimeline={() => setView(WEATHER_VIEW.TIMELINE)}
-              hasHistory={!isEmpty}
             />
           </div>
         </div>
