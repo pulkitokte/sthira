@@ -2,12 +2,20 @@
 // Reusable header for feature pages — single source of truth for
 // feature-page headers across the app.
 //
-// Height is pinned to the --feature-header-height CSS variable (defined in
-// globals.css) via minHeight, so any sticky element elsewhere that needs to
-// sit directly beneath this header (e.g. tab bars) can reference the same
-// variable instead of a hardcoded pixel value. If this component's padding
-// or icon size ever changes, update --feature-header-height in one place
-// and every consumer stays correct automatically.
+// Batch 73: two accessibility fixes, both visually invisible (sr-only),
+// zero layout/style change:
+// 1. Added a visually-hidden <h1> with the page title, so screen-reader
+//    users navigating by heading structure can find each page's title —
+//    previously the title only existed as plain text inside the back
+//    button, with no heading element anywhere on these pages.
+// 2. The back button's aria-label="Go back" previously completely
+//    overrode its accessible name, discarding the adjacent visible
+//    title text (a WCAG 2.5.3 Label-in-Name mismatch). Replaced with a
+//    sr-only "Back to " prefix + the existing visible title, so the
+//    accessible name now includes the visible label, and the ArrowLeft
+//    icon is marked aria-hidden so it isn't announced redundantly.
+//
+// Height is still pinned to --feature-header-height (globals.css).
 
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Settings as SettingsIcon } from "lucide-react";
@@ -34,12 +42,14 @@ export default function FeatureHeader({
       className="sticky top-0 z-10 flex items-center justify-between bg-canvas px-6 py-5"
       style={{ minHeight: "var(--feature-header-height)" }}
     >
+      <h1 className="sr-only">{title}</h1>
+
       <button
         onClick={handleBack}
-        aria-label="Go back"
         className="-ml-2 flex items-center gap-1.5 rounded-full px-2 py-1.5 text-moss transition-colors hover:bg-moss/10"
       >
-        <ArrowLeft size={19} strokeWidth={2} />
+        <ArrowLeft size={19} strokeWidth={2} aria-hidden="true" />
+        <span className="sr-only">Back to </span>
         <span className="font-display text-base font-medium">{title}</span>
       </button>
 

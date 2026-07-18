@@ -5,6 +5,7 @@ import {
 } from "../hooks/useEmotionalWeather";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import FeatureHeader from "../components/layout/FeatureHeader";
+import Button from "../components/common/Button";
 import WeatherPicker from "../components/weather/WeatherPicker";
 import WeatherEntryCard from "../components/weather/WeatherEntryCard";
 import EmotionalLandscape from "../components/weather/EmotionalLandscape";
@@ -164,26 +165,18 @@ function CheckInForm({
       </div>
 
       <div className="flex flex-col gap-3">
-        <button
-          onClick={onSave}
+        <Button
+          variant="primary"
+          fullWidth
           disabled={!canSave}
-          className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-all duration-200 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px]"
-          style={{
-            background: canSave
-              ? "var(--accent-soft)"
-              : "rgba(134,159,138,0.35)",
-            cursor: canSave ? "pointer" : "not-allowed",
-          }}
+          onClick={onSave}
         >
           {isEditing ? "Update today's sky" : "Save today's sky"}
-        </button>
+        </Button>
         {isEditing && (
-          <button
-            onClick={onCancel}
-            className="w-full py-3 rounded-full font-display text-sm font-medium text-stone hover:text-ink transition-colors min-h-[44px]"
-          >
+          <Button variant="ghost" fullWidth onClick={onCancel}>
             Cancel
-          </button>
+          </Button>
         )}
       </div>
     </div>
@@ -214,13 +207,9 @@ function WeatherEmptyState({ onBegin }) {
         </p>
       </div>
 
-      <button
-        onClick={onBegin}
-        className="px-8 py-3 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-all duration-200 active:scale-[0.98] hover:opacity-90 min-h-[44px]"
-        style={{ background: "var(--accent-soft)" }}
-      >
+      <Button variant="primary" onClick={onBegin} className="px-8">
         Check in for today
-      </button>
+      </Button>
     </div>
   );
 }

@@ -175,8 +175,8 @@ export default function DigitalSanctuary() {
 
                 <button
                   onClick={startGrounding}
-                  className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2"
-                  style={{ background: "#869F8A" }}
+                  className="w-full py-3.5 rounded-full font-display font-semibold text-canvas text-sm tracking-wide transition-all duration-200 active:scale-[0.98] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 min-h-[44px]"
+                  style={{ background: "var(--accent-soft)" }}
                 >
                   Start grounding
                 </button>
