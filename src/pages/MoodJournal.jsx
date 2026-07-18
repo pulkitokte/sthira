@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
 import HeaderActionButton from "../components/common/HeaderActionButton";
 import { Plus } from "lucide-react";
 import FeatureHeader from "../components/layout/FeatureHeader";
 import { useMoodJournal, JOURNAL_VIEW } from "../hooks/useMoodJournal";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useSafeBack } from "../hooks/useSafeBack";
 import JournalEntryCard from "../components/journal/JournalEntryCard";
 import JournalEntryDetail from "../components/journal/JournalEntryDetail";
 import JournalEditor from "../components/journal/JournalEditor";
@@ -11,7 +11,7 @@ import JournalEmptyState from "../components/journal/JournalEmptyState";
 import { formatEntryDate } from "../utils/moodJournal";
 
 export default function MoodJournal() {
-  const navigate = useNavigate();
+  const safeBack = useSafeBack();
   const journal = useMoodJournal();
 
   useDocumentTitle("Mood Journal");
@@ -45,7 +45,7 @@ export default function MoodJournal() {
 
   const handleBack = () => {
     if (isTimeline) {
-      navigate(-1);
+      safeBack();
     } else if (isDetail || isNew) {
       goToTimeline();
     } else if (isEdit) {

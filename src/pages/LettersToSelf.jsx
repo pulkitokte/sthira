@@ -1,7 +1,7 @@
-import { useLocation, useNavigate } from "react-router-dom";
 import { Plus, Lock } from "lucide-react";
 import { useLettersToSelf, LETTERS_VIEW } from "../hooks/useLettersToSelf";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useSafeBack } from "../hooks/useSafeBack";
 import FeatureHeader from "../components/layout/FeatureHeader";
 import Button from "../components/common/Button";
 import HeaderActionButton from "../components/common/HeaderActionButton";
@@ -9,11 +9,9 @@ import LetterCard from "../components/letters/LetterCard";
 import LetterComposer from "../components/letters/LetterComposer";
 import LetterOpenView from "../components/letters/LetterOpenView";
 import LettersEmptyState from "../components/letters/LettersEmptyState";
-import { PATHS } from "../constants/navigation";
 
 export default function LettersToSelf() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const safeBack = useSafeBack();
   const letters = useLettersToSelf();
   useDocumentTitle("Letters to Self");
 
@@ -56,11 +54,7 @@ export default function LettersToSelf() {
 
   const handleBack = () => {
     if (isTimeline) {
-      if (location.key === "default") {
-        navigate(PATHS.HOME);
-      } else {
-        navigate(-1);
-      }
+      safeBack();
     } else {
       goToTimeline();
     }

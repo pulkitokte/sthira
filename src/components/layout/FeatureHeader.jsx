@@ -2,24 +2,19 @@
 // Reusable header for feature pages — single source of truth for
 // feature-page headers across the app.
 //
-// Batch 73: two accessibility fixes, both visually invisible (sr-only),
-// zero layout/style change:
-// 1. Added a visually-hidden <h1> with the page title, so screen-reader
-//    users navigating by heading structure can find each page's title —
-//    previously the title only existed as plain text inside the back
-//    button, with no heading element anywhere on these pages.
-// 2. The back button's aria-label="Go back" previously completely
-//    overrode its accessible name, discarding the adjacent visible
-//    title text (a WCAG 2.5.3 Label-in-Name mismatch). Replaced with a
-//    sr-only "Back to " prefix + the existing visible title, so the
-//    accessible name now includes the visible label, and the ArrowLeft
-//    icon is marked aria-hidden so it isn't announced redundantly.
-//
-// Height is still pinned to --feature-header-height (globals.css).
+// Batch 73: sr-only <h1> for heading hierarchy; back button's accessible
+// name now includes the visible title (previously fully overridden by
+// aria-label="Go back").
+// Batch 74: default back behavior now uses useSafeBack instead of a
+// bare navigate(-1), fixing a real "trapped on screen" scenario for
+// every page that relies on FeatureHeader's default back handling
+// (i.e. doesn't pass its own onBack) when reached with no prior
+// session history.
 
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Settings as SettingsIcon } from "lucide-react";
 import { PATHS } from "../../constants/navigation";
+import { useSafeBack } from "../../hooks/useSafeBack";
 
 export default function FeatureHeader({
   title,
@@ -28,12 +23,13 @@ export default function FeatureHeader({
   rightAction = null,
 }) {
   const navigate = useNavigate();
+  const safeBack = useSafeBack();
 
   const handleBack = () => {
     if (onBack) {
       onBack();
     } else {
-      navigate(-1);
+      safeBack();
     }
   };
 

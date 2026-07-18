@@ -1,10 +1,10 @@
-import { useNavigate } from "react-router-dom";
 import { Plus, List } from "lucide-react";
 import FeatureHeader from "../components/layout/FeatureHeader";
 import Button from "../components/common/Button";
 import HeaderActionButton from "../components/common/HeaderActionButton";
 import { useGratitudeGarden, GARDEN_VIEW } from "../hooks/useGratitudeGarden";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useSafeBack } from "../hooks/useSafeBack";
 import GardenVisual from "../components/garden/GardenVisual";
 import GratitudeEntryCard from "../components/garden/GratitudeEntryCard";
 import GardenEmptyState from "../components/garden/GardenEmptyState";
@@ -12,7 +12,7 @@ import { GRATITUDE_CATEGORIES } from "../data/gratitudeGardenData";
 import { formatGratitudeDate } from "../utils/gratitudeGarden";
 
 export default function GratitudeGarden() {
-  const navigate = useNavigate();
+  const safeBack = useSafeBack();
   const garden = useGratitudeGarden();
   useDocumentTitle("Gratitude Garden");
 
@@ -49,7 +49,7 @@ export default function GratitudeGarden() {
 
   const handleBack = () => {
     if (isOverview) {
-      navigate(-1);
+      safeBack();
     } else {
       openOverview();
     }

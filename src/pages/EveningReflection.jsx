@@ -9,6 +9,7 @@ import {
   REFLECTION_VIEW,
 } from "../hooks/useEveningReflection";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import { useSafeBack } from "../hooks/useSafeBack";
 import ReflectionMoodSelector from "../components/evening/ReflectionMoodSelector";
 import ReflectionTextArea from "../components/evening/ReflectionTextArea";
 import ReflectionEntryCard from "../components/evening/ReflectionEntryCard";
@@ -19,6 +20,7 @@ import {
   formatReflectionTime,
 } from "../utils/eveningReflection";
 import { getReflectionMoodById } from "../data/eveningReflectionData";
+import { PATHS } from "../constants/navigation";
 
 function MoodBadge({ moodId }) {
   const mood = getReflectionMoodById(moodId);
@@ -53,6 +55,7 @@ function DetailBlock({ question, answer }) {
 
 export default function EveningReflection() {
   const navigate = useNavigate();
+  const safeBack = useSafeBack();
   const reflection = useEveningReflection();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -94,7 +97,7 @@ export default function EveningReflection() {
 
   const handleBack = () => {
     if (isTimeline) {
-      navigate(-1);
+      safeBack();
     } else if (isForm || isCompletion) {
       goToTimeline();
     } else if (isDetail) {
@@ -233,7 +236,16 @@ export default function EveningReflection() {
               <Button variant="primary" fullWidth onClick={goToTimeline}>
                 View all reflections
               </Button>
-              <Button variant="ghost" fullWidth onClick={() => navigate(-1)}>
+              {/* Batch 74: this button is labeled "Back to home" but
+                  previously called navigate(-1), which is not
+                  necessarily Home and could do nothing at all with no
+                  prior history. Now navigates to Home directly, matching
+                  its own label exactly. */}
+              <Button
+                variant="ghost"
+                fullWidth
+                onClick={() => navigate(PATHS.HOME)}
+              >
                 Back to home
               </Button>
             </div>
