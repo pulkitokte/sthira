@@ -1,5 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Onboarding from "../pages/Onboarding";
+import FirstBreath from "../pages/FirstBreath";
+import LaunchSplash from "../pages/LaunchSplash";
 import Home from "../pages/Home";
 import RoutineLibrary from "../pages/RoutineLibrary";
 import RoutinePlayer from "../pages/RoutinePlayer";
@@ -41,6 +43,8 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path={PATHS.ONBOARDING} element={<Onboarding />} />
+      <Route path={PATHS.FIRST_BREATH} element={<FirstBreath />} />
+      <Route path={PATHS.SPLASH} element={<LaunchSplash />} />
       <Route path={PATHS.HOME} element={<Home />} />
       <Route path={PATHS.LIBRARY} element={<RoutineLibrary />} />
       <Route path={PATHS.ROUTINE_PLAYER} element={<RoutinePlayer />} />

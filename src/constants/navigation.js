@@ -2,6 +2,8 @@ import { Sun, BookOpen, Eye, Droplet, Leaf } from "lucide-react";
 
 export const PATHS = {
   ONBOARDING: "/onboarding",
+  FIRST_BREATH: "/first-breath",
+  SPLASH: "/splash",
   HOME: "/",
   LIBRARY: "/library",
   ROUTINE_PLAYER: "/routine-player",
@@ -41,6 +43,8 @@ export const PATHS = {
 
 export const PAGE_TITLES = {
   ["/onboarding"]: "Welcome",
+  ["/first-breath"]: "Welcome",
+  ["/splash"]: "Sthira",
   ["/"]: "Sthira",
   ["/library"]: "Routine Library",
   ["/routine-player"]: "Routine",

@@ -7,6 +7,8 @@ import AchievementUnlockBanner from "./components/achievements/AchievementUnlock
 import AppRoutes from "./routes/AppRoutes";
 import { useOnboarding } from "./context/OnboardingContext";
 import { useAchievements } from "./context/AchievementsContext";
+import { useFirstBreathStatus } from "./hooks/useFirstBreathStatus";
+import { useLaunchManager } from "./hooks/useLaunchManager";
 import { ScrollContainerProvider } from "./context/ScrollContainerContext";
 import { PATHS } from "./constants/navigation";
 
@@ -39,7 +41,12 @@ function App() {
   const { pathname } = useLocation();
   const { isComplete } = useOnboarding();
   const { currentBannerAchievement, dismissBanner } = useAchievements();
+  const { hasCompletedFirstBreath } = useFirstBreathStatus();
+
   const isOnboarding = pathname === PATHS.ONBOARDING;
+  const isFirstBreath = pathname === PATHS.FIRST_BREATH;
+  const isSplash = pathname === PATHS.SPLASH;
+  const isFullScreenExperience = isOnboarding || isFirstBreath || isSplash;
   const rendersOwnHeader = HAS_OWN_HEADER.includes(pathname);
 
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -56,6 +63,21 @@ function App() {
     };
   }, []);
 
+  // New: The First Breath / Splash launch gate. Evaluated before the
+  // existing onboarding redirect below so that, on a first-ever launch,
+  // First Breath always wins over the Onboarding redirect (both would
+  // otherwise want to fire on the same render).
+  const launchRedirect = useLaunchManager({
+    pathname,
+    hasCompletedFirstBreath,
+    isOnboardingComplete: isComplete,
+  });
+
+  if (launchRedirect && pathname !== launchRedirect) {
+    return <Navigate to={launchRedirect} replace />;
+  }
+
+  // Existing onboarding redirect — untouched.
   if (!isComplete && !isOnboarding) {
     return <Navigate to={PATHS.ONBOARDING} replace />;
   }
@@ -66,16 +88,16 @@ function App() {
       className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-canvas sm:my-8 sm:h-[844px] sm:min-h-0 sm:overflow-y-auto sm:rounded-[2.5rem] sm:shadow-2xl sm:ring-1 sm:ring-border"
     >
       <ScrollContainerProvider containerRef={containerRef}>
-        {!isOnboarding && !rendersOwnHeader && <Header />}
+        {!isFullScreenExperience && !rendersOwnHeader && <Header />}
         {!isOnline && <OfflineBanner />}
-        {!isOnboarding && currentBannerAchievement && (
+        {!isFullScreenExperience && currentBannerAchievement && (
           <AchievementUnlockBanner
             achievement={currentBannerAchievement}
             onDismiss={dismissBanner}
           />
         )}
         <AppRoutes />
-        {!isOnboarding && <BottomNavigation />}
+        {!isFullScreenExperience && <BottomNavigation />}
       </ScrollContainerProvider>
     </div>
   );
