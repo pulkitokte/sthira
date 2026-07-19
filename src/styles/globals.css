@@ -69,11 +69,6 @@ body {
   transform: scale(0.99);
 }
 
-/* Batch 72: this exact gradient was duplicated verbatim as an inline
-   style across six files (Calm Sounds, Gentle Companion, Letters,
-   Memory Timeline, Self-Compassion, and its support screen). Extracted
-   once here — same value, zero visual change, single point of future
-   edit. */
 .sthira-warm-surface-bg {
   background: linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%);
 }
@@ -96,3 +91,73 @@ body {
   50% { transform: scale(1.05); opacity: 0.88; }
 }
 .mf-soft-pulse { animation: mf-soft-pulse 2.6s ease-in-out infinite; }
+
+/* ── The First Breath — Phase 2 (The Living Seed) ────────────────────────
+   All idle/ambient animations below are automatically governed by the
+   prefers-reduced-motion rule at the top of this file (it forces
+   animation-duration to 0.01ms for every element), so no additional
+   reduced-motion branching is needed per animation. */
+
+@keyframes fb-seed-breathe-anim {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+.fb-seed-breathe {
+  animation: fb-seed-breathe-anim 4.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes fb-seed-float-anim {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.fb-seed-float {
+  animation: fb-seed-float-anim 6s ease-in-out infinite;
+}
+
+@keyframes fb-seed-glow-anim {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+.fb-seed-glow {
+  animation: fb-seed-glow-anim 5s ease-in-out infinite;
+}
+
+@keyframes fb-ambient-light-anim {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.8; }
+  50% { transform: translateX(-50%) translateY(12px); opacity: 1; }
+}
+.fb-ambient-light {
+  animation: fb-ambient-light-anim 14s ease-in-out infinite;
+}
+
+@keyframes fb-particle-float-anim {
+  0%, 100% { transform: translateY(0); opacity: 0.15; }
+  50% { transform: translateY(-14px); opacity: 0.4; }
+}
+.fb-particle {
+  animation-name: fb-particle-float-anim;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Real transition system: soft fade + gentle upward motion + subtle
+   scale. Deliberately slower (900ms) than the app's normal UI motion
+   tokens (--motion-base etc.) — this screen is meant to feel unhurried
+   and separate from ordinary app interactions. */
+@keyframes fb-content-in-anim {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.fb-content-in {
+  animation: fb-content-in-anim 900ms ease-out;
+}
+
+@keyframes fb-tap-indicator-anim {
+  0%, 100% { transform: translateY(0); opacity: 0.3; }
+  50% { transform: translateY(4px); opacity: 0.55; }
+}
+.fb-tap-indicator {
+  display: inline-block;
+  animation: fb-tap-indicator-anim 2.2s ease-in-out infinite;
+}

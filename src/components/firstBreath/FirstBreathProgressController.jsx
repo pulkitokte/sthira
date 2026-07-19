@@ -1,7 +1,8 @@
 // src/components/firstBreath/FirstBreathProgressController.jsx
-// Minimal, accessible step-progress indicator. Phase 1: functional only,
-// no final visual polish — reuses the existing --accent-soft token
-// rather than introducing a new color.
+// Minimal, accessible step-progress indicator.
+// Phase 2: made more subtle (smaller dots, reduced opacity) to match
+// the immersive, non-onboarding-like feel of this experience. Same
+// props/API as Phase 1 — no consumer needs to change.
 
 export default function FirstBreathProgressController({
   totalSteps,
@@ -9,7 +10,7 @@ export default function FirstBreathProgressController({
 }) {
   return (
     <div
-      className="flex items-center gap-1.5"
+      className="flex items-center gap-1.5 opacity-50"
       role="progressbar"
       aria-valuemin={1}
       aria-valuemax={totalSteps}
@@ -19,7 +20,7 @@ export default function FirstBreathProgressController({
       {Array.from({ length: totalSteps }, (_, i) => (
         <div
           key={i}
-          className="h-1.5 w-1.5 rounded-full"
+          className="h-1 w-1 rounded-full transition-colors duration-300"
           style={{
             background:
               i <= currentStepIndex
