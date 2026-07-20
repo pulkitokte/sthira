@@ -1,9 +1,7 @@
 // src/constants/firstBreath.js
-// Phase 3: FIRST_BREATH_STEPS trimmed to a single opening-message step —
-// the old "pause"/"enter" text steps are now replaced by the actual
-// Breathing Ritual, which follows the opening message. Added
-// BREATH_PHASES, consumed by useBreathingRitual + SeedIllustration +
-// BreathCircle.
+// Phase 4: added AWAKENING_STAGES, consumed by useAwakening +
+// SproutIllustration. FIRST_BREATH_STEPS and BREATH_PHASES unchanged
+// from Phase 3.
 
 export const FIRST_BREATH_STORAGE_KEY = "sthira_first_breath_complete";
 
@@ -17,12 +15,23 @@ export const FIRST_BREATH_STEPS = [
   },
 ];
 
-// One full breath: inhale, a brief hold, a longer exhale (exhale is
-// intentionally the longest phase — this is the natural shape of a
-// physiologically calming breath, not an arbitrary choice). Runs
-// exactly once, ~11 seconds total, never repeats.
 export const BREATH_PHASES = [
   { id: "inhale", label: "Breathe in...", durationMs: 4000, scale: 1.18 },
   { id: "hold", label: "Just be here.", durationMs: 2200, scale: 1.18 },
   { id: "exhale", label: "Let go.", durationMs: 5000, scale: 1 },
 ];
+
+// The Awakening: a brief silent rest, then the seed softens, cracks,
+// sprouts, and unfurls two small leaves. Stops there — no further
+// growth in this phase. "resting" has no visible change of its own;
+// it exists purely to hold a quiet pause before anything happens, per
+// "no movement, silence, then...".
+export const AWAKENING_STAGES = [
+  { id: "resting", durationMs: 1400 },
+  { id: "softening", durationMs: 1200 },
+  { id: "cracking", durationMs: 900 },
+  { id: "sprouting", durationMs: 1800 },
+  { id: "leaves", durationMs: 1400 },
+];
+
+export const AWAKENING_MESSAGE_DELAY_MS = 900;

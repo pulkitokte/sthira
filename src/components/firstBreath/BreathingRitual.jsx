@@ -1,9 +1,11 @@
 // src/components/firstBreath/BreathingRitual.jsx
 // The Breathing Ritual: one automatic inhale → hold → exhale cycle,
-// then waits for the user to tap/activate to continue. Runs exactly
-// once — never replays, never auto-advances past the final tap.
-// Reuses FirstBreathAnimationWrapper and FirstBreathTransition from
-// Phase 1/2 unchanged.
+// then waits for the user to tap/activate.
+// Phase 4: the completion callback prop is renamed from onContinue to
+// onBreathComplete, since it no longer means "finish the whole
+// experience" — it now means "the breath is done, move on to the
+// Awakening." useBreathingRitual and all internal timing/behavior are
+// completely unchanged.
 
 import { useRef, useEffect } from "react";
 import FirstBreathAnimationWrapper from "./FirstBreathAnimationWrapper";
@@ -12,7 +14,7 @@ import SeedIllustration from "./SeedIllustration";
 import BreathCircle from "./BreathCircle";
 import { useBreathingRitual } from "../../hooks/useBreathingRitual";
 
-export default function BreathingRitual({ onContinue }) {
+export default function BreathingRitual({ onBreathComplete }) {
   const { phase, isComplete } = useBreathingRitual({ isActive: true });
   const regionRef = useRef(null);
 
@@ -21,7 +23,7 @@ export default function BreathingRitual({ onContinue }) {
   }, [isComplete]);
 
   const handleActivate = () => {
-    if (isComplete) onContinue();
+    if (isComplete) onBreathComplete();
   };
 
   const handleKeyDown = (e) => {

@@ -92,12 +92,7 @@ body {
 }
 .mf-soft-pulse { animation: mf-soft-pulse 2.6s ease-in-out infinite; }
 
-/* ── The First Breath — Phase 2 (The Living Seed) ────────────────────────
-   All idle/ambient animations below are automatically governed by the
-   prefers-reduced-motion rule at the top of this file (it forces
-   animation-duration to 0.01ms for every element), so no additional
-   reduced-motion branching is needed per animation. */
-
+/* The First Breath — Phase 2/3 (unchanged) */
 @keyframes fb-seed-breathe-anim {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.04); }
@@ -141,10 +136,6 @@ body {
   animation-iteration-count: infinite;
 }
 
-/* Real transition system: soft fade + gentle upward motion + subtle
-   scale. Deliberately slower (900ms) than the app's normal UI motion
-   tokens (--motion-base etc.) — this screen is meant to feel unhurried
-   and separate from ordinary app interactions. */
 @keyframes fb-content-in-anim {
   from { opacity: 0; transform: translateY(8px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -160,4 +151,34 @@ body {
 .fb-tap-indicator {
   display: inline-block;
   animation: fb-tap-indicator-anim 2.2s ease-in-out infinite;
+}
+
+/* ── The First Breath — Phase 4 (The Awakening) ──────────────────────────
+   All keyframes below are automatically governed by the
+   prefers-reduced-motion rule at the top of this file. */
+
+@keyframes fb-sprout-draw-anim {
+  from { stroke-dashoffset: var(--fb-sprout-length, 40); }
+  to { stroke-dashoffset: 0; }
+}
+.fb-sprout-draw {
+  stroke-dasharray: var(--fb-sprout-length, 40);
+  animation: fb-sprout-draw-anim 1.8s ease-out forwards;
+}
+
+@keyframes fb-leaf-unfurl-anim {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+.fb-leaf-unfurl {
+  animation: fb-leaf-unfurl-anim 1.1s ease-out forwards;
+  transform-origin: bottom center;
+}
+
+@keyframes fb-crack-fade-anim {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fb-crack-fade {
+  animation: fb-crack-fade-anim 700ms ease-out forwards;
 }

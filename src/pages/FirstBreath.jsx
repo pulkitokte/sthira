@@ -1,11 +1,10 @@
 // src/pages/FirstBreath.jsx
-// The First Breath — Phase 3: the flow is now
-//   Seed + opening message → Breathing Ritual → Continue
-// The message stage's tap/reveal/advance interaction is unchanged from
-// Phase 2. What changed: the message step's completion now advances
-// into the Breathing Ritual instead of finishing the experience
-// directly. Skip (top-right) always finishes the whole experience
-// immediately, regardless of which stage the user is in.
+// The First Breath — Phase 4: flow is now
+//   Opening message → Breathing Ritual → The Awakening → Continue
+// Message stage's interaction is entirely unchanged from Phase 2/3.
+// Breathing stage now advances to a new "awakening" stage instead of
+// completing directly. Skip always finishes the whole experience
+// immediately from any stage.
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -15,12 +14,17 @@ import FirstBreathAnimationWrapper from "../components/firstBreath/FirstBreathAn
 import FirstBreathProgressController from "../components/firstBreath/FirstBreathProgressController";
 import SeedIllustration from "../components/firstBreath/SeedIllustration";
 import BreathingRitual from "../components/firstBreath/BreathingRitual";
+import Awakening from "../components/firstBreath/Awakening";
 import { useFirstBreathExperience } from "../hooks/useFirstBreathExperience";
 import { useFirstBreathStatus } from "../hooks/useFirstBreathStatus";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
 
-const STAGE = { MESSAGE: "message", BREATHING: "breathing" };
+const STAGE = {
+  MESSAGE: "message",
+  BREATHING: "breathing",
+  AWAKENING: "awakening",
+};
 
 export default function FirstBreath() {
   const navigate = useNavigate();
@@ -34,9 +38,6 @@ export default function FirstBreath() {
     navigate(PATHS.HOME, { replace: true });
   };
 
-  // The message step's onComplete no longer finishes the experience —
-  // it advances into the breathing ritual. useFirstBreathExperience
-  // itself is completely unchanged from Phase 1/2.
   const { currentStep, stepIndex, totalSteps, next } = useFirstBreathExperience(
     { onComplete: () => setStage(STAGE.BREATHING) },
   );
@@ -74,7 +75,7 @@ export default function FirstBreath() {
   };
 
   return (
-    <FirstBreathLayout>
+    <FirstBreathLayout awakened={stage === STAGE.AWAKENING}>
       {stage === STAGE.MESSAGE && (
         <>
           <div
@@ -119,8 +120,10 @@ export default function FirstBreath() {
       )}
 
       {stage === STAGE.BREATHING && (
-        <BreathingRitual onContinue={handleComplete} />
+        <BreathingRitual onBreathComplete={() => setStage(STAGE.AWAKENING)} />
       )}
+
+      {stage === STAGE.AWAKENING && <Awakening onContinue={handleComplete} />}
 
       <button
         onClick={(e) => {
