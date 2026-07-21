@@ -1,14 +1,15 @@
 // src/components/firstBreath/FirstBreathAmbientBackground.jsx
 // Warm, premium ambient backdrop.
-// Phase 4: added an optional `awakened` prop. When true, the ambient
-// light layer and particle opacity nudge very slightly warmer/brighter,
-// per "the background should respond slightly." Default (awakened
-// omitted/false) is byte-identical to Phase 2/3 — no existing usage
-// needs to change.
+// Phase 5: optional `settled` prop lets the ambient light's own motion
+// slow to a near-still state, per "allow the ambient background to
+// gently settle." Default (settled omitted) unchanged from Phase 2/4.
 
 import FirstBreathParticles from "./FirstBreathParticles";
 
-export default function FirstBreathAmbientBackground({ awakened = false }) {
+export default function FirstBreathAmbientBackground({
+  awakened = false,
+  settled = false,
+}) {
   return (
     <div
       className="fixed inset-0 pointer-events-none overflow-hidden transition-[filter] duration-[1200ms] ease-out"
@@ -30,9 +31,10 @@ export default function FirstBreathAmbientBackground({ awakened = false }) {
             awakened ? 0.12 : 0.08
           }) 0%, transparent 70%)`,
           filter: "blur(20px)",
+          animationPlayState: settled ? "paused" : "running",
         }}
       />
-      <FirstBreathParticles opacityBoost={awakened} />
+      <FirstBreathParticles opacityBoost={awakened} settled={settled} />
     </div>
   );
 }

@@ -1,9 +1,10 @@
 // src/components/firstBreath/Awakening.jsx
-// The Awakening: a brief silent rest, then the seed softens, cracks,
-// sprouts, and unfurls two leaves, followed by one line of text and a
-// tap-to-continue. Runs exactly once. Entirely separate from
-// BreathingRitual/useBreathingRitual — the only thing connecting them
-// is that FirstBreath.jsx mounts this one after that one finishes.
+// The Awakening.
+// Phase 5: completion callback renamed from onContinue to
+// onAwakeningComplete, since it now leads into Arrival rather than
+// finishing the experience directly — same rename pattern already
+// applied to BreathingRitual in Phase 4. useAwakening and all internal
+// timing/behavior are completely unchanged.
 
 import { useEffect, useRef, useState } from "react";
 import FirstBreathAnimationWrapper from "./FirstBreathAnimationWrapper";
@@ -12,7 +13,7 @@ import SproutIllustration from "./SproutIllustration";
 import { useAwakening } from "../../hooks/useAwakening";
 import { AWAKENING_MESSAGE_DELAY_MS } from "../../constants/firstBreath";
 
-export default function Awakening({ onContinue }) {
+export default function Awakening({ onAwakeningComplete }) {
   const { stage, isComplete } = useAwakening({ isActive: true });
   const [messageVisible, setMessageVisible] = useState(false);
   const regionRef = useRef(null);
@@ -31,7 +32,7 @@ export default function Awakening({ onContinue }) {
   }, [messageVisible]);
 
   const handleActivate = () => {
-    if (messageVisible) onContinue();
+    if (messageVisible) onAwakeningComplete();
   };
 
   const handleKeyDown = (e) => {

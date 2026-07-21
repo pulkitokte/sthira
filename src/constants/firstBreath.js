@@ -1,7 +1,6 @@
 // src/constants/firstBreath.js
-// Phase 4: added AWAKENING_STAGES, consumed by useAwakening +
-// SproutIllustration. FIRST_BREATH_STEPS and BREATH_PHASES unchanged
-// from Phase 3.
+// Phase 5: added ARRIVAL_STAGES + ARRIVAL_MESSAGE_DELAY_MS, consumed by
+// useArrival + Arrival.jsx. Everything else unchanged from Phase 4.
 
 export const FIRST_BREATH_STORAGE_KEY = "sthira_first_breath_complete";
 
@@ -21,11 +20,6 @@ export const BREATH_PHASES = [
   { id: "exhale", label: "Let go.", durationMs: 5000, scale: 1 },
 ];
 
-// The Awakening: a brief silent rest, then the seed softens, cracks,
-// sprouts, and unfurls two small leaves. Stops there — no further
-// growth in this phase. "resting" has no visible change of its own;
-// it exists purely to hold a quiet pause before anything happens, per
-// "no movement, silence, then...".
 export const AWAKENING_STAGES = [
   { id: "resting", durationMs: 1400 },
   { id: "softening", durationMs: 1200 },
@@ -35,3 +29,13 @@ export const AWAKENING_STAGES = [
 ];
 
 export const AWAKENING_MESSAGE_DELAY_MS = 900;
+
+// Arrival: a brief pause with the finished sprout still visible, then a
+// slow crossfade into the real Sthira logo. "settle" holds the pause;
+// "transforming" is the crossfade window itself.
+export const ARRIVAL_STAGES = [
+  { id: "settle", durationMs: 1600 },
+  { id: "transforming", durationMs: 1800 },
+];
+
+export const ARRIVAL_MESSAGE_DELAY_MS = 700;

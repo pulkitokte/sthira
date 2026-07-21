@@ -153,10 +153,7 @@ body {
   animation: fb-tap-indicator-anim 2.2s ease-in-out infinite;
 }
 
-/* ── The First Breath — Phase 4 (The Awakening) ──────────────────────────
-   All keyframes below are automatically governed by the
-   prefers-reduced-motion rule at the top of this file. */
-
+/* The First Breath — Phase 4 (unchanged) */
 @keyframes fb-sprout-draw-anim {
   from { stroke-dashoffset: var(--fb-sprout-length, 40); }
   to { stroke-dashoffset: 0; }
@@ -181,4 +178,14 @@ body {
 }
 .fb-crack-fade {
   animation: fb-crack-fade-anim 700ms ease-out forwards;
+}
+
+/* ── The First Breath — Phase 5 (Arrival) ────────────────────────────────
+   The sprout-to-logo transition is a plain, slow, eased opacity
+   crossfade — deliberately not a morph animation. Governed by the
+   prefers-reduced-motion rule at the top of this file, same as
+   everything above. */
+
+.fb-crossfade-layer {
+  transition: opacity 1600ms ease-in-out;
 }

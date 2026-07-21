@@ -1,8 +1,8 @@
 // src/pages/FirstBreath.jsx
-// The First Breath — Phase 4: flow is now
-//   Opening message → Breathing Ritual → The Awakening → Continue
-// Message stage's interaction is entirely unchanged from Phase 2/3.
-// Breathing stage now advances to a new "awakening" stage instead of
+// The First Breath — Phase 5 (final): flow is now
+//   Opening message → Breathing Ritual → The Awakening → Arrival → Begin
+// Message and breathing stages are entirely unchanged from earlier
+// phases. Awakening now advances into a new "arrival" stage instead of
 // completing directly. Skip always finishes the whole experience
 // immediately from any stage.
 
@@ -15,6 +15,7 @@ import FirstBreathProgressController from "../components/firstBreath/FirstBreath
 import SeedIllustration from "../components/firstBreath/SeedIllustration";
 import BreathingRitual from "../components/firstBreath/BreathingRitual";
 import Awakening from "../components/firstBreath/Awakening";
+import Arrival from "../components/firstBreath/Arrival";
 import { useFirstBreathExperience } from "../hooks/useFirstBreathExperience";
 import { useFirstBreathStatus } from "../hooks/useFirstBreathStatus";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
@@ -24,6 +25,7 @@ const STAGE = {
   MESSAGE: "message",
   BREATHING: "breathing",
   AWAKENING: "awakening",
+  ARRIVAL: "arrival",
 };
 
 export default function FirstBreath() {
@@ -75,7 +77,10 @@ export default function FirstBreath() {
   };
 
   return (
-    <FirstBreathLayout awakened={stage === STAGE.AWAKENING}>
+    <FirstBreathLayout
+      awakened={stage === STAGE.AWAKENING || stage === STAGE.ARRIVAL}
+      settled={stage === STAGE.ARRIVAL}
+    >
       {stage === STAGE.MESSAGE && (
         <>
           <div
@@ -123,17 +128,23 @@ export default function FirstBreath() {
         <BreathingRitual onBreathComplete={() => setStage(STAGE.AWAKENING)} />
       )}
 
-      {stage === STAGE.AWAKENING && <Awakening onContinue={handleComplete} />}
+      {stage === STAGE.AWAKENING && (
+        <Awakening onAwakeningComplete={() => setStage(STAGE.ARRIVAL)} />
+      )}
 
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleComplete();
-        }}
-        className="absolute top-6 right-6 text-xs text-stone opacity-30 hover:opacity-60 transition-opacity min-h-[44px] px-3"
-      >
-        Skip
-      </button>
+      {stage === STAGE.ARRIVAL && <Arrival onComplete={handleComplete} />}
+
+      {stage !== STAGE.ARRIVAL && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleComplete();
+          }}
+          className="absolute top-6 right-6 text-xs text-stone opacity-30 hover:opacity-60 transition-opacity min-h-[44px] px-3"
+        >
+          Skip
+        </button>
+      )}
     </FirstBreathLayout>
   );
 }
