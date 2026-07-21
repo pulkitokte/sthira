@@ -1,8 +1,12 @@
 // src/components/common/Button.jsx
 // Standardized button primitive.
-// Batch 70: added active/pressed feedback (subtle scale-down, fast
-// timing via --motion-press) and confirmed focus-visible relies on the
-// global outline rule rather than duplicating it here.
+// Batch 80: converted to forwardRef. Previously a plain function
+// component, which meant any ref passed to it (e.g. Arrival.jsx's
+// focus-on-mount for the Begin button) silently failed to attach —
+// this fixes that real accessibility gap for every current and future
+// consumer of Button. No prop, styling, or behavior changes otherwise.
+
+import { forwardRef } from "react";
 
 const VARIANT_STYLES = {
   primary: "bg-moss text-canvas hover:bg-moss-dark",
@@ -17,17 +21,21 @@ const SIZE_STYLES = {
   compact: "py-2.5 px-4 text-xs",
 };
 
-export default function Button({
-  children,
-  variant = "primary",
-  size = "default",
-  fullWidth = false,
-  disabled = false,
-  className = "",
-  ...props
-}) {
+const Button = forwardRef(function Button(
+  {
+    children,
+    variant = "primary",
+    size = "default",
+    fullWidth = false,
+    disabled = false,
+    className = "",
+    ...props
+  },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       disabled={disabled}
       className={[
         "rounded-full font-display font-semibold tracking-wide",
@@ -49,4 +57,6 @@ export default function Button({
       {children}
     </button>
   );
-}
+});
+
+export default Button;

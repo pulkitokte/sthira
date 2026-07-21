@@ -1,15 +1,17 @@
 // src/components/firstBreath/Arrival.jsx
 // Arrival: a brief pause with the finished sprout visible, then a slow
-// crossfade into the real Sthira logo, followed by the "STHIRA /
-// Steady. Grounded. Present." message and a Begin button. Entirely
-// separate from Awakening/useAwakening — the only connection is that
-// FirstBreath.jsx mounts this after Awakening finishes.
+// crossfade into the real Sthira logo, followed by the "STHIRA / Steady.
+// Grounded. Present." message and a Begin button.
 //
-// The sprout-to-logo transition is a plain opacity crossfade (see
-// .fb-crossfade-layer in globals.css), not a morph library — this is
-// the deliberate, literal reading of "avoid flashy morph libraries."
-// SthiraLogo is the exact component already used elsewhere in the app
-// (Home.jsx, LaunchSplash.jsx) — not recreated here.
+// Batch 80: removed a redundant prefersReducedMotion branch in the
+// opacity calculations — both branches evaluated to the same value in
+// every case, since the actual reduced-motion behavior for this
+// crossfade is already fully handled by the global CSS rule (which
+// collapses .fb-crossfade-layer's transition duration under
+// prefers-reduced-motion). Removed the now-unused
+// usePrefersReducedMotion import/call along with it. Also: Button now
+// correctly forwards the ref passed below, so focus properly moves to
+// the Begin button once it appears.
 
 import { useEffect, useRef, useState } from "react";
 import SthiraLogo from "../common/SthiraLogo";
@@ -18,12 +20,10 @@ import FirstBreathAnimationWrapper from "./FirstBreathAnimationWrapper";
 import FirstBreathTransition from "./FirstBreathTransition";
 import SproutIllustration from "./SproutIllustration";
 import { useArrival } from "../../hooks/useArrival";
-import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 import { ARRIVAL_MESSAGE_DELAY_MS } from "../../constants/firstBreath";
 
 export default function Arrival({ onComplete }) {
   const { stage, isComplete } = useArrival({ isActive: true });
-  const prefersReducedMotion = usePrefersReducedMotion();
   const [messageVisible, setMessageVisible] = useState(false);
   const beginRef = useRef(null);
 
@@ -42,20 +42,8 @@ export default function Arrival({ onComplete }) {
     if (messageVisible) beginRef.current?.focus();
   }, [messageVisible]);
 
-  const sproutOpacity = prefersReducedMotion
-    ? isTransforming
-      ? 0
-      : 1
-    : isTransforming
-      ? 0
-      : 1;
-  const logoOpacity = prefersReducedMotion
-    ? isTransforming
-      ? 1
-      : 0
-    : isTransforming
-      ? 1
-      : 0;
+  const sproutOpacity = isTransforming ? 0 : 1;
+  const logoOpacity = isTransforming ? 1 : 0;
 
   return (
     <div className="flex flex-col items-center gap-10 w-full min-h-[70vh] justify-center">
