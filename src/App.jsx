@@ -7,7 +7,7 @@ import AchievementUnlockBanner from "./components/achievements/AchievementUnlock
 import AppRoutes from "./routes/AppRoutes";
 import { useOnboarding } from "./context/OnboardingContext";
 import { useAchievements } from "./context/AchievementsContext";
-import { useFirstBreathStatus } from "./hooks/useFirstBreathStatus";
+import { hasCompletedFirstBreathSync } from "./hooks/useFirstBreathStatus";
 import { useLaunchManager } from "./hooks/useLaunchManager";
 import { ScrollContainerProvider } from "./context/ScrollContainerContext";
 import { PATHS } from "./constants/navigation";
@@ -41,7 +41,14 @@ function App() {
   const { pathname } = useLocation();
   const { isComplete } = useOnboarding();
   const { currentBannerAchievement, dismissBanner } = useAchievements();
-  const { hasCompletedFirstBreath } = useFirstBreathStatus();
+
+  // Bug fix: read this directly, uncached, on every render instead of
+  // via useFirstBreathStatus()'s own local useState. App.jsx needs the
+  // CURRENT truth each time it re-renders (which already happens on
+  // every pathname change) — caching it in a separate hook instance
+  // meant it went stale the moment FirstBreath.jsx completed the
+  // experience via its own, different hook instance.
+  const hasCompletedFirstBreath = hasCompletedFirstBreathSync();
 
   const isOnboarding = pathname === PATHS.ONBOARDING;
   const isFirstBreath = pathname === PATHS.FIRST_BREATH;
@@ -63,10 +70,6 @@ function App() {
     };
   }, []);
 
-  // New: The First Breath / Splash launch gate. Evaluated before the
-  // existing onboarding redirect below so that, on a first-ever launch,
-  // First Breath always wins over the Onboarding redirect (both would
-  // otherwise want to fire on the same render).
   const launchRedirect = useLaunchManager({
     pathname,
     hasCompletedFirstBreath,
@@ -77,7 +80,6 @@ function App() {
     return <Navigate to={launchRedirect} replace />;
   }
 
-  // Existing onboarding redirect — untouched.
   if (!isComplete && !isOnboarding) {
     return <Navigate to={PATHS.ONBOARDING} replace />;
   }
