@@ -1,150 +1,58 @@
 // src/pages/FirstBreath.jsx
-// The First Breath — Phase 5 (final): flow is now
-//   Opening message → Breathing Ritual → The Awakening → Arrival → Begin
-// Message and breathing stages are entirely unchanged from earlier
-// phases. Awakening now advances into a new "arrival" stage instead of
-// completing directly. Skip always finishes the whole experience
-// immediately from any stage.
+// The First Breath — redesigned as a fully automatic, non-interactive
+// ~4.8s introduction. No tap, no buttons, no keyboard progression. The
+// user watches seed -> root -> sprout -> leaves -> Sthira logo, then
+// arrives at Home automatically.
 
-import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FirstBreathLayout from "../components/firstBreath/FirstBreathLayout";
-import FirstBreathTransition from "../components/firstBreath/FirstBreathTransition";
 import FirstBreathAnimationWrapper from "../components/firstBreath/FirstBreathAnimationWrapper";
-import FirstBreathProgressController from "../components/firstBreath/FirstBreathProgressController";
-import SeedIllustration from "../components/firstBreath/SeedIllustration";
-import BreathingRitual from "../components/firstBreath/BreathingRitual";
-import Awakening from "../components/firstBreath/Awakening";
-import Arrival from "../components/firstBreath/Arrival";
-import { useFirstBreathExperience } from "../hooks/useFirstBreathExperience";
+import SproutIllustration from "../components/firstBreath/SproutIllustration";
+import SthiraLogo from "../components/common/SthiraLogo";
+import { useFirstBreathTimeline } from "../hooks/useFirstBreathTimeline";
 import { useFirstBreathStatus } from "../hooks/useFirstBreathStatus";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { PATHS } from "../constants/navigation";
-
-const STAGE = {
-  MESSAGE: "message",
-  BREATHING: "breathing",
-  AWAKENING: "awakening",
-  ARRIVAL: "arrival",
-};
 
 export default function FirstBreath() {
   const navigate = useNavigate();
   const { completeFirstBreath } = useFirstBreathStatus();
   useDocumentTitle("Welcome");
 
-  const [stage, setStage] = useState(STAGE.MESSAGE);
-
   const handleComplete = () => {
     completeFirstBreath();
     navigate(PATHS.HOME, { replace: true });
   };
 
-  const { currentStep, stepIndex, totalSteps, next } = useFirstBreathExperience(
-    { onComplete: () => setStage(STAGE.BREATHING) },
-  );
+  const { stageId } = useFirstBreathTimeline({ onComplete: handleComplete });
 
-  const [textVisible, setTextVisible] = useState(false);
-  const interactiveRef = useRef(null);
-
-  useEffect(() => {
-    if (stage !== STAGE.MESSAGE) return undefined;
-    setTextVisible(false);
-    const timer = setTimeout(
-      () => setTextVisible(true),
-      currentStep.revealDelayMs ?? 0,
-    );
-    return () => clearTimeout(timer);
-  }, [stage, currentStep.id, currentStep.revealDelayMs]);
-
-  useEffect(() => {
-    if (stage === STAGE.MESSAGE) interactiveRef.current?.focus();
-  }, [stage, currentStep.id]);
-
-  const handleAdvance = () => {
-    if (!textVisible) {
-      setTextVisible(true);
-      return;
-    }
-    next();
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleAdvance();
-    }
-  };
+  const isLogoStage = stageId === "logo";
+  const isGrowthStage = Boolean(stageId) && stageId !== "logo";
 
   return (
-    <FirstBreathLayout
-      awakened={stage === STAGE.AWAKENING || stage === STAGE.ARRIVAL}
-      settled={stage === STAGE.ARRIVAL}
-    >
-      {stage === STAGE.MESSAGE && (
-        <>
+    <FirstBreathLayout stage={stageId}>
+      <div
+        role="status"
+        aria-label="Welcome to Sthira"
+        className="flex items-center justify-center w-full min-h-[70vh]"
+      >
+        <FirstBreathAnimationWrapper className="relative h-24 w-24 flex items-center justify-center">
           <div
-            ref={interactiveRef}
-            role="button"
-            tabIndex={0}
-            onClick={handleAdvance}
-            onKeyDown={handleKeyDown}
-            aria-label={textVisible ? "Continue" : "Reveal message"}
-            className="flex flex-col items-center gap-10 w-full min-h-[70vh] justify-center cursor-pointer focus:outline-none"
+            className="fb-crossfade-layer absolute inset-0 flex items-center justify-center"
+            style={{ opacity: isGrowthStage ? 1 : 0 }}
+            aria-hidden="true"
           >
-            <FirstBreathAnimationWrapper className="h-20 w-20 flex items-center justify-center">
-              <SeedIllustration />
-            </FirstBreathAnimationWrapper>
-
-            <div className="min-h-[3.5rem] flex items-center justify-center">
-              {textVisible && (
-                <FirstBreathTransition stepKey={currentStep.id}>
-                  <p className="font-display text-lg font-light text-ink leading-relaxed whitespace-pre-line max-w-xs">
-                    {currentStep.text}
-                  </p>
-                </FirstBreathTransition>
-              )}
-            </div>
+            {isGrowthStage && <SproutIllustration stageId={stageId} />}
           </div>
-
-          {totalSteps > 1 && (
-            <div className="absolute bottom-12 left-0 right-0 flex flex-col items-center gap-3">
-              <FirstBreathProgressController
-                totalSteps={totalSteps}
-                currentStepIndex={stepIndex}
-              />
-              <span
-                className="fb-tap-indicator text-stone opacity-30"
-                aria-hidden="true"
-              >
-                ⌄
-              </span>
-            </div>
-          )}
-        </>
-      )}
-
-      {stage === STAGE.BREATHING && (
-        <BreathingRitual onBreathComplete={() => setStage(STAGE.AWAKENING)} />
-      )}
-
-      {stage === STAGE.AWAKENING && (
-        <Awakening onAwakeningComplete={() => setStage(STAGE.ARRIVAL)} />
-      )}
-
-      {stage === STAGE.ARRIVAL && <Arrival onComplete={handleComplete} />}
-
-      {stage !== STAGE.ARRIVAL && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleComplete();
-          }}
-          className="absolute top-6 right-6 text-xs text-stone opacity-30 hover:opacity-60 transition-opacity min-h-[44px] px-3"
-        >
-          Skip
-        </button>
-      )}
+          <div
+            className="fb-crossfade-layer absolute inset-0 flex items-center justify-center"
+            style={{ opacity: isLogoStage ? 1 : 0 }}
+            aria-hidden="true"
+          >
+            <SthiraLogo size={56} iconSize={26} />
+          </div>
+        </FirstBreathAnimationWrapper>
+      </div>
     </FirstBreathLayout>
   );
 }

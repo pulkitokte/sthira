@@ -73,7 +73,7 @@ body {
   background: linear-gradient(180deg, #faf8f4 0%, #f7f4ef 50%, #faf8f4 100%);
 }
 
-/* Morning Flow animations — untouched, off limits this batch. */
+/* Morning Flow animations — untouched. */
 @keyframes mf-fade-scale-in {
   from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
@@ -92,7 +92,12 @@ body {
 }
 .mf-soft-pulse { animation: mf-soft-pulse 2.6s ease-in-out infinite; }
 
-/* The First Breath — Phase 2/3 (unchanged) */
+/* ── The First Breath — automatic, non-interactive introduction ─────────
+   All keyframes below are automatically governed by the
+   prefers-reduced-motion rule at the top of this file. */
+
+/* Subtle idle life on the seed — kept from earlier phases to preserve
+   the "should feel alive" quality of the visual language. */
 @keyframes fb-seed-breathe-anim {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.04); }
@@ -100,14 +105,6 @@ body {
 .fb-seed-breathe {
   animation: fb-seed-breathe-anim 4.5s ease-in-out infinite;
   transform-origin: center;
-}
-
-@keyframes fb-seed-float-anim {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-.fb-seed-float {
-  animation: fb-seed-float-anim 6s ease-in-out infinite;
 }
 
 @keyframes fb-seed-glow-anim {
@@ -136,56 +133,49 @@ body {
   animation-iteration-count: infinite;
 }
 
-@keyframes fb-content-in-anim {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+/* Simple fade-in for the seed's first appearance. */
+@keyframes fb-part-fade-anim {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.fb-content-in {
-  animation: fb-content-in-anim 900ms ease-out;
-}
-
-@keyframes fb-tap-indicator-anim {
-  0%, 100% { transform: translateY(0); opacity: 0.3; }
-  50% { transform: translateY(4px); opacity: 0.55; }
-}
-.fb-tap-indicator {
-  display: inline-block;
-  animation: fb-tap-indicator-anim 2.2s ease-in-out infinite;
+.fb-part-fade {
+  animation: fb-part-fade-anim 700ms ease-out forwards;
 }
 
-/* The First Breath — Phase 4 (unchanged) */
+/* Root growing downward — real vector line-drawing via
+   stroke-dashoffset, timed to the ~900ms root window. */
+@keyframes fb-root-draw-anim {
+  from { stroke-dashoffset: var(--fb-root-length, 18); }
+  to { stroke-dashoffset: 0; }
+}
+.fb-root-draw {
+  stroke-dasharray: var(--fb-root-length, 18);
+  animation: fb-root-draw-anim 900ms ease-out forwards;
+}
+
+/* Stem growing upward — same technique, timed to the ~800ms sprout
+   window (shortened from earlier phases' slower pacing). */
 @keyframes fb-sprout-draw-anim {
-  from { stroke-dashoffset: var(--fb-sprout-length, 40); }
+  from { stroke-dashoffset: var(--fb-sprout-length, 26); }
   to { stroke-dashoffset: 0; }
 }
 .fb-sprout-draw {
-  stroke-dasharray: var(--fb-sprout-length, 40);
-  animation: fb-sprout-draw-anim 1.8s ease-out forwards;
+  stroke-dasharray: var(--fb-sprout-length, 26);
+  animation: fb-sprout-draw-anim 800ms ease-out forwards;
 }
 
+/* Leaves unfurling — timed to the ~800ms leaves window. */
 @keyframes fb-leaf-unfurl-anim {
   from { opacity: 0; transform: scale(0.4); }
   to { opacity: 1; transform: scale(1); }
 }
 .fb-leaf-unfurl {
-  animation: fb-leaf-unfurl-anim 1.1s ease-out forwards;
+  animation: fb-leaf-unfurl-anim 700ms ease-out forwards;
   transform-origin: bottom center;
 }
 
-@keyframes fb-crack-fade-anim {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.fb-crack-fade {
-  animation: fb-crack-fade-anim 700ms ease-out forwards;
-}
-
-/* ── The First Breath — Phase 5 (Arrival) ────────────────────────────────
-   The sprout-to-logo transition is a plain, slow, eased opacity
-   crossfade — deliberately not a morph animation. Governed by the
-   prefers-reduced-motion rule at the top of this file, same as
-   everything above. */
-
+/* Plain crossfade used for growth-illustration <-> logo, and for the
+   seed's own first appearance being layered under it. */
 .fb-crossfade-layer {
-  transition: opacity 1600ms ease-in-out;
+  transition: opacity 800ms ease-in-out;
 }

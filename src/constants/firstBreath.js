@@ -1,41 +1,23 @@
 // src/constants/firstBreath.js
-// Phase 5: added ARRIVAL_STAGES + ARRIVAL_MESSAGE_DELAY_MS, consumed by
-// useArrival + Arrival.jsx. Everything else unchanged from Phase 4.
+// Redesigned: The First Breath is now a fully automatic, non-interactive
+// growth animation. FIRST_BREATH_STEPS, BREATH_PHASES, AWAKENING_STAGES,
+// and ARRIVAL_STAGES (all tied to the previous interactive flow) are
+// removed, replaced by a single timeline.
 
 export const FIRST_BREATH_STORAGE_KEY = "sthira_first_breath_complete";
 
 export const SPLASH_DURATION_MS = 900;
 
-export const FIRST_BREATH_STEPS = [
-  {
-    id: "arrive",
-    text: "Everything begins...\nwith one small step.",
-    revealDelayMs: 1800,
-  },
+// Single automatic timeline. Each entry's atMs is the absolute time (ms
+// since mount) at which that visual stage begins. No user input affects
+// this in any way.
+export const FIRST_BREATH_TIMELINE = [
+  { id: "seed", atMs: 300 },
+  { id: "root", atMs: 1200 },
+  { id: "sprout", atMs: 2200 },
+  { id: "leaves", atMs: 3000 },
+  { id: "logo", atMs: 4000 },
 ];
 
-export const BREATH_PHASES = [
-  { id: "inhale", label: "Breathe in...", durationMs: 4000, scale: 1.18 },
-  { id: "hold", label: "Just be here.", durationMs: 2200, scale: 1.18 },
-  { id: "exhale", label: "Let go.", durationMs: 5000, scale: 1 },
-];
-
-export const AWAKENING_STAGES = [
-  { id: "resting", durationMs: 1400 },
-  { id: "softening", durationMs: 1200 },
-  { id: "cracking", durationMs: 900 },
-  { id: "sprouting", durationMs: 1800 },
-  { id: "leaves", durationMs: 1400 },
-];
-
-export const AWAKENING_MESSAGE_DELAY_MS = 900;
-
-// Arrival: a brief pause with the finished sprout still visible, then a
-// slow crossfade into the real Sthira logo. "settle" holds the pause;
-// "transforming" is the crossfade window itself.
-export const ARRIVAL_STAGES = [
-  { id: "settle", durationMs: 1600 },
-  { id: "transforming", durationMs: 1800 },
-];
-
-export const ARRIVAL_MESSAGE_DELAY_MS = 700;
+// Total experience length before automatically navigating Home.
+export const FIRST_BREATH_TOTAL_MS = 4800;

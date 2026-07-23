@@ -1,37 +1,34 @@
 // src/components/firstBreath/SproutIllustration.jsx
-// The Awakening's visual centerpiece: a separate vector component from
-// SeedIllustration, rendering distinct path/stroke states per growth
-// stage. Real vector animation (stroke-dasharray line-drawing, path
-// fades) rather than scale tricks. Purely decorative — aria-hidden.
+// The First Breath's sole visual centerpiece: seed -> root -> sprout ->
+// leaves, driven entirely by stageId (no interaction, no per-stage
+// callbacks). Real vector animation (stroke-dashoffset line-drawing for
+// root/stem, fading leaf unfurl), not scale tricks. Purely decorative —
+// aria-hidden; the page provides the single accessible status
+// announcement.
 //
-// Reduced motion: the same end-state visuals are shown, but reached via
-// instant/opacity-only changes rather than the drawing/unfurl
-// animations — nothing is skipped, only the transition style differs.
+// Reduced motion: the same end-state visuals appear for every stage,
+// reached via instant/opacity-only rendering instead of the
+// drawing/unfurl animations.
 
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 
-const SPROUT_PATH_LENGTH = 34;
+const ROOT_LENGTH = 18;
+const STEM_LENGTH = 26;
 
 export default function SproutIllustration({ stageId }) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  const showSeed = stageId === "resting" || stageId === "softening";
-  const showCrack = stageId === "cracking";
-  const showSprout =
-    stageId === "cracking" || stageId === "sprouting" || stageId === "leaves";
+  const showSeed = Boolean(stageId);
+  const showRoot =
+    stageId === "root" || stageId === "sprout" || stageId === "leaves";
+  const showStem = stageId === "sprout" || stageId === "leaves";
   const showLeaves = stageId === "leaves";
-
-  // "Softening" has no separate visual asset of its own — its softness
-  // is conveyed by the seed's own idle glow already present via
-  // fb-seed-glow (reused below), so no new asset was invented just to
-  // mark this stage.
-  const seedOpacity = stageId === "softening" ? 0.85 : 1;
 
   return (
     <div
       className="relative flex items-center justify-center"
       aria-hidden="true"
-      style={{ width: 60, height: 70 }}
+      style={{ width: 60, height: 90 }}
     >
       <div
         className="fb-seed-glow absolute rounded-full"
@@ -44,60 +41,32 @@ export default function SproutIllustration({ stageId }) {
         }}
       />
 
-      <svg
-        width="60"
-        height="70"
-        viewBox="0 0 60 70"
-        fill="none"
-        className="relative"
-      >
-        {/* Seed body */}
+      <svg width="60" height="90" viewBox="0 0 60 90" fill="none" className="relative">
+        {/* Seed */}
         {showSeed && (
           <path
-            d="M30 20C30 20 43 32 43 44C43 52.837 37.284 60 30 60C22.716 60 17 52.837 17 44C17 32 30 20 30 20Z"
+            d="M30 38C30 38 43 50 43 60C43 66.6 37.28 72 30 72C22.7 72 17 66.6 17 60C17 50 30 38 30 38Z"
             fill="currentColor"
-            className="text-sage"
-            style={{
-              opacity: seedOpacity,
-              transition: prefersReducedMotion
-                ? "opacity 500ms ease-out"
-                : "opacity 900ms ease-out",
-            }}
-          />
-        )}
-
-        {/* Crack — a short fading line across the seed as it opens */}
-        {showCrack && (
-          <line
-            x1="24"
-            y1="38"
-            x2="36"
-            y2="46"
-            stroke="currentColor"
-            className="text-canvas fb-crack-fade"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            style={
+            className={
               prefersReducedMotion
-                ? { animation: "none", opacity: 1 }
-                : undefined
+                ? "text-sage fb-seed-breathe"
+                : "text-sage fb-seed-breathe fb-part-fade"
             }
           />
         )}
 
-        {/* Sprout stem — real vector line-drawing via stroke-dashoffset,
-            not a scale transform. Reduced motion: drawn instantly. */}
-        {showSprout && (
+        {/* Root — grows downward from the seed */}
+        {showRoot && (
           <path
-            d="M30 44C30 44 29 32 30 20"
+            d="M30 72C30 72 29 80 30 88"
             stroke="currentColor"
             className={
-              prefersReducedMotion ? "text-sage" : "text-sage fb-sprout-draw"
+              prefersReducedMotion ? "text-sage" : "text-sage fb-root-draw"
             }
-            strokeWidth={2.5}
+            strokeWidth={2}
             strokeLinecap="round"
             style={{
-              "--fb-sprout-length": SPROUT_PATH_LENGTH,
+              "--fb-root-length": ROOT_LENGTH,
               ...(prefersReducedMotion
                 ? { strokeDasharray: "none", strokeDashoffset: 0 }
                 : {}),
@@ -105,31 +74,50 @@ export default function SproutIllustration({ stageId }) {
           />
         )}
 
-        {/* Two small leaves at the sprout tip */}
+        {/* Stem — grows upward from the seed */}
+        {showStem && (
+          <path
+            d="M30 38C30 38 29 26 30 14"
+            stroke="currentColor"
+            className={
+              prefersReducedMotion ? "text-sage" : "text-sage fb-sprout-draw"
+            }
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            style={{
+              "--fb-sprout-length": STEM_LENGTH,
+              ...(prefersReducedMotion
+                ? { strokeDasharray: "none", strokeDashoffset: 0 }
+                : {}),
+            }}
+          />
+        )}
+
+        {/* Two small leaves at the stem tip */}
         {showLeaves && (
           <>
             <path
-              d="M30 21C30 21 22 18 18 22C18 26 26 28 30 25"
+              d="M30 15C30 15 22 12 18 16C18 20 26 22 30 19"
               fill="currentColor"
               className={
                 prefersReducedMotion ? "text-sage" : "text-sage fb-leaf-unfurl"
               }
               style={
                 prefersReducedMotion
-                  ? { transition: "opacity 500ms ease-out" }
-                  : { animationDelay: "100ms" }
+                  ? { transition: "opacity 400ms ease-out" }
+                  : { animationDelay: "80ms" }
               }
             />
             <path
-              d="M30 21C30 21 38 18 42 22C42 26 34 28 30 25"
+              d="M30 15C30 15 38 12 42 16C42 20 34 22 30 19"
               fill="currentColor"
               className={
                 prefersReducedMotion ? "text-sage" : "text-sage fb-leaf-unfurl"
               }
               style={
                 prefersReducedMotion
-                  ? { transition: "opacity 500ms ease-out" }
-                  : { animationDelay: "300ms" }
+                  ? { transition: "opacity 400ms ease-out" }
+                  : { animationDelay: "220ms" }
               }
             />
           </>
