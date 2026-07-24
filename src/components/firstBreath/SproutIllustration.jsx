@@ -1,14 +1,14 @@
 // src/components/firstBreath/SproutIllustration.jsx
-// The First Breath's sole visual centerpiece: seed -> root -> sprout ->
-// leaves, driven entirely by stageId (no interaction, no per-stage
-// callbacks). Real vector animation (stroke-dashoffset line-drawing for
-// root/stem, fading leaf unfurl), not scale tricks. Purely decorative —
-// aria-hidden; the page provides the single accessible status
-// announcement.
+// The First Breath's only illustration: seed -> root -> sprout -> leaves,
+// driven purely by stageId. Real vector animation (stroke-dashoffset
+// line-drawing, fading leaf unfurl) via plain inline CSS transitions —
+// no external animation library, no keyframe class dependencies outside
+// this file. Purely decorative — aria-hidden; the page provides the
+// single accessible status announcement.
 //
-// Reduced motion: the same end-state visuals appear for every stage,
-// reached via instant/opacity-only rendering instead of the
-// drawing/unfurl animations.
+// Reduced motion: every stage still renders its correct end-state
+// visual — only the transition style differs (near-instant vs. eased),
+// governed by the prefers-reduced-motion hook below.
 
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion";
 
@@ -17,6 +17,7 @@ const STEM_LENGTH = 26;
 
 export default function SproutIllustration({ stageId }) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const dur = prefersReducedMotion ? 1 : undefined; // ms; undefined = default below
 
   const showSeed = Boolean(stageId);
   const showRoot =
@@ -30,98 +31,83 @@ export default function SproutIllustration({ stageId }) {
       aria-hidden="true"
       style={{ width: 60, height: 90 }}
     >
+      {/* Soft glow behind the seed */}
       <div
-        className="fb-seed-glow absolute rounded-full"
+        className="absolute rounded-full"
         style={{
-          width: 120,
-          height: 120,
+          width: 110,
+          height: 110,
           background:
-            "radial-gradient(circle, rgba(134,159,138,0.35) 0%, transparent 70%)",
+            "radial-gradient(circle, rgba(134,159,138,0.32) 0%, transparent 70%)",
           filter: "blur(6px)",
+          opacity: showSeed ? 1 : 0,
+          transition: `opacity ${dur ?? 700}ms ease-out`,
         }}
       />
 
-      <svg width="60" height="90" viewBox="0 0 60 90" fill="none" className="relative">
+      <svg width="60" height="90" viewBox="0 0 60 90" fill="none">
         {/* Seed */}
-        {showSeed && (
-          <path
-            d="M30 38C30 38 43 50 43 60C43 66.6 37.28 72 30 72C22.7 72 17 66.6 17 60C17 50 30 38 30 38Z"
-            fill="currentColor"
-            className={
-              prefersReducedMotion
-                ? "text-sage fb-seed-breathe"
-                : "text-sage fb-seed-breathe fb-part-fade"
-            }
-          />
-        )}
+        <path
+          d="M30 38C30 38 43 50 43 60C43 66.6 37.28 72 30 72C22.7 72 17 66.6 17 60C17 50 30 38 30 38Z"
+          fill="currentColor"
+          className="text-sage"
+          style={{
+            opacity: showSeed ? 1 : 0,
+            transition: `opacity ${dur ?? 700}ms ease-out`,
+          }}
+        />
 
         {/* Root — grows downward from the seed */}
-        {showRoot && (
-          <path
-            d="M30 72C30 72 29 80 30 88"
-            stroke="currentColor"
-            className={
-              prefersReducedMotion ? "text-sage" : "text-sage fb-root-draw"
-            }
-            strokeWidth={2}
-            strokeLinecap="round"
-            style={{
-              "--fb-root-length": ROOT_LENGTH,
-              ...(prefersReducedMotion
-                ? { strokeDasharray: "none", strokeDashoffset: 0 }
-                : {}),
-            }}
-          />
-        )}
+        <path
+          d="M30 72C30 72 29 80 30 88"
+          stroke="currentColor"
+          className="text-sage"
+          strokeWidth={2}
+          strokeLinecap="round"
+          style={{
+            strokeDasharray: ROOT_LENGTH,
+            strokeDashoffset: showRoot ? 0 : ROOT_LENGTH,
+            transition: `stroke-dashoffset ${dur ?? 800}ms ease-out`,
+          }}
+        />
 
         {/* Stem — grows upward from the seed */}
-        {showStem && (
-          <path
-            d="M30 38C30 38 29 26 30 14"
-            stroke="currentColor"
-            className={
-              prefersReducedMotion ? "text-sage" : "text-sage fb-sprout-draw"
-            }
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            style={{
-              "--fb-sprout-length": STEM_LENGTH,
-              ...(prefersReducedMotion
-                ? { strokeDasharray: "none", strokeDashoffset: 0 }
-                : {}),
-            }}
-          />
-        )}
+        <path
+          d="M30 38C30 38 29 26 30 14"
+          stroke="currentColor"
+          className="text-sage"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          style={{
+            strokeDasharray: STEM_LENGTH,
+            strokeDashoffset: showStem ? 0 : STEM_LENGTH,
+            transition: `stroke-dashoffset ${dur ?? 700}ms ease-out`,
+          }}
+        />
 
         {/* Two small leaves at the stem tip */}
-        {showLeaves && (
-          <>
-            <path
-              d="M30 15C30 15 22 12 18 16C18 20 26 22 30 19"
-              fill="currentColor"
-              className={
-                prefersReducedMotion ? "text-sage" : "text-sage fb-leaf-unfurl"
-              }
-              style={
-                prefersReducedMotion
-                  ? { transition: "opacity 400ms ease-out" }
-                  : { animationDelay: "80ms" }
-              }
-            />
-            <path
-              d="M30 15C30 15 38 12 42 16C42 20 34 22 30 19"
-              fill="currentColor"
-              className={
-                prefersReducedMotion ? "text-sage" : "text-sage fb-leaf-unfurl"
-              }
-              style={
-                prefersReducedMotion
-                  ? { transition: "opacity 400ms ease-out" }
-                  : { animationDelay: "220ms" }
-              }
-            />
-          </>
-        )}
+        <path
+          d="M30 15C30 15 22 12 18 16C18 20 26 22 30 19"
+          fill="currentColor"
+          className="text-sage"
+          style={{
+            opacity: showLeaves ? 1 : 0,
+            transform: showLeaves ? "scale(1)" : "scale(0.4)",
+            transformOrigin: "bottom center",
+            transition: `opacity ${dur ?? 600}ms ease-out, transform ${dur ?? 600}ms ease-out`,
+          }}
+        />
+        <path
+          d="M30 15C30 15 38 12 42 16C42 20 34 22 30 19"
+          fill="currentColor"
+          className="text-sage"
+          style={{
+            opacity: showLeaves ? 1 : 0,
+            transform: showLeaves ? "scale(1)" : "scale(0.4)",
+            transformOrigin: "bottom center",
+            transition: `opacity ${dur ?? 600}ms ease-out 100ms, transform ${dur ?? 600}ms ease-out 100ms`,
+          }}
+        />
       </svg>
     </div>
   );

@@ -7,7 +7,7 @@ import AchievementUnlockBanner from "./components/achievements/AchievementUnlock
 import AppRoutes from "./routes/AppRoutes";
 import { useOnboarding } from "./context/OnboardingContext";
 import { useAchievements } from "./context/AchievementsContext";
-import { hasCompletedFirstBreathSync } from "./hooks/useFirstBreathStatus";
+import { hasCompletedFirstBreath } from "./hooks/useFirstBreathStatus";
 import { useLaunchManager } from "./hooks/useLaunchManager";
 import { ScrollContainerProvider } from "./context/ScrollContainerContext";
 import { PATHS } from "./constants/navigation";
@@ -42,13 +42,8 @@ function App() {
   const { isComplete } = useOnboarding();
   const { currentBannerAchievement, dismissBanner } = useAchievements();
 
-  // Bug fix: read this directly, uncached, on every render instead of
-  // via useFirstBreathStatus()'s own local useState. App.jsx needs the
-  // CURRENT truth each time it re-renders (which already happens on
-  // every pathname change) — caching it in a separate hook instance
-  // meant it went stale the moment FirstBreath.jsx completed the
-  // experience via its own, different hook instance.
-  const hasCompletedFirstBreath = hasCompletedFirstBreathSync();
+  // Fresh, uncached read on every render — no React state to go stale.
+  const firstBreathComplete = hasCompletedFirstBreath();
 
   const isOnboarding = pathname === PATHS.ONBOARDING;
   const isFirstBreath = pathname === PATHS.FIRST_BREATH;
@@ -72,7 +67,7 @@ function App() {
 
   const launchRedirect = useLaunchManager({
     pathname,
-    hasCompletedFirstBreath,
+    hasCompletedFirstBreath: firstBreathComplete,
     isOnboardingComplete: isComplete,
   });
 
