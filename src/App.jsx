@@ -42,7 +42,9 @@ function App() {
   const { isComplete } = useOnboarding();
   const { currentBannerAchievement, dismissBanner } = useAchievements();
 
-  // Fresh, uncached read on every render — no React state to go stale.
+  // Fresh, uncached read on every render. First Breath completion is
+  // now a per-session (in-memory) flag rather than a permanent one, so
+  // this naturally re-arms itself on every fresh app launch/reload.
   const firstBreathComplete = hasCompletedFirstBreath();
 
   const isOnboarding = pathname === PATHS.ONBOARDING;
@@ -68,7 +70,6 @@ function App() {
   const launchRedirect = useLaunchManager({
     pathname,
     hasCompletedFirstBreath: firstBreathComplete,
-    isOnboardingComplete: isComplete,
   });
 
   if (launchRedirect && pathname !== launchRedirect) {
